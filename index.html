@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOSTART - Biotechnology Career & College Prep</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- FULLSCREEN SPLASH OVERLAY PAGE -->
+    <div id="splash-overlay">
+        <img src="Draft for CTE Website.png" alt="BIOSTART Logo" class="splash-logo-img">
+        <p class="splash-desc">
+            Welcome to New Jersey's primary biotechnology career and education prep portal. Discover specialized public CTE high schools, undergraduate college degrees, industry internships, paid jobs, and science competitions tailored to your goals.
+        </p>
+        <button class="splash-btn" onclick="document.getElementById('splash-overlay').style.display='none'">GET STARTED ►</button>
+    </div>
+
+    <!-- BRAND HEADER -->
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="Draft for CTE Website.png" alt="BIOSTART Microscope Logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <a href="index.html" class="nav-btn active">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="jobs.html" class="nav-btn">Internships & Jobs</a>
+        <a href="opportunities.html" class="nav-btn">Opportunities</a>
+        <a href="resume.html" class="nav-btn">Create Resume</a>
+        <a href="profile.html" class="nav-btn">Account Profile</a>
+    </nav>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="container">
+        <div class="hero-card">
+            <h1 class="hero-title">Biotechnology Career & College Prep:<br>Student Resources</h1>
+            <p style="font-size: 15px; max-width: 750px; margin: 0 auto 20px; color: #444;">A central hub designed for New Jersey students from middle school through higher education to discover biotech CTE high schools, degree tracks, internships, paid positions, and academic competitions.</p>
+            <a href="survey.html" class="arrow-btn">
+                GET STARTED ►
+            </a>
+            <p style="font-size: 13px; font-weight: 800; margin-top: 12px; color: #666;">Take the survey to see your personalized results</p>
+            <div class="hero-tagline">EXPLORE . APPLY . SUCCEED .</div>
+        </div>
+    </div>
+
+    <!-- FLOATING AI CHATBOT WIDGET -->
+    <div class="floating-widget chatbot-widget">
+        <div class="widget-header" onclick="toggleWidget('chat-body')">
+            <span>💬 AI Biotech Advisor</span>
+            <span>▲</span>
+        </div>
+        <div id="chat-body" class="widget-body">
+            <div class="chat-msg chat-bot">Hello! I am your BIOSTART advisor. Ask me about CTE high school admissions, college majors, or internships!</div>
+            <div id="chat-messages"></div>
+            <div style="display:flex; gap:6px; margin-top:10px;">
+                <input type="text" id="chat-input" style="width:100%; padding:8px; font-size:12px; border:1px solid #444; background:#222; color:white; border-radius:4px;" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                <button class="btn-action" onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING SPOTIFY PLAYER WIDGET -->
+    <div class="floating-widget spotify-widget">
+        <div class="widget-header" onclick="toggleWidget('spotify-body')">
+            <span>🎵 Study Focus Player</span>
+            <span>▲</span>
+        </div>
+        <div id="spotify-body" class="widget-body">
+            <p style="font-size:11px; color:#aaa; margin-bottom:10px;">Focus beats for studying & resume building:</p>
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8NTLI29BXZa?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

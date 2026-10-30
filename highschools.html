@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocational High Schools - BIOSTART</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="Draft for CTE Website.png" alt="BIOSTART Logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <nav>
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="highschools.html" class="nav-btn active">Vocational High Schools</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="jobs.html" class="nav-btn">Internships & Jobs</a>
+        <a href="opportunities.html" class="nav-btn">Opportunities</a>
+        <a href="resume.html" class="nav-btn">Create Resume</a>
+        <a href="profile.html" class="nav-btn">Account Profile</a>
+    </nav>
+
+    <div class="container">
+        <h2>Public CTE High Schools</h2>
+        <p style="margin-bottom: 20px; font-weight: 700; color: #444;">For middle-school students in New Jersey, and their parents. Interested in getting an early educational background in biotechnology?</p>
+        <div class="hs-layout">
+            <div class="hs-sidebar">
+                <h3 style="font-size: 14px; text-transform: uppercase; font-weight: 900; margin-bottom: 10px; border-bottom: 2px solid var(--biostart-black); padding-bottom: 5px;">Filter by NJ County</h3>
+                <ul class="county-list">
+                    <li class="active" onclick="filterCounty('ALL', this)">[ALL COUNTIES]</li>
+                    <li onclick="filterCounty('Bergen', this)">BERGEN COUNTY</li>
+                    <li onclick="filterCounty('Burlington', this)">BURLINGTON COUNTY</li>
+                    <li onclick="filterCounty('Camden', this)">CAMDEN COUNTY</li>
+                    <li onclick="filterCounty('Gloucester', this)">GLOUCESTER COUNTY</li>
+                    <li onclick="filterCounty('Hunterdon', this)">HUNTERDON COUNTY</li>
+                    <li onclick="filterCounty('Middlesex', this)">MIDDLESEX COUNTY</li>
+                    <li onclick="filterCounty('Monmouth', this)">MONMOUTH COUNTY</li>
+                    <li onclick="filterCounty('Morris', this)">MORRIS COUNTY</li>
+                    <li onclick="filterCounty('Passaic', this)">PASSAIC COUNTY</li>
+                    <li onclick="filterCounty('Somerset', this)">SOMERSET COUNTY</li>
+                    <li onclick="filterCounty('Union', this)">UNION COUNTY</li>
+                </ul>
+            </div>
+            <div>
+                <div id="grid-hs" class="grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-card">
+            <span class="modal-close" onclick="closeModalDirect()">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

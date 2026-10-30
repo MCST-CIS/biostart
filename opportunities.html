@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities - BIOSTART</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="Draft for CTE Website.png" alt="BIOSTART Logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <nav>
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="jobs.html" class="nav-btn">Internships & Jobs</a>
+        <a href="opportunities.html" class="nav-btn active">Opportunities</a>
+        <a href="resume.html" class="nav-btn">Create Resume</a>
+        <a href="profile.html" class="nav-btn">Account Profile</a>
+    </nav>
+
+    <div class="container">
+        <h2>Scholarships, Competitions & Summer Programs</h2>
+        <div class="filter-header-bar">
+            <span>FILTER BY AGE, COMPETITION TYPE</span>
+            <span>STEM OPPORTUNITIES</span>
+        </div>
+        <div id="grid-opp" class="grid"></div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-card">
+            <span class="modal-close" onclick="closeModalDirect()">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

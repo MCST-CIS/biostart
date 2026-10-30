@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Resume - BIOSTART</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="Draft for CTE Website.png" alt="BIOSTART Logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <nav>
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="jobs.html" class="nav-btn">Internships & Jobs</a>
+        <a href="opportunities.html" class="nav-btn">Opportunities</a>
+        <a href="resume.html" class="nav-btn active">Create Resume</a>
+        <a href="profile.html" class="nav-btn">Account Profile</a>
+    </nav>
+
+    <div class="container">
+        <h2>Professional Resume Builder</h2>
+        <p style="margin-bottom: 20px; color: #444; font-weight: 600;">
+            Build, customize, and export an industry-tailored biotechnology resume for CTE high school applications, college admissions, research labs, and paid internships.
+        </p>
+
+        <!-- TEMPLATE SELECTION BAR -->
+        <div class="template-selector-section">
+            <h3 style="font-size: 14px; text-transform: uppercase; font-weight: 900; margin-bottom: 12px; color: var(--biostart-black);">
+                🎨 Select Resume Output Template
+            </h3>
+            <div class="template-options-grid">
+                <div class="template-card selected" id="tpl-card-modern" onclick="selectTemplate('modern')">
+                    <div class="template-badge">Popular</div>
+                    <div class="template-icon">🧬</div>
+                    <div class="template-title">Modern Biotech</div>
+                    <div class="template-desc">Sleek header accents, technical skill badges, and modern sans-serif structure.</div>
+                </div>
+                <div class="template-card" id="tpl-card-academic" onclick="selectTemplate('academic')">
+                    <div class="template-icon">🎓</div>
+                    <div class="template-title">Academic & Research</div>
+                    <div class="template-desc">Classic serif layout tailored for university labs, grants, and publications.</div>
+                </div>
+                <div class="template-card" id="tpl-card-corporate" onclick="selectTemplate('corporate')">
+                    <div class="template-icon">💼</div>
+                    <div class="template-title">Industry Corporate</div>
+                    <div class="template-desc">ATS-friendly layout with clean section dividers, ideal for pharma & biotech jobs.</div>
+                </div>
+                <div class="template-card" id="tpl-card-compact" onclick="selectTemplate('compact')">
+                    <div class="template-icon">🔬</div>
+                    <div class="template-title">Compact Lab Specialist</div>
+                    <div class="template-desc">Two-column layout highlighting technical laboratory skills in a dedicated sidebar.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="resume-grid">
+            <!-- INPUT FORM CARD -->
+            <div class="form-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; border-bottom: 2px solid var(--biostart-black); padding-bottom: 8px;">
+                    <h3 style="font-size: 16px; text-transform: uppercase; font-weight: 900; margin:0;">
+                        🧬 Detailed Resume Inputs
+                    </h3>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-action-sm" onclick="loadSampleResumeData()" title="Fill form with sample Biotech profile">
+                            ⚡ Sample Data
+                        </button>
+                        <button class="btn-action-sm" onclick="clearResumeForm()" style="background:#555;" title="Clear all fields">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 1: PERSONAL DETAILS -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">1. Personal & Contact Details</h4>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" id="res-name" class="resume-field" placeholder="e.g. Alex M. Smith" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Professional Title / Target Role</label>
+                            <input type="text" id="res-title" class="resume-field" placeholder="e.g. Biotechnology Student & Research Assistant" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" id="res-email" class="resume-field" placeholder="e.g. alex.smith@mcvts.org" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" id="res-phone" class="resume-field" placeholder="e.g. (973) 555-0199" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">City, State & Zip</label>
+                            <input type="text" id="res-location" class="resume-field" placeholder="e.g. Denville, NJ 07834" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">LinkedIn / Portfolio URL</label>
+                            <input type="text" id="res-linkedin" class="resume-field" placeholder="e.g. linkedin.com/in/alexsmith-biotech" oninput="updateResume()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: PROFESSIONAL SUMMARY -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">2. Professional Summary / Career Objective</h4>
+                    <label class="form-label">Summary Statement</label>
+                    <textarea id="res-summary" class="resume-field" rows="3" placeholder="Brief statement highlighting your academic background, lab skills, and biotechnology career aspirations..." oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- SECTION 3: EDUCATION -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">3. Education & Academic Background</h4>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">School / Institution Name *</label>
+                            <input type="text" id="res-school" class="resume-field" placeholder="e.g. Morris County School of Technology" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Graduation Date / Expected</label>
+                            <input type="text" id="res-grad" class="resume-field" placeholder="e.g. Expected Grad: June 2027" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Program / Major / Academy Track</label>
+                            <input type="text" id="res-degree" class="resume-field" placeholder="e.g. Academy for Biotechnology Track" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">GPA / Academic Honors</label>
+                            <input type="text" id="res-gpa" class="resume-field" placeholder="e.g. GPA: 3.92 / 4.0 | High Honor Roll" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <label class="form-label">Relevant Coursework</label>
+                    <textarea id="res-courses" class="resume-field" rows="2" placeholder="e.g. Biotechnology I & II, Organic Chemistry, Molecular Genetics, AP Biology, Bioinformatics" oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- SECTION 4: TECHNICAL & LAB SKILLS -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">4. Laboratory & Technical Skills</h4>
+                    <label class="form-label">Wet Lab Techniques & Equipment</label>
+                    <input type="text" id="res-labskills" class="resume-field" placeholder="e.g. Micropipetting, PCR Amplification, Gel Electrophoresis, Aseptic Cell Culture, DNA Extraction, Spectrophotometry" oninput="updateResume()">
+                    
+                    <label class="form-label">Software, Bioinformatics & Data Tools</label>
+                    <input type="text" id="res-softskills" class="resume-field" placeholder="e.g. Python, R, BLAST Database, PyMOL, Microsoft Excel (Data Analysis)" oninput="updateResume()">
+
+                    <label class="form-label">Certifications & Safety Credentials</label>
+                    <input type="text" id="res-certs" class="resume-field" placeholder="e.g. Biotechnician Assistant Credential (BTEC), OSHA 10-Hour General Industry, CPR/AED" oninput="updateResume()">
+                </div>
+
+                <!-- SECTION 5: RESEARCH & WORK EXPERIENCE -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">5. Research & Work Experience</h4>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Position Title</label>
+                            <input type="text" id="res-job-title" class="resume-field" placeholder="e.g. Student Research Assistant" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Organization / Lab Name</label>
+                            <input type="text" id="res-job-org" class="resume-field" placeholder="e.g. Waksman Student Scholars Program" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Dates / Duration</label>
+                            <input type="text" id="res-job-dates" class="resume-field" placeholder="e.g. Sep 2025 – Present" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Location</label>
+                            <input type="text" id="res-job-loc" class="resume-field" placeholder="e.g. Rutgers University, NJ" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <label class="form-label">Key Responsibilities & Accomplishments (1 per line)</label>
+                    <textarea id="res-job-desc" class="resume-field" rows="3" placeholder="• Conducted DNA isolation and restriction enzyme digestion on bacterial plasmid samples.&#10;• Utilized BLAST bioinformatics software to analyze cDNA sequencing results and publish to NCBI database.&#10;• Maintained laboratory notebook adhering to GLP (Good Laboratory Practice) guidelines." oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- SECTION 6: PROJECTS & LEADERSHIP -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">6. Projects & Extracurricular Leadership</h4>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Activity / Project Name</label>
+                            <input type="text" id="res-proj-title" class="resume-field" placeholder="e.g. HOSA Biotechnology Competition / Science Olympiad" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Role & Dates</label>
+                            <input type="text" id="res-proj-role" class="resume-field" placeholder="e.g. Team Lead | Oct 2024 – Present" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <label class="form-label">Description & Key Results</label>
+                    <textarea id="res-proj-desc" class="resume-field" rows="2" placeholder="• Led a 4-student team in designing a bioremediation strategy for microplastic degradation using recombinant bacteria.&#10;• Presented research poster at NJ HOSA State Leadership Conference, placing 2nd overall." oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- SECTION 7: HONORS & AWARDS -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">7. Honors, Awards & Grants</h4>
+                    <label class="form-label">Honors & Achievements (1 per line)</label>
+                    <textarea id="res-honors" class="resume-field" rows="2" placeholder="• 2nd Place - NJ State HOSA Biotechnology Competition (2025)&#10;• National Honor Society Inductee (2024)&#10;• Honor Roll Recognition (2023 - 2025)" oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+                    <button class="btn-action" onclick="printResumeOnly()" style="flex:1; padding: 14px 20px; font-size: 13px;">
+                        🖨️ Export / Print PDF
+                    </button>
+                    <button class="btn-action" onclick="copyResumeText()" style="background:#333; flex:1; padding: 14px 20px; font-size: 13px;">
+                        📋 Copy Plain Text
+                    </button>
+                </div>
+            </div>
+
+            <!-- PREVIEW CARD -->
+            <div>
+                <div class="preview-header-bar">
+                    <span style="font-size:12px; font-weight:900; text-transform:uppercase;">
+                        📄 Live Preview: <span id="active-template-label" style="color:var(--biostart-red);">Modern Biotech</span>
+                    </span>
+                    <button class="btn-action-sm" onclick="printResumeOnly()">🖨️ Print PDF</button>
+                </div>
+                <div class="resume-preview-container">
+                    <div id="printable-resume"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Profile - BIOSTART</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="Draft for CTE Website.png" alt="BIOSTART Logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <nav>
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="jobs.html" class="nav-btn">Internships & Jobs</a>
+        <a href="opportunities.html" class="nav-btn">Opportunities</a>
+        <a href="resume.html" class="nav-btn">Create Resume</a>
+        <a href="profile.html" class="nav-btn active">Account Profile</a>
+    </nav>
+
+    <div class="container">
+        <h2>Account Profile & Preferences</h2>
+        <div class="profile-grid">
+            
+            <div class="form-card">
+                <h3 style="font-size: 18px; text-transform: uppercase; font-weight: 900; margin-bottom: 16px; border-bottom: 2px solid var(--biostart-black); padding-bottom: 6px;">👤 Create / Edit Account Profile</h3>
+                <form id="profile-edit-form" onsubmit="saveAccountProfile(event)">
+                    <div style="margin-bottom: 14px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">Select Profile Picture Avatar:</label>
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+                            <button type="button" class="btn-action" onclick="cycleAvatar(-1)">&lt;</button>
+                            <div id="avatar-display" style="width:64px; height:64px; border-radius:50%; border:3px solid var(--biostart-red); background:#eee; display:flex; justify-content:center; align-items:center; font-size:32px;">🔬</div>
+                            <button type="button" class="btn-action" onclick="cycleAvatar(1)">&gt;</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">First Name *</label>
+                        <input type="text" id="prof-fname" class="resume-field" placeholder="Enter your first name..." required>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">Email Address *</label>
+                        <input type="email" id="prof-email" class="resume-field" placeholder="Enter your email address..." required>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">Password *</label>
+                        <input type="password" id="prof-pass" class="resume-field" placeholder="Enter your password..." required>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">New Jersey County *</label>
+                        <select id="prof-county" class="resume-field" required>
+                            <option value="" disabled selected>Select New Jersey County...</option>
+                            <option value="Bergen">Bergen County</option>
+                            <option value="Burlington">Burlington County</option>
+                            <option value="Camden">Camden County</option>
+                            <option value="Gloucester">Gloucester County</option>
+                            <option value="Hunterdon">Hunterdon County</option>
+                            <option value="Middlesex">Middlesex County</option>
+                            <option value="Monmouth">Monmouth County</option>
+                            <option value="Morris">Morris County</option>
+                            <option value="Passaic">Passaic County</option>
+                            <option value="Somerset">Somerset County</option>
+                            <option value="Union">Union County</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">Town / City *</label>
+                        <input type="text" id="prof-town" class="resume-field" placeholder="Enter your town or city..." required>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">Academic Level *</label>
+                        <select id="prof-level" class="resume-field" required>
+                            <option value="" disabled selected>Select Academic Level...</option>
+                            <option value="Middle School">Middle School (Grades 6-8)</option>
+                            <option value="High School">High School (Grades 9-12)</option>
+                            <option value="College Undergrad">College Undergraduate</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-action" style="padding: 12px 20px; font-size: 12px; width: 100%;">Save Account Profile 💾</button>
+                </form>
+            </div>
+
+            <div>
+                <div style="background: white; border: 3px solid var(--biostart-black); padding: 24px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 4px 0 var(--biostart-black);">
+                    <h3 id="profile-name-display" style="font-size: 20px; text-transform: uppercase; font-weight: 900; margin-bottom: 4px;">Profile Unsaved</h3>
+                    <p id="profile-email-display" style="font-size: 12px; color: var(--biostart-red); font-weight: 800; margin-bottom: 8px;">Please complete the form to create your profile</p>
+                    <p id="profile-location-display" style="font-size: 13px; color: #444; font-weight: 700;">Location: Unspecified</p>
+                </div>
+
+                <h3 style="font-size: 18px; text-transform: uppercase; font-weight: 900; margin-bottom: 12px;">My Saved Opportunities (<span id="saved-count">0</span>)</h3>
+                <div id="saved-grid" class="grid" style="grid-template-columns: 1fr;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
