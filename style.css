@@ -2,7 +2,7 @@
 /* ==========================================================================
    BIOSTART CANVA DESIGN SYSTEM (RED #D93829, BLACK #0D0D0D, SOFT PINK/CREAM)
    ========================================================================== */
-:root {
+   :root {
     --biostart-red: #D93829;
     --biostart-red-hover: #b82a1d;
     --biostart-black: #0d0d0d;
@@ -527,6 +527,66 @@ h2 {
     font-family: var(--biostart-font-main);
     font-size: 13px;
     background: white;
+}
+
+/* SAMPLE TOGGLE SWITCH BOX STYLES */
+.sample-toggle-box {
+    background: #fff0f0;
+    border: 2px solid var(--biostart-red);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+}
+
+.toggle-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-container input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 38px;
+    height: 22px;
+    background-color: #ccc;
+    border: 2px solid var(--biostart-black);
+    border-radius: 20px;
+    position: relative;
+    transition: 0.25s;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid var(--biostart-black);
+    top: 2px;
+    left: 2px;
+    transition: 0.25s;
+}
+
+.toggle-container input:checked + .toggle-slider {
+    background-color: var(--biostart-red);
+}
+
+.toggle-container input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+}
+
+.toggle-label {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--biostart-black);
 }
 
 /* RESUME DISPLAY PREVIEW BOX WITH PURE CSS CLEAN BACKGROUND */
