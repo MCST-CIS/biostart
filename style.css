@@ -67,8 +67,10 @@ body {
 }
 
 .splash-logo-img {
-    width: 560px;
-    height: 560px;
+    width: auto;
+    height: auto;
+    max-width: min(560px, 100%);
+    max-height: 45vh;
     object-fit: contain;
     margin-bottom: 16px;
 }
@@ -888,7 +890,7 @@ h2 {
 
     header, nav, #splash-overlay, .floating-widget, .modal-overlay,
     .form-card, h2, .btn-action, .btn-action-sm, .filter-header-bar, .canva-choice-grid,
-    .template-selector-section, .preview-header-bar, p {
+    .template-selector-section, .preview-header-bar, .container > p {
         display: none !important;
     }
 
