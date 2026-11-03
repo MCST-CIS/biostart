@@ -27,23 +27,25 @@ const HIGH_SCHOOLS = [
     { id: 'hs7', name: 'Biotechnology High School', county: 'Monmouth', town: 'Freehold', ageMin: 13, season: 'Fall', url: 'https://www.bths.mcvsd.org/', notes: 'Full-time specialized biotechnology high school in Freehold.' },
     { id: 'hs8', name: 'Somerset County Vocational and Technical School', county: 'Somerset', town: 'Bridgewater', ageMin: 13, season: 'Fall', url: 'https://www.scvths.org/programs/career-technical-programs/program-overviews-printable', notes: 'Career technical biological science programs in Bridgewater.' },
     { id: 'hs9', name: 'MCST Biotech Academy', county: 'Morris', town: 'Denville', ageMin: 13, season: 'Fall', url: 'https://www.mcvts.org/mcvsd-programs/full-time-academies/biotechnology', notes: 'Academy for Biotechnology at Morris County School of Technology in Denville.' },
-    { id: 'hs10', name: 'Passaic County Technical Institute', county: 'Passaic', town: 'Wayne', ageMin: 13, season: 'Fall', url: 'https://pcti.pctvs.org/o/pcti/page/new-for-23-24-biotechnology-early-college-option', notes: 'Biotechnology early college option in Wayne.' },
+    { id: 'hs10', name: 'Passaic County Technical Institute', county: 'Passaic', town: 'Wayne', ageMin: 13, season: 'Fall', url: 'https://pcti.pctvs.org/o/pcti/page/new-for-23-24-biotechnology-early-college-option', notes: 'Biotechnology early college option in Wayne. Offers Biotility BACE exam credentialing.' },
     { id: 'hs11', name: 'Union County Magnet High School', county: 'Union', town: 'Scotch Plains', ageMin: 13, season: 'Fall', url: 'https://mhs.ucvts.org/', notes: 'Magnet high school for science, math, and technology.' }
 ];
 
 const COLLEGES = [
-    { id: 'col1', name: 'Rutgers Biotechnology Program', location: 'New Brunswick, NJ', town: 'New Brunswick', isNJ: true, ageMin: 16, season: 'All Seasons', acceptance: '~50%+', cost: '$16,000/yr', notes: 'Large campus (46k+ students) with guaranteed 4-year housing and biotech track.', url: 'https://biotech.rutgers.edu/' },
-    { id: 'col2', name: 'Middlesex College', location: 'Edison, NJ', town: 'Edison', isNJ: true, ageMin: 15, season: 'All Seasons', acceptance: 'Open Enrollment', cost: '$4,500/yr', notes: 'Biotechnology A.S. degree; commuter campus.', url: 'https://middlesexcollege.edu/' },
-    { id: 'col3', name: 'New Jersey Institute of Technology (NJIT)', location: 'Newark, NJ', town: 'Newark', isNJ: true, ageMin: 16, season: 'Fall', acceptance: 'Selective', cost: '$18,000/yr', notes: 'Urban STEM institute with bioengineering and bioinformatics majors.', url: 'https://www.njit.edu/' },
-    { id: 'col4', name: 'County College of Morris (CCM)', location: 'Randolph, NJ', town: 'Randolph', isNJ: true, ageMin: 15, season: 'All Seasons', acceptance: 'Open Enrollment', cost: '$5,000/yr', notes: 'Biology Pre-Professional Biotechnology A.S. Degree track in Randolph/Denville area.', url: 'https://www.ccm.edu/programs/biology/' },
+    { id: 'col1', name: 'Rutgers Biotechnology Program', location: 'New Brunswick, NJ', town: 'New Brunswick', isNJ: true, ageMin: 16, season: 'All Seasons', acceptance: '~50%+', cost: '$16,000/yr', notes: 'Large research campus with guaranteed 4-year housing, B.S. Biotech track, and Aresty research lab access.', url: 'https://biotech.rutgers.edu/' },
+    { id: 'col2', name: 'Middlesex College', location: 'Edison, NJ', town: 'Edison', isNJ: true, ageMin: 15, season: 'All Seasons', acceptance: 'Open Enrollment', cost: '$4,500/yr', notes: 'Biotechnology A.S. degree; seamless transfer pathways to Rutgers and NJIT.', url: 'https://middlesexcollege.edu/' },
+    { id: 'col3', name: 'New Jersey Institute of Technology (NJIT)', location: 'Newark, NJ', town: 'Newark', isNJ: true, ageMin: 16, season: 'Fall', acceptance: 'Selective', cost: '$18,000/yr', notes: 'Urban STEM institute with bioengineering, bioinformatics, and R/Python data science integration.', url: 'https://www.njit.edu/' },
+    { id: 'col4', name: 'County College of Morris (CCM)', location: 'Randolph, NJ', town: 'Randolph', isNJ: true, ageMin: 15, season: 'All Seasons', acceptance: 'Open Enrollment', cost: '$5,000/yr', notes: 'Biology Pre-Professional Biotechnology A.S. Degree track in Randolph/Denville area with hands-on wet lab courses.', url: 'https://www.ccm.edu/programs/biology/' },
     { id: 'col5', name: 'Kean University', location: 'Union, NJ', town: 'Union', isNJ: true, ageMin: 16, season: 'Spring', acceptance: 'Safety (50%+)', cost: '$12,500/yr', notes: '5-year B.S./M.S. STEM Biotechnology and Molecular Biology programs.', url: 'https://www.kean.edu/' },
     { id: 'col6', name: 'Rowan University', location: 'Glassboro, NJ', town: 'Glassboro', isNJ: true, ageMin: 16, season: 'All Seasons', acceptance: 'Selective', cost: '$14,000/yr', notes: 'Offers Translational Biomedical Sciences, Molecular Cellular Biology, & BME.', url: 'https://admissions.rowan.edu/' },
     { id: 'col7', name: 'William Paterson University', location: 'Wayne, NJ', town: 'Wayne', isNJ: true, ageMin: 16, season: 'Fall', acceptance: 'Safety (50%+)', cost: '$13,800/yr', notes: 'BS in Biotechnology with modern laboratory research facilities.', url: 'https://www.wpunj.edu/' },
     { id: 'col8', name: 'Saint Peter\'s University', location: 'Jersey City, NJ', town: 'Jersey City', isNJ: true, ageMin: 16, season: 'Spring', acceptance: 'Safety (50%+)', cost: '$38,000/yr', notes: 'Applied Biotechnology & Biochemistry options.', url: 'https://www.saintpeters.edu/' },
-    { id: 'col9', name: 'Princeton University', location: 'Princeton, NJ', town: 'Princeton', isNJ: true, ageMin: 17, season: 'Fall', acceptance: '~4.0%', cost: '~$80,000 before aid', notes: 'World-renowned Molecular Biology research program.', url: 'https://molbio.princeton.edu/' },
-    { id: 'col10', name: 'Massachusetts Institute of Technology (MIT)', location: 'Cambridge, MA', town: 'Cambridge', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~4.6%', cost: '$92,760 before aid', notes: 'Premier Biological Engineering degree program in Cambridge, MA.', url: 'https://www.mit.edu/' },
-    { id: 'col11', name: 'Stanford University', location: 'Silicon Valley, CA', town: 'Stanford', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~3.6%', cost: '$97,545 before aid', notes: 'Top bioengineering research university in Silicon Valley, CA.', url: 'https://www.stanford.edu/' },
-    { id: 'col12', name: 'Johns Hopkins University', location: 'Baltimore, MD', town: 'Baltimore', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~7-8%', cost: '~$95,000 before aid', notes: 'Premier medical and biomedical research university in Baltimore, MD.', url: 'https://www.jhu.edu/' }
+    { id: 'col9', name: 'Princeton University', location: 'Princeton, NJ', town: 'Princeton', isNJ: true, ageMin: 17, season: 'Fall', acceptance: '~4.0%', cost: '~$80,000 before aid', notes: 'World-renowned Molecular Biology research program & genomic research facilities.', url: 'https://molbio.princeton.edu/' },
+    { id: 'col10', name: 'University of Pennsylvania (UPenn)', location: 'Philadelphia, PA', town: 'Philadelphia', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~5.9%', cost: '$85,000 before aid', notes: 'Top-tier bioengineering and cell & molecular biology undergraduate research programs.', url: 'https://www.upenn.edu/' },
+    { id: 'col11', name: 'Johns Hopkins University', location: 'Baltimore, MD', town: 'Baltimore', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~7-8%', cost: '~$95,000 before aid', notes: 'Premier medical and biomedical research university in Baltimore, MD.', url: 'https://www.jhu.edu/' },
+    { id: 'col12', name: 'Cornell University', location: 'Ithaca, NY', town: 'Ithaca', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~7.3%', cost: '$88,000 before aid', notes: 'Comprehensive Biological Engineering and Plant Molecular Genetics programs.', url: 'https://www.cornell.edu/' },
+    { id: 'col13', name: 'Massachusetts Institute of Technology (MIT)', location: 'Cambridge, MA', town: 'Cambridge', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~4.6%', cost: '$92,760 before aid', notes: 'Premier Biological Engineering degree program in Cambridge, MA.', url: 'https://www.mit.edu/' },
+    { id: 'col14', name: 'Stanford University', location: 'Silicon Valley, CA', town: 'Stanford', isNJ: false, ageMin: 17, season: 'Fall', acceptance: '~3.6%', cost: '$97,545 before aid', notes: 'Top bioengineering research university in Silicon Valley, CA.', url: 'https://www.stanford.edu/' }
 ];
 
 const JOBS = [
@@ -59,6 +61,10 @@ const JOBS = [
 ];
 
 const OPPORTUNITIES = [
+    { id: 'opp_nsf', name: 'NSF REU Site Directory (National Science Foundation)', cat: 'database', town: 'Nationwide', ageMin: 17, season: 'Summer', url: 'https://www.nsf.gov/crssprgm/reu/reu_search.jsp', notes: 'National database of funded undergraduate research opportunities in biological sciences and bioengineering.' },
+    { id: 'opp_pathways', name: 'Pathways to Science (IBP STEM Database)', cat: 'database', town: 'Nationwide', ageMin: 15, season: 'All Seasons', url: 'https://www.pathwaystoscience.org/', notes: 'Searchable directory of paid summer research, scholarships, and graduate fellowships in biotech.' },
+    { id: 'opp_bace', name: 'Biotility BACE Credential Exam', cat: 'certification', town: 'Statewide', ageMin: 14, season: 'All Seasons', url: 'https://biotility.research.ufl.edu/bace/', notes: 'Biotechnology Aptitude & Competency Exam — industry-recognized credential for entry-level lab technician positions.' },
+    { id: 'opp_citi', name: 'CITI Responsible Conduct of Research (RCR) Training', cat: 'certification', town: 'Online', ageMin: 16, season: 'All Seasons', url: 'https://about.citiprogram.org/', notes: 'Online ethics and lab integrity certification widely required by university research laboratories.' },
     { id: 'opp1', name: 'Regeneron International Science & Engineering Fair (ISEF)', cat: 'competition', town: 'Statewide', ageMin: 12, season: 'Spring', url: 'https://www.societyforscience.org/jic/', notes: 'International STEM competition for middle and high school researchers.' },
     { id: 'opp2', name: 'BioGENEius Challenges', cat: 'competition', town: 'Statewide', ageMin: 14, season: 'Spring', url: 'https://biotechinstitute.org/biogeneius/', notes: 'High school research in global healthcare, sustainability, and environment.' },
     { id: 'opp3', name: 'Davidson Fellows Scholarship', cat: 'scholarship', town: 'Statewide', ageMin: 13, season: 'Summer', url: 'https://www.davidsongifted.org/gifted-programs/fellows-scholarship/', notes: 'Scholarship awards up to $50,000 for extraordinary scientific achievements.' },
@@ -89,6 +95,21 @@ let selectedCountyFilter = "ALL";
 let activeCollegeMode = "foryou";
 let activeJobMode = "foryou";
 
+// Sample Example Data mapping for Personal & Education fields
+const SAMPLE_PERSONAL_DATA = {
+    'res-name': "Alex M. Smith",
+    'res-title': "Biotechnology Student & Research Assistant",
+    'res-email': "alex.smith@mcvts.org",
+    'res-phone': "(973) 555-0199",
+    'res-location': "Denville, NJ 07834",
+    'res-linkedin': "linkedin.com/in/alexsmith-biotech",
+    'res-school': "Morris County School of Technology",
+    'res-grad': "Expected Grad: June 2027",
+    'res-degree': "Academy for Biotechnology Track",
+    'res-gpa': "GPA: 3.92 / 4.0 | High Honor Roll",
+    'res-courses': "Biotechnology I & II, Organic Chemistry, Molecular Genetics, AP Biology, Introductory Statistics"
+};
+
 function saveState() {
     localStorage.setItem('biostart_userProfile', JSON.stringify(userProfile));
 }
@@ -101,7 +122,6 @@ function renderAllGrids() {
     renderSaved();
 }
 
-// Shared helpers
 function jMatchTown(item, townStr) {
     if (!townStr) return false;
     const clean = townStr.toLowerCase();
@@ -378,7 +398,7 @@ function renderOpportunities() {
     });
 }
 
-/* --- SURVEY HANDLER & VALIDATION --- */
+/* --- SURVEY HANDLER & DYNAMIC ROUTING FIX --- */
 function isValidNJTown(townInput) {
     if (!townInput || typeof townInput !== 'string') return false;
     const clean = townInput.trim().toLowerCase();
@@ -425,8 +445,17 @@ function handleSurveySubmit(e) {
     updateUserHeaderDisplay();
     renderAllGrids();
 
-    alert(`🎉 Survey Updated! Your recommendations have been recalculated for age ${ageVal}, location preference (${locPrefVal}), town (${townVal}), and season (${seasonVal}).`);
-    window.location.href = 'highschools.html';
+    // DYNAMIC BACK-END ROUTING FIX BASED ON STUDENT LEVEL & AGE
+    if (levelVal === 'College Undergrad' || ageVal >= 18) {
+        alert(`🎉 Survey Updated! Directed to personalized Internships & Paid Jobs based on your profile.`);
+        window.location.href = 'jobs.html';
+    } else if (levelVal === 'High School' || (ageVal >= 14 && ageVal < 18)) {
+        alert(`🎉 Survey Updated! Directed to personalized College & Degree tracks matching your profile.`);
+        window.location.href = 'colleges.html';
+    } else {
+        alert(`🎉 Survey Updated! Directed to Public CTE Vocational High Schools for middle school students.`);
+        window.location.href = 'highschools.html';
+    }
 }
 
 /* ==========================================================================
@@ -461,41 +490,59 @@ function getVal(id) {
     return document.getElementById(id)?.value.trim() || '';
 }
 
+function toggleSamplePersonalInfo(show) {
+    Object.keys(SAMPLE_PERSONAL_DATA).forEach(id => {
+        setVal(id, show ? SAMPLE_PERSONAL_DATA[id] : "");
+    });
+    updateResume();
+}
+
 function loadSampleResumeData() {
-    setVal('res-name', "Alex M. Smith");
-    setVal('res-title', "Biotechnology Student & Research Assistant");
-    setVal('res-email', "alex.smith@mcvts.org");
-    setVal('res-phone', "(973) 555-0199");
-    setVal('res-location', "Denville, NJ 07834");
-    setVal('res-linkedin', "linkedin.com/in/alexsmith-biotech");
-    setVal('res-summary', "Motivated Biotechnology Academy student with 2+ years of hands-on laboratory experience in molecular biology, PCR analysis, and bioinformatics. Passionate about pursuing undergraduate research in bioengineering and pharmaceutical sciences.");
-    setVal('res-school', "Morris County School of Technology");
-    setVal('res-grad', "Expected Grad: June 2027");
-    setVal('res-degree', "Academy for Biotechnology Track");
-    setVal('res-gpa', "GPA: 3.92 / 4.0 | High Honor Roll");
-    setVal('res-courses', "Biotechnology I & II, Organic Chemistry, Molecular Genetics, AP Biology, Cell Culture, Bioinformatics");
-    setVal('res-labskills', "Micropipetting, PCR Amplification, Gel Electrophoresis, Aseptic Cell Culture, DNA Extraction, Spectrophotometry");
-    setVal('res-softskills', "Python, R, BLAST Database, PyMOL, Microsoft Excel (Data Analysis & Charting)");
-    setVal('res-certs', "Biotechnician Assistant Credential (BTEC), OSHA 10-Hour General Industry, CPR/AED Certified");
+    const toggleEl = document.getElementById('sample-toggle');
+    if (toggleEl) toggleEl.checked = true;
+
+    // 1. Personal & Contact Details
+    toggleSamplePersonalInfo(true);
+
+    // 2. Professional Summary
+    setVal('res-summary', "Motivated Biotechnology student with 2+ years of hands-on lab experience in molecular biology, PCR analysis, and bioinformatics. Passionate about pursuing undergraduate research in bioengineering and molecular genetics.");
+
+    // 4. Technical & Lab Skills (Including BACE, CITI, R/Python)
+    setVal('res-labskills', "Micropipetting, PCR Amplification, Gel Electrophoresis, Aseptic Cell Culture, DNA Extraction, Spectrophotometry, Experimental Controls & GLP");
+    setVal('res-softskills', "Python (Data Science), R Programming, Intro Statistics, BLAST Database, PyMOL, Microsoft Excel Data Analysis");
+    setVal('res-certs', "Biotility Biotechnology Aptitude & Competency Exam (BACE), CITI Responsible Conduct of Research (RCR), OSHA 10-Hour General Industry");
+
+    // 5. Research & Work Experience
     setVal('res-job-title', "Student Research Assistant");
     setVal('res-job-org', "Rutgers Waksman Student Scholars Program");
     setVal('res-job-dates', "Sep 2025 – Present");
     setVal('res-job-loc', "Piscataway, NJ");
-    setVal('res-job-desc', "• Conducted DNA isolation and restriction enzyme digestion on bacterial plasmid samples.\n• Utilized BLAST bioinformatics tools to analyze cDNA sequencing results and submitted confirmed sequences to NCBI database.\n• Maintained meticulous digital laboratory notebooks adhering to GLP (Good Laboratory Practice) guidelines.");
+    setVal('res-job-desc', "• Conducted DNA isolation and restriction enzyme digestion on bacterial plasmid samples.\n• Utilized BLAST bioinformatics tools to analyze cDNA sequencing results and submitted confirmed sequences to NCBI database.\n• Maintained meticulous laboratory notebooks adhering to GLP (Good Laboratory Practice) guidelines.");
+
+    // 6. Projects & Extracurricular Leadership
     setVal('res-proj-title', "HOSA Biotechnology Competition & Science Olympiad");
     setVal('res-proj-role', "Team Lead | Oct 2024 – Present");
     setVal('res-proj-desc', "• Led a 4-student research team designing a microplastic bioremediation protocol using recombinant bacterial strains.\n• Authored research poster and presented at NJ State HOSA Leadership Conference, earning 2nd Place overall.");
+
+    // 7. Honors & Awards
     setVal('res-honors', "• 2nd Place - NJ State HOSA Biotechnology Competition (2025)\n• National Honor Society Inductee (2024)\n• Morris County Scholar Athlete Award (2024)");
+
+    // 8. Scientific Presentations, Posters & Publications
+    setVal('res-pub-title', "Investigating Stress Response Transcriptomics in Urban Plant Populations");
+    setVal('res-pub-venue', "NJ Academy of Science Annual Symposium | April 2025");
+    setVal('res-pub-desc', "• Poster presentation evaluating genetic flexibility and phenotypic plasticity in urban vs. rural plant isolates.\n• Co-authored published abstract in Proceedings of the NJ Science Student Symposium.");
 
     updateResume();
 }
 
 function clearResumeForm() {
-    const ids = ['res-name', 'res-title', 'res-email', 'res-phone', 'res-location', 'res-linkedin', 'res-summary', 'res-school', 'res-grad', 'res-degree', 'res-gpa', 'res-courses', 'res-labskills', 'res-softskills', 'res-certs', 'res-job-title', 'res-job-org', 'res-job-dates', 'res-job-loc', 'res-job-desc', 'res-proj-title', 'res-proj-role', 'res-proj-desc', 'res-honors'];
+    const ids = ['res-name', 'res-title', 'res-email', 'res-phone', 'res-location', 'res-linkedin', 'res-summary', 'res-school', 'res-grad', 'res-degree', 'res-gpa', 'res-courses', 'res-labskills', 'res-softskills', 'res-certs', 'res-job-title', 'res-job-org', 'res-job-dates', 'res-job-loc', 'res-job-desc', 'res-proj-title', 'res-proj-role', 'res-proj-desc', 'res-honors', 'res-pub-title', 'res-pub-venue', 'res-pub-desc'];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
+    const toggleEl = document.getElementById('sample-toggle');
+    if (toggleEl) toggleEl.checked = false;
     updateResume();
 }
 
@@ -527,11 +574,11 @@ function updateResume() {
     const resumeBox = document.getElementById('printable-resume');
     if (!resumeBox) return;
 
-    const name = getVal('res-name') || 'Alex M. Smith';
+    const name = getVal('res-name') || '[Your Name]';
     const title = getVal('res-title');
-    const email = getVal('res-email') || 'alex.smith@mcvts.org';
-    const phone = getVal('res-phone') || '(973) 555-0199';
-    const location = getVal('res-location') || 'Denville, NJ';
+    const email = getVal('res-email');
+    const phone = getVal('res-phone');
+    const location = getVal('res-location');
     const linkedin = getVal('res-linkedin');
 
     const summary = getVal('res-summary');
@@ -556,6 +603,10 @@ function updateResume() {
     const projDesc = getVal('res-proj-desc');
     const honors = getVal('res-honors');
 
+    const pubTitle = getVal('res-pub-title');
+    const pubVenue = getVal('res-pub-venue');
+    const pubDesc = getVal('res-pub-desc');
+
     const contactParts = [email, phone, location, linkedin].filter(Boolean);
 
     // 1. MODERN BIOTECH TEMPLATE
@@ -569,9 +620,7 @@ function updateResume() {
                     </div>
                     <div class="tpl-dna-icon">🧬</div>
                 </div>
-                <div class="tpl-modern-contact">
-                    ${contactParts.join(' &nbsp;•&nbsp; ')}
-                </div>
+                ${contactParts.length > 0 ? `<div class="tpl-modern-contact">${contactParts.join(' &nbsp;•&nbsp; ')}</div>` : ''}
 
                 ${summary ? `
                 <div class="tpl-sec">
@@ -591,7 +640,7 @@ function updateResume() {
                 <div class="tpl-sec">
                     <h3 class="tpl-modern-head">Technical & Laboratory Skills</h3>
                     ${labskills ? `<div style="margin-bottom:6px;"><strong>Wet Lab:</strong> ${labskills.split(',').map(s=>`<span class="skill-pill">${s.trim()}</span>`).join('')}</div>` : ''}
-                    ${softskills ? `<div style="margin-bottom:4px; font-size:9.5pt;"><strong>Software & Bioinformatics:</strong> ${softskills}</div>` : ''}
+                    ${softskills ? `<div style="margin-bottom:4px; font-size:9.5pt;"><strong>Software & Data Skills:</strong> ${softskills}</div>` : ''}
                     ${certs ? `<div style="font-size:9.5pt;"><strong>Certifications:</strong> ${certs}</div>` : ''}
                 </div>` : ''}
 
@@ -601,6 +650,13 @@ function updateResume() {
                     <div class="tpl-flex"><strong>${jobTitle}${jobOrg ? ` — ${jobOrg}` : ''}</strong><span>${jobDates}</span></div>
                     ${jobLoc ? `<div style="font-size:9pt; color:#666;">${jobLoc}</div>` : ''}
                     ${formatBulletList(jobDesc)}
+                </div>` : ''}
+
+                ${(pubTitle || pubVenue) ? `
+                <div class="tpl-sec">
+                    <h3 class="tpl-modern-head">Presentations, Posters & Publications</h3>
+                    <div class="tpl-flex"><strong>${pubTitle}</strong><span>${pubVenue}</span></div>
+                    ${formatBulletList(pubDesc)}
                 </div>` : ''}
 
                 ${(projTitle || projRole) ? `
@@ -624,7 +680,7 @@ function updateResume() {
                 <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px;">
                     <h1 class="tpl-academic-name">${name.toUpperCase()}</h1>
                     ${title ? `<div style="font-style:italic; font-size:11pt; margin-bottom:4px;">${title}</div>` : ''}
-                    <div style="font-size:9.5pt;">${contactParts.join(' | ')}</div>
+                    ${contactParts.length > 0 ? `<div style="font-size:9.5pt;">${contactParts.join(' | ')}</div>` : ''}
                 </div>
 
                 ${summary ? `
@@ -645,8 +701,8 @@ function updateResume() {
                 <div class="tpl-sec">
                     <h3 class="tpl-acad-head">LABORATORY METHODOLOGY & SKILLS</h3>
                     ${labskills ? `<div><strong>Laboratory Techniques:</strong> ${labskills}</div>` : ''}
-                    ${softskills ? `<div><strong>Computational & Data Analysis:</strong> ${softskills}</div>` : ''}
-                    ${certs ? `<div><strong>Certifications:</strong> ${certs}</div>` : ''}
+                    ${softskills ? `<div><strong>Computational & Data Analysis (R/Python):</strong> ${softskills}</div>` : ''}
+                    ${certs ? `<div><strong>Certifications & Credentials:</strong> ${certs}</div>` : ''}
                 </div>` : ''}
 
                 ${(jobTitle || jobOrg) ? `
@@ -655,6 +711,13 @@ function updateResume() {
                     <div class="tpl-flex"><strong>${jobTitle}</strong><span>${jobDates}</span></div>
                     <div><em>${jobOrg}${jobLoc ? `, ${jobLoc}` : ''}</em></div>
                     ${formatBulletList(jobDesc)}
+                </div>` : ''}
+
+                ${(pubTitle || pubVenue) ? `
+                <div class="tpl-sec">
+                    <h3 class="tpl-acad-head">PUBLICATIONS & POSTER PRESENTATIONS</h3>
+                    <div class="tpl-flex"><strong>${pubTitle}</strong><span>${pubVenue}</span></div>
+                    ${formatBulletList(pubDesc)}
                 </div>` : ''}
 
                 ${(projTitle || projRole) ? `
@@ -678,7 +741,7 @@ function updateResume() {
                 <div style="border-left: 5px solid var(--biostart-black); padding-left: 14px; margin-bottom: 16px;">
                     <h1 class="tpl-corp-name">${name}</h1>
                     ${title ? `<div style="font-size:12pt; font-weight:bold; color:var(--biostart-red);">${title}</div>` : ''}
-                    <div style="font-size:9.5pt; color:#444; margin-top:4px;">${contactParts.join('  •  ')}</div>
+                    ${contactParts.length > 0 ? `<div style="font-size:9.5pt; color:#444; margin-top:4px;">${contactParts.join('  •  ')}</div>` : ''}
                 </div>
 
                 ${summary ? `
@@ -699,7 +762,7 @@ function updateResume() {
                 <div class="tpl-sec">
                     <h3 class="tpl-corp-head">CORE COMPETENCIES & CERTIFICATIONS</h3>
                     ${labskills ? `<div>• <strong>Lab Techniques:</strong> ${labskills}</div>` : ''}
-                    ${softskills ? `<div>• <strong>Software & Tools:</strong> ${softskills}</div>` : ''}
+                    ${softskills ? `<div>• <strong>Data & Software Tools:</strong> ${softskills}</div>` : ''}
                     ${certs ? `<div>• <strong>Certifications:</strong> ${certs}</div>` : ''}
                 </div>` : ''}
 
@@ -708,6 +771,13 @@ function updateResume() {
                     <h3 class="tpl-corp-head">PROFESSIONAL EXPERIENCE</h3>
                     <div class="tpl-flex"><strong>${jobTitle} | ${jobOrg}</strong><span>${jobDates}</span></div>
                     ${formatBulletList(jobDesc)}
+                </div>` : ''}
+
+                ${(pubTitle || pubVenue) ? `
+                <div class="tpl-sec">
+                    <h3 class="tpl-corp-head">PUBLICATIONS & PRESENTATIONS</h3>
+                    <div class="tpl-flex"><strong>${pubTitle}</strong><span>${pubVenue}</span></div>
+                    ${formatBulletList(pubDesc)}
                 </div>` : ''}
 
                 ${(projTitle || projRole) ? `
@@ -734,6 +804,7 @@ function updateResume() {
                 </div>
                 <div class="tpl-compact-grid">
                     <div class="tpl-compact-left">
+                        ${contactParts.length > 0 ? `
                         <div class="tpl-compact-box">
                             <h4 class="tpl-compact-head">CONTACT</h4>
                             <div style="font-size:9pt; line-height:1.5;">
@@ -742,13 +813,13 @@ function updateResume() {
                                 ${location ? `<div>📍 ${location}</div>` : ''}
                                 ${linkedin ? `<div>🔗 ${linkedin}</div>` : ''}
                             </div>
-                        </div>
+                        </div>` : ''}
 
                         ${(labskills || softskills || certs) ? `
                         <div class="tpl-compact-box">
                             <h4 class="tpl-compact-head">TECHNICAL SKILLS</h4>
                             ${labskills ? `<div style="font-weight:bold; margin-bottom:2px;">Lab Techniques:</div><div style="margin-bottom:8px;">${labskills}</div>` : ''}
-                            ${softskills ? `<div style="font-weight:bold; margin-bottom:2px;">Software:</div><div style="margin-bottom:8px;">${softskills}</div>` : ''}
+                            ${softskills ? `<div style="font-weight:bold; margin-bottom:2px;">Software & Data:</div><div style="margin-bottom:8px;">${softskills}</div>` : ''}
                             ${certs ? `<div style="font-weight:bold; margin-bottom:2px;">Certifications:</div><div>${certs}</div>` : ''}
                         </div>` : ''}
 
@@ -785,6 +856,13 @@ function updateResume() {
                             <div class="tpl-flex"><strong>${jobTitle}</strong><span>${jobDates}</span></div>
                             <div><em>${jobOrg}</em></div>
                             ${formatBulletList(jobDesc)}
+                        </div>` : ''}
+
+                        ${(pubTitle || pubVenue) ? `
+                        <div class="tpl-sec">
+                            <h3 class="tpl-modern-head">PRESENTATIONS & PUBLICATIONS</h3>
+                            <div class="tpl-flex"><strong>${pubTitle}</strong><span>${pubVenue}</span></div>
+                            ${formatBulletList(pubDesc)}
                         </div>` : ''}
 
                         ${(projTitle || projRole) ? `
