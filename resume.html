@@ -76,12 +76,21 @@
                     </h3>
                     <div style="display:flex; gap:6px;">
                         <button class="btn-action-sm" onclick="loadSampleResumeData()" title="Fill form with sample Biotech profile">
-                            ⚡ Sample Data
+                            ⚡ Fill All
                         </button>
                         <button class="btn-action-sm" onclick="clearResumeForm()" style="background:#555;" title="Clear all fields">
                             🗑️ Clear
                         </button>
                     </div>
+                </div>
+
+                <!-- SAMPLE EXAMPLES TOGGLE SWITCH -->
+                <div class="sample-toggle-box">
+                    <label class="toggle-container">
+                        <input type="checkbox" id="sample-toggle" onchange="toggleSamplePersonalInfo(this.checked)">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">💡 Show Sample Personal & Education Examples</span>
+                    </label>
                 </div>
 
                 <!-- SECTION 1: PERSONAL DETAILS -->
@@ -90,7 +99,7 @@
                     <div class="form-row-2">
                         <div>
                             <label class="form-label">Full Name *</label>
-                            <input type="text" id="res-name" class="resume-field" placeholder="e.g. Alex M. Smith" oninput="updateResume()">
+                            <input type="text" id="res-name" class="resume-field" placeholder="e.g. First M. Last" oninput="updateResume()">
                         </div>
                         <div>
                             <label class="form-label">Professional Title / Target Role</label>
@@ -100,21 +109,21 @@
                     <div class="form-row-2">
                         <div>
                             <label class="form-label">Email Address *</label>
-                            <input type="email" id="res-email" class="resume-field" placeholder="e.g. alex.smith@mcvts.org" oninput="updateResume()">
+                            <input type="email" id="res-email" class="resume-field" placeholder="e.g. student@example.com" oninput="updateResume()">
                         </div>
                         <div>
                             <label class="form-label">Phone Number</label>
-                            <input type="text" id="res-phone" class="resume-field" placeholder="e.g. (973) 555-0199" oninput="updateResume()">
+                            <input type="text" id="res-phone" class="resume-field" placeholder="e.g. (555) 000-0000" oninput="updateResume()">
                         </div>
                     </div>
                     <div class="form-row-2">
                         <div>
                             <label class="form-label">City, State & Zip</label>
-                            <input type="text" id="res-location" class="resume-field" placeholder="e.g. Denville, NJ 07834" oninput="updateResume()">
+                            <input type="text" id="res-location" class="resume-field" placeholder="e.g. City, State Zip" oninput="updateResume()">
                         </div>
                         <div>
                             <label class="form-label">LinkedIn / Portfolio URL</label>
-                            <input type="text" id="res-linkedin" class="resume-field" placeholder="e.g. linkedin.com/in/alexsmith-biotech" oninput="updateResume()">
+                            <input type="text" id="res-linkedin" class="resume-field" placeholder="e.g. linkedin.com/in/yourprofile" oninput="updateResume()">
                         </div>
                     </div>
                 </div>
@@ -132,7 +141,7 @@
                     <div class="form-row-2">
                         <div>
                             <label class="form-label">School / Institution Name *</label>
-                            <input type="text" id="res-school" class="resume-field" placeholder="e.g. Morris County School of Technology" oninput="updateResume()">
+                            <input type="text" id="res-school" class="resume-field" placeholder="e.g. High School / College Name" oninput="updateResume()">
                         </div>
                         <div>
                             <label class="form-label">Graduation Date / Expected</label>
@@ -146,11 +155,11 @@
                         </div>
                         <div>
                             <label class="form-label">GPA / Academic Honors</label>
-                            <input type="text" id="res-gpa" class="resume-field" placeholder="e.g. GPA: 3.92 / 4.0 | High Honor Roll" oninput="updateResume()">
+                            <input type="text" id="res-gpa" class="resume-field" placeholder="e.g. GPA: 3.9 / 4.0 | High Honor Roll" oninput="updateResume()">
                         </div>
                     </div>
                     <label class="form-label">Relevant Coursework</label>
-                    <textarea id="res-courses" class="resume-field" rows="2" placeholder="e.g. Biotechnology I & II, Organic Chemistry, Molecular Genetics, AP Biology, Bioinformatics" oninput="updateResume()"></textarea>
+                    <textarea id="res-courses" class="resume-field" rows="2" placeholder="e.g. Biotechnology I & II, Organic Chemistry, Molecular Genetics, AP Biology, Introductory Statistics" oninput="updateResume()"></textarea>
                 </div>
 
                 <!-- SECTION 4: TECHNICAL & LAB SKILLS -->
@@ -160,10 +169,10 @@
                     <input type="text" id="res-labskills" class="resume-field" placeholder="e.g. Micropipetting, PCR Amplification, Gel Electrophoresis, Aseptic Cell Culture, DNA Extraction, Spectrophotometry" oninput="updateResume()">
                     
                     <label class="form-label">Software, Bioinformatics & Data Tools</label>
-                    <input type="text" id="res-softskills" class="resume-field" placeholder="e.g. Python, R, BLAST Database, PyMOL, Microsoft Excel (Data Analysis)" oninput="updateResume()">
+                    <input type="text" id="res-softskills" class="resume-field" placeholder="e.g. R Programming, Python, BLAST Database, PyMOL, Intro Statistics, Microsoft Excel (Data Analysis)" oninput="updateResume()">
 
                     <label class="form-label">Certifications & Safety Credentials</label>
-                    <input type="text" id="res-certs" class="resume-field" placeholder="e.g. Biotechnician Assistant Credential (BTEC), OSHA 10-Hour General Industry, CPR/AED" oninput="updateResume()">
+                    <input type="text" id="res-certs" class="resume-field" placeholder="e.g. Biotility Biotechnology Aptitude & Competency Exam (BACE), CITI Responsible Conduct of Research (RCR), OSHA 10-Hour" oninput="updateResume()">
                 </div>
 
                 <!-- SECTION 5: RESEARCH & WORK EXPERIENCE -->
@@ -176,7 +185,7 @@
                         </div>
                         <div>
                             <label class="form-label">Organization / Lab Name</label>
-                            <input type="text" id="res-job-org" class="resume-field" placeholder="e.g. Waksman Student Scholars Program" oninput="updateResume()">
+                            <input type="text" id="res-job-org" class="resume-field" placeholder="e.g. Student Scholars Program" oninput="updateResume()">
                         </div>
                     </div>
                     <div class="form-row-2">
@@ -186,7 +195,7 @@
                         </div>
                         <div>
                             <label class="form-label">Location</label>
-                            <input type="text" id="res-job-loc" class="resume-field" placeholder="e.g. Rutgers University, NJ" oninput="updateResume()">
+                            <input type="text" id="res-job-loc" class="resume-field" placeholder="e.g. City, State" oninput="updateResume()">
                         </div>
                     </div>
                     <label class="form-label">Key Responsibilities & Accomplishments (1 per line)</label>
@@ -207,14 +216,31 @@
                         </div>
                     </div>
                     <label class="form-label">Description & Key Results</label>
-                    <textarea id="res-proj-desc" class="resume-field" rows="2" placeholder="• Led a 4-student team in designing a bioremediation strategy for microplastic degradation using recombinant bacteria.&#10;• Presented research poster at NJ HOSA State Leadership Conference, placing 2nd overall." oninput="updateResume()"></textarea>
+                    <textarea id="res-proj-desc" class="resume-field" rows="2" placeholder="• Led a 4-student team in designing a bioremediation strategy for microplastic degradation using recombinant bacteria.&#10;• Presented research poster at State Leadership Conference, placing 2nd overall." oninput="updateResume()"></textarea>
                 </div>
 
                 <!-- SECTION 7: HONORS & AWARDS -->
                 <div class="form-section-group">
                     <h4 class="form-section-title">7. Honors, Awards & Grants</h4>
                     <label class="form-label">Honors & Achievements (1 per line)</label>
-                    <textarea id="res-honors" class="resume-field" rows="2" placeholder="• 2nd Place - NJ State HOSA Biotechnology Competition (2025)&#10;• National Honor Society Inductee (2024)&#10;• Honor Roll Recognition (2023 - 2025)" oninput="updateResume()"></textarea>
+                    <textarea id="res-honors" class="resume-field" rows="2" placeholder="• 2nd Place - State Biotechnology Competition (2025)&#10;• National Honor Society Inductee (2024)&#10;• Honor Roll Recognition (2023 - 2025)" oninput="updateResume()"></textarea>
+                </div>
+
+                <!-- SECTION 8: SCIENTIFIC PRESENTATIONS, POSTERS & PUBLICATIONS -->
+                <div class="form-section-group">
+                    <h4 class="form-section-title">8. Scientific Presentations, Posters & Publications</h4>
+                    <div class="form-row-2">
+                        <div>
+                            <label class="form-label">Presentation / Poster / Publication Title</label>
+                            <input type="text" id="res-pub-title" class="resume-field" placeholder="e.g. Analysis of Plasmid Vectors in E. coli" oninput="updateResume()">
+                        </div>
+                        <div>
+                            <label class="form-label">Conference, Journal, or Symposium & Date</label>
+                            <input type="text" id="res-pub-venue" class="resume-field" placeholder="e.g. NJ Academy of Science Annual Meeting | April 2025" oninput="updateResume()">
+                        </div>
+                    </div>
+                    <label class="form-label">Summary / Co-Authors / Abstract Citation</label>
+                    <textarea id="res-pub-desc" class="resume-field" rows="2" placeholder="• Poster presentation evaluating stress response gene expression in urban plant species.&#10;• Co-authored abstract published in Proceedings of the NJ Science Student Symposium." oninput="updateResume()"></textarea>
                 </div>
 
                 <!-- ACTION BUTTONS -->
