@@ -3,32 +3,20 @@
    BIOSTART GLOBAL STATE & COMPREHENSIVE DATASET
    ========================================================================== */
 
-   const VALID_NJ_TOWNS = [
-    "denville", "morristown", "parsippany", "hackensack", "edison", "newark", "jersey city",
-    "paterson", "elizabeth", "toms river", "trenton", "clifton", "camden", "passaic",
-    "union", "bayonne", "east orange", "vineland", "new brunswick", "hoboken", "west new york",
-    "perth amboy", "plainfield", "sayreville", "bridgewater", "cherry hill", "wayne", "freehold",
-    "randolph", "dover", "rockaway", "boonton", "madison", "chatham", "mendham", "montville",
-    "glassboro", "piscataway", "princeton", "atlantic city", "montclair", "westfield", "fort lee",
-    "fair lawn", "ridgewood", "paramus", "mahwah", "englewood", "deptford", "hamilton", "woodbridge",
-    "middletown", "brick", "old bridge", "gloucester", "somerville", "flemington", "hackettstown",
-    "belvidere", "secaucus", "nutley", "bloomfield", "kearny", "linden", "rahway", "cranford",
-    "summit", "livingston", "millburn", "west orange", "verona", "caldwell", "roseland", "wharton",
-    "roxbury", "jefferson", "kinnelon", "lincoln park", "long valley", "chester", "peapack", "gladstone"
-];
+   const VALID_NJ_TOWNS = ["absecon", "adelphia", "allamuchy", "allendale", "allenhurst", "allentown", "allenwood", "alloway", "alpine", "andover", "annandale", "apo", "asbury", "asbury park", "atco", "atlantic city", "atlantic highlands", "audubon", "augusta", "avalon", "avenel", "avon by the sea", "baptistown", "barnegat", "barnegat light", "barrington", "basking ridge", "bayonne", "bayville", "beach haven", "beachwood", "bedminster", "belford", "belle mead", "belleville", "bellmawr", "belmar", "belvidere", "bergenfield", "berkeley heights", "berlin", "bernardsville", "beverly", "birmingham", "blackwood", "blairstown", "blawenburg", "bloomfield", "bloomingdale", "bloomsbury", "bogota", "boonton", "bordentown", "bound brook", "bradley beach", "branchville", "brick", "bridgeport", "bridgeton", "bridgewater", "brielle", "brigantine", "broadway", "brookside", "browns mills", "budd lake", "buena", "burlington", "butler", "buttzville", "caldwell", "califon", "camden", "cape may", "cape may court house", "cape may point", "carlstadt", "carteret", "cedar brook", "cedar grove", "cedar knolls", "cedarville", "changewater", "chatham", "chatsworth", "cherry hill", "chester", "chesterfield", "clark", "clarksboro", "clayton", "clementon", "cliffside park", "cliffwood", "clifton", "clinton", "closter", "collingswood", "cologne", "colonia", "colts neck", "columbia", "columbus", "convent station", "cookstown", "cranbury", "cranford", "cream ridge", "cresskill", "dayton", "deal", "deepwater", "deerfield street", "delaware", "delmont", "demarest", "dennisville", "denville", "deptford", "dividing creek", "dorchester", "dorothy", "dover", "dpo", "dumont", "dunellen", "east brunswick", "east hanover", "east orange", "east rutherford", "eatontown", "edgewater", "edison", "egg harbor city", "egg harbor township", "elizabeth", "elizabethport", "elmer", "elmwood park", "elwood", "emerson", "englewood", "englewood cliffs", "englishtown", "essex fells", "estell manor", "ewan", "fair haven", "fair lawn", "fairfield", "fairton", "fairview", "fanwood", "far hills", "farmingdale", "flagtown", "flanders", "flemington", "florence", "florham park", "fords", "forked river", "fort lee", "fort monmouth", "fortescue", "franklin", "franklin lakes", "franklin park", "franklinville", "freehold", "frenchtown", "garfield", "garwood", "gibbsboro", "gibbstown", "gillette", "gladstone", "glassboro", "glasser", "glen gardner", "glen ridge", "glen rock", "glendora", "glenwood", "gloucester", "gloucester city", "goshen", "great meadows", "green creek", "green village", "greendell", "greenwich", "grenloch", "hackensack", "hackettstown", "haddon heights", "haddonfield", "hainesport", "haledon", "hamburg", "hamilton", "hammonton", "hampton", "hancocks bridge", "harrington park", "harrison", "harrisonville", "hasbrouck heights", "haskell", "haworth", "hawthorne", "hazlet", "heislerville", "helmetta", "hewitt", "hibernia", "high bridge", "highland lakes", "highland park", "highlands", "hightstown", "hillsborough", "hillsdale", "hillside", "ho ho kus", "hoboken", "holmdel", "hopatcong", "hope", "hopewell", "howell", "imlaystown", "ironia", "irvington", "iselin", "island heights", "jackson", "jefferson", "jersey city", "jobstown", "johnsonburg", "joint base mdl", "juliustown", "keansburg", "kearny", "keasbey", "kendall park", "kenilworth", "kenvil", "keyport", "kingston", "kinnelon", "lafayette", "lake hiawatha", "lake hopatcong", "lakehurst", "lakewood", "lambertville", "landing", "landisville", "lanoka harbor", "lavallette", "lawnside", "lawrence township", "layton", "lebanon", "ledgewood", "leeds point", "leesburg", "leonardo", "leonia", "liberty corner", "lincoln park", "lincroft", "linden", "linwood", "little falls", "little ferry", "little silver", "little york", "livingston", "lodi", "long branch", "long valley", "longport", "lumberton", "lyndhurst", "lyons", "madison", "magnolia", "mahwah", "malaga", "manahawkin", "manasquan", "manchester township", "mantoloking", "mantua", "manville", "maple shade", "maplewood", "margate city", "marlboro", "marlton", "marmora", "martinsville", "matawan", "mauricetown", "mays landing", "maywood", "mc afee", "medford", "mendham", "merchantville", "metuchen", "mickleton", "middlesex", "middletown", "middleville", "midland park", "milford", "millburn", "millington", "millstone township", "milltown", "millville", "milmay", "mine hill", "minotola", "mizpah", "monmouth beach", "monmouth junction", "monroe township", "monroeville", "montague", "montclair", "montvale", "montville", "moonachie", "moorestown", "morganville", "morris plains", "morristown", "mount arlington", "mount ephraim", "mount freedom", "mount holly", "mount laurel", "mount royal", "mount tabor", "mountain lakes", "mountainside", "mullica hill", "national park", "navesink", "neptune", "neshanic station", "netcong", "new brunswick", "new egypt", "new gretna", "new lisbon", "new milford", "new providence", "new vernon", "newark", "newfield", "newfoundland", "newport", "newton", "newtonville", "norma", "normandy beach", "north arlington", "north bergen", "north brunswick", "northfield", "northvale", "norwood", "nutley", "oak ridge", "oakhurst", "oakland", "oaklyn", "ocean city", "ocean gate", "ocean grove", "ocean view", "oceanport", "oceanville", "ogdensburg", "old bridge", "oldwick", "oradell", "orange", "oxford", "palisades park", "palmyra", "paramus", "park ridge", "parlin", "parsippany", "passaic", "paterson", "paulsboro", "peapack", "pedricktown", "pemberton", "pennington", "penns grove", "pennsauken", "pennsville", "pequannock", "perth amboy", "phillipsburg", "picatinny arsenal", "pine beach", "pine brook", "piscataway", "pitman", "pittstown", "plainfield", "plainsboro", "pleasantville", "pluckemin", "point pleasant beach", "pomona", "pompton lakes", "pompton plains", "port elizabeth", "port monmouth", "port murray", "port norris", "port reading", "port republic", "pottersville", "princeton", "princeton junction", "quakertown", "quinton", "rahway", "ramsey", "rancocas", "randolph", "raritan", "readington", "red bank", "richland", "richwood", "ridgefield", "ridgefield park", "ridgewood", "ringoes", "ringwood", "rio grande", "river edge", "riverdale", "riverside", "riverton", "robbinsville", "rochelle park", "rockaway", "rocky hill", "roebling", "roosevelt", "roseland", "roselle", "roselle park", "rosemont", "rosenhayn", "roxbury", "rumson", "runnemede", "rutherford", "saddle brook", "saddle river", "salem", "sayreville", "schooleys mountain", "scotch plains", "sea girt", "sea isle city", "seaside heights", "seaside park", "secaucus", "sergeantsville", "sewaren", "sewell", "shiloh", "short hills", "shrewsbury", "sicklerville", "skillman", "somerdale", "somers point", "somerset", "somerville", "south amboy", "south bound brook", "south dennis", "south hackensack", "south orange", "south plainfield", "south river", "south seaville", "sparta", "spotswood", "spring lake", "springfield", "stanhope", "stanton", "stewartsville", "stillwater", "stirling", "stockholm", "stockton", "stone harbor", "stratford", "strathmere", "succasunna", "summit", "sussex", "swartswood", "swedesboro", "teaneck", "tenafly", "tennent", "teterboro", "thorofare", "three bridges", "titusville", "toms river", "totowa", "towaco", "township of washington", "tranquility", "trenton", "tuckahoe", "tuckerton", "union", "union city", "vauxhall", "ventnor city", "vernon", "verona", "vienna", "villas", "vincentown", "vineland", "voorhees", "waldwick", "wallington", "wallpack center", "wanaque", "waretown", "warren", "washington", "watchung", "waterford works", "wayne", "weehawken", "wenonah", "west berlin", "west creek", "west long branch", "west milford", "west new york", "west orange", "westfield", "westville", "westwood", "wharton", "whippany", "whitehouse", "whitehouse station", "whitesboro", "wickatunk", "wildwood", "williamstown", "willingboro", "windsor", "winslow", "wood ridge", "woodbine", "woodbridge", "woodbury", "woodbury heights", "woodcliff lake", "woodstown", "wrightstown", "wyckoff", "zarephath"];
 
 const HIGH_SCHOOLS = [
-    { id: 'hs1', name: 'Bergen County Academies', county: 'Bergen', town: 'Hackensack', ageMin: 13, season: 'Fall', url: 'https://www.bergen.org/site/Defaulta575.html?PageID=4583', notes: 'Top specialized high school in Hackensack; middle schoolers apply during 8th grade.' },
-    { id: 'hs2', name: 'Burlington County Institute of Technology', county: 'Burlington', town: 'Westampton', ageMin: 13, season: 'Fall', url: 'https://www.bcit.cc/o/bcit/page/biomedical-science', notes: 'Biomedical Science academy track.' },
-    { id: 'hs3', name: 'Camden County Technical Schools', county: 'Camden', town: 'Sicklerville', ageMin: 13, season: 'Fall', url: 'https://www.ccts.org/apps/pages/index.jsp?uREC_ID=260569&type=d&termREC_ID=&pREC_ID=1157907', notes: 'Career technical biological sciences.' },
-    { id: 'hs4', name: 'Gloucester County Institute of Technology', county: 'Gloucester', town: 'Sewell', ageMin: 13, season: 'Fall', url: 'https://www.gcit.org/admissions/career-programs/academy-of-biological-sciences', notes: 'Academy of Biological Sciences.' },
-    { id: 'hs5', name: 'Hunterdon County Vocational School District', county: 'Hunterdon', town: 'Flemington', ageMin: 13, season: 'Fall', url: 'https://bsa.hcvsd.org/apps/pages/index.jsp?uREC_ID=412789&type=d', notes: 'Biomedical Sciences Academy program.' },
-    { id: 'hs6', name: 'Middlesex County Magnet Schools', county: 'Middlesex', town: 'Edison', ageMin: 13, season: 'Fall', url: 'https://www.mcmsnj.net/innovation-magnet-school/program-3-clone-clone', notes: 'Innovation Magnet School STEM program in Edison.' },
-    { id: 'hs7', name: 'Biotechnology High School', county: 'Monmouth', town: 'Freehold', ageMin: 13, season: 'Fall', url: 'https://www.bths.mcvsd.org/', notes: 'Full-time specialized biotechnology high school in Freehold.' },
-    { id: 'hs8', name: 'Somerset County Vocational and Technical School', county: 'Somerset', town: 'Bridgewater', ageMin: 13, season: 'Fall', url: 'https://www.scvths.org/programs/career-technical-programs/program-overviews-printable', notes: 'Career technical biological science programs in Bridgewater.' },
-    { id: 'hs9', name: 'MCST Biotech Academy', county: 'Morris', town: 'Denville', ageMin: 13, season: 'Fall', url: 'https://www.mcvts.org/mcvsd-programs/full-time-academies/biotechnology', notes: 'Academy for Biotechnology at Morris County School of Technology in Denville.' },
-    { id: 'hs10', name: 'Passaic County Technical Institute', county: 'Passaic', town: 'Wayne', ageMin: 13, season: 'Fall', url: 'https://pcti.pctvs.org/o/pcti/page/new-for-23-24-biotechnology-early-college-option', notes: 'Biotechnology early college option in Wayne. Offers Biotility BACE exam credentialing.' },
-    { id: 'hs11', name: 'Union County Magnet High School', county: 'Union', town: 'Scotch Plains', ageMin: 13, season: 'Fall', url: 'https://mhs.ucvts.org/', notes: 'Magnet high school for science, math, and technology.' }
+    { id: 'hs1', name: 'Bergen County Academies', county: 'Bergen', town: 'Hackensack', ageMin: 10, season: 'Fall', url: 'https://www.bergen.org/site/Defaulta575.html?PageID=4583', notes: 'Top specialized high school in Hackensack; middle schoolers apply during 8th grade.' },
+    { id: 'hs2', name: 'Burlington County Institute of Technology', county: 'Burlington', town: 'Westampton', ageMin: 10, season: 'Fall', url: 'https://www.bcit.cc/o/bcit/page/biomedical-science', notes: 'Biomedical Science academy track.' },
+    { id: 'hs3', name: 'Camden County Technical Schools', county: 'Camden', town: 'Sicklerville', ageMin: 10, season: 'Fall', url: 'https://www.ccts.org/apps/pages/index.jsp?uREC_ID=260569&type=d&termREC_ID=&pREC_ID=1157907', notes: 'Career technical biological sciences.' },
+    { id: 'hs4', name: 'Gloucester County Institute of Technology', county: 'Gloucester', town: 'Sewell', ageMin: 10, season: 'Fall', url: 'https://www.gcit.org/admissions/career-programs/academy-of-biological-sciences', notes: 'Academy of Biological Sciences.' },
+    { id: 'hs5', name: 'Hunterdon County Vocational School District', county: 'Hunterdon', town: 'Flemington', ageMin: 10, season: 'Fall', url: 'https://bsa.hcvsd.org/apps/pages/index.jsp?uREC_ID=412789&type=d', notes: 'Biomedical Sciences Academy program.' },
+    { id: 'hs6', name: 'Middlesex County Magnet Schools', county: 'Middlesex', town: 'Edison', ageMin: 10, season: 'Fall', url: 'https://www.mcmsnj.net/innovation-magnet-school/program-3-clone-clone', notes: 'Innovation Magnet School STEM program in Edison.' },
+    { id: 'hs7', name: 'Biotechnology High School', county: 'Monmouth', town: 'Freehold', ageMin: 10, season: 'Fall', url: 'https://www.bths.mcvsd.org/', notes: 'Full-time specialized biotechnology high school in Freehold.' },
+    { id: 'hs8', name: 'Somerset County Vocational and Technical School', county: 'Somerset', town: 'Bridgewater', ageMin: 10, season: 'Fall', url: 'https://www.scvths.org/programs/career-technical-programs/program-overviews-printable', notes: 'Career technical biological science programs in Bridgewater.' },
+    { id: 'hs9', name: 'MCST Biotech Academy', county: 'Morris', town: 'Denville', ageMin: 10, season: 'Fall', url: 'https://www.mcvts.org/mcvsd-programs/full-time-academies/biotechnology', notes: 'Academy for Biotechnology at Morris County School of Technology in Denville.' },
+    { id: 'hs10', name: 'Passaic County Technical Institute', county: 'Passaic', town: 'Wayne', ageMin: 10, season: 'Fall', url: 'https://pcti.pctvs.org/o/pcti/page/new-for-23-24-biotechnology-early-college-option', notes: 'Biotechnology early college option in Wayne. Offers Biotility BACE exam credentialing.' },
+    { id: 'hs11', name: 'Union County Magnet High School', county: 'Union', town: 'Scotch Plains', ageMin: 10, season: 'Fall', url: 'https://mhs.ucvts.org/', notes: 'Magnet high school for science, math, and technology.' }
 ];
 
 const COLLEGES = [
@@ -76,7 +64,7 @@ const OPPORTUNITIES = [
 const AVATARS = ['🔬', '🧬', '🧪', '🧫', '💻', '🎓', '💼'];
 
 // Persistent State loaded from LocalStorage
-let userProfile = JSON.parse(localStorage.getItem('biostart_userProfile')) || {
+const DEFAULT_PROFILE = {
     name: "",
     email: "",
     county: "Morris",
@@ -90,6 +78,15 @@ let userProfile = JSON.parse(localStorage.getItem('biostart_userProfile')) || {
     progress: {},
     surveyCompleted: false
 };
+
+let userProfile = (() => {
+    try {
+        const saved = JSON.parse(localStorage.getItem('biostart_userProfile'));
+        return Object.assign({}, DEFAULT_PROFILE, saved && typeof saved === 'object' ? saved : {});
+    } catch (e) {
+        return Object.assign({}, DEFAULT_PROFILE);
+    }
+})();
 
 let selectedCountyFilter = "ALL";
 let activeCollegeMode = "foryou";
@@ -158,9 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateUserHeaderDisplay();
     loadSurveyForm();
     renderAllGrids();
-    if (document.getElementById('printable-resume')) {
-        loadSampleResumeData();
-    }
+    if (document.getElementById('printable-resume')) initResumeBuilder();
     if (document.getElementById('prof-fname') || document.getElementById('profile-edit-form')) loadProfileDisplay();
 });
 
@@ -221,7 +216,10 @@ function renderHighSchools() {
     }
     
     if (list.length === 0) {
-        container.innerHTML = `<p style="grid-column: 1/-1; padding:20px; font-weight:bold;">No high schools matching your location/age criteria.</p>`;
+        const emptyMsg = selectedCountyFilter !== 'ALL'
+            ? `No biotechnology CTE programs are listed for ${selectedCountyFilter} County yet. Try a neighboring county or choose [ALL COUNTIES].`
+            : 'No high schools matching your location/age criteria.';
+        container.innerHTML = `<p style="grid-column: 1/-1; padding:20px; font-weight:bold;">${emptyMsg}</p>`;
         return;
     }
 
@@ -251,59 +249,73 @@ function selectCollegeTab(mode) {
     renderColleges();
 }
 
+/* --- SHARED RECOMMENDATION LOGIC --- */
+function recommendFor(items, useSeason, label) {
+    const u = userProfile;
+    const loc = i => u.locationPref === 'In State (NJ)' ? i.isNJ : (u.locationPref === 'Out of State' ? !i.isNJ : true);
+    const seasonOk = i => !useSeason || u.season === 'All Seasons' || i.season === 'All Seasons' || i.season === u.season;
+
+    let out = items.filter(i => u.age >= i.ageMin && loc(i) && seasonOk(i));
+    if (out.length) return { items: out, notice: '' };
+
+    out = items.filter(i => u.age >= i.ageMin && loc(i));
+    if (out.length) return { items: out, notice: `Nothing matched your season exactly, so these are all the ${label} you are eligible for with your location preference.` };
+
+    out = items.filter(loc);
+    if (out.length) return { items: out, notice: `You are not yet old enough for any ${label} in your location preference. They are shown so you can plan ahead; check the minimum age on each card.` };
+
+    return { items: items.slice(), notice: `Nothing matched your location preference, so all ${label} are shown. Check the minimum age on each card.` };
+}
+
+function noticeCard(msg) {
+    return `<div style="grid-column: 1/-1; background: #fff8e1; border: 2px solid var(--biostart-black); padding: 12px 16px; border-radius: 6px; font-size: 13px; font-weight: 700;">ℹ️ ${msg}</div>`;
+}
+
+function ageTag(item) {
+    return userProfile.surveyCompleted && userProfile.age < item.ageMin ? ` | AGE ${item.ageMin}+` : '';
+}
+
 function renderColleges() {
     const container = document.getElementById('grid-col');
     if (!container) return;
     container.innerHTML = '';
 
     if (activeCollegeMode === 'foryou' && !userProfile.surveyCompleted) {
-        container.innerHTML = surveyRequiredCard('Please take our survey to unlock personalized college recommendations matching your town, age, location preference (in-state vs. out-of-state), and season.');
+        container.innerHTML = surveyRequiredCard('Please take our survey to unlock personalized college recommendations matching your town, age, and location preference (in-state vs. out-of-state).');
         return;
     }
 
     let list = COLLEGES;
+    let notice = '';
 
     if (activeCollegeMode === 'instate') {
         list = COLLEGES.filter(c => c.isNJ);
     } else if (activeCollegeMode === 'outstate') {
         list = COLLEGES.filter(c => !c.isNJ);
     } else if (activeCollegeMode === 'foryou') {
-        list = COLLEGES.filter(c => {
-            const ageMatch = userProfile.age >= c.ageMin;
-            const seasonMatch = (userProfile.season === 'All Seasons' || c.season === 'All Seasons' || c.season === userProfile.season);
-            let locMatch = true;
-            if (userProfile.locationPref === 'In State (NJ)') locMatch = c.isNJ;
-            else if (userProfile.locationPref === 'Out of State') locMatch = !c.isNJ;
-            return ageMatch && seasonMatch && locMatch;
-        });
-
-        if (list.length === 0) {
-            list = COLLEGES.filter(c => {
-                let locMatch = true;
-                if (userProfile.locationPref === 'In State (NJ)') locMatch = c.isNJ;
-                else if (userProfile.locationPref === 'Out of State') locMatch = !c.isNJ;
-                return locMatch;
-            });
-            if (list.length === 0) list = COLLEGES.slice(0, 4);
-        }
-
+        // Season is not used for colleges (it only applies to internships and jobs).
+        const rec = recommendFor(COLLEGES, false, 'colleges');
+        list = rec.items;
+        notice = rec.notice;
         sortByTownAndCounty(list);
     }
 
+    let html = notice ? noticeCard(notice) : '';
     list.forEach(col => {
         const isLiked = userProfile.savedIds.includes(col.id);
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(col, userProfile.town);
-        container.innerHTML += `
+        html += `
             <div class="card">
-                <span class="card-tag">${col.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''} | ${col.location}</span>
+                <span class="card-tag">${col.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(col)} | ${col.location}</span>
                 <div class="card-title">${col.name}</div>
-                <div class="card-body"><strong>Cost:</strong> ${col.cost}<br><strong>Acceptance:</strong> ${col.acceptance}<br>${col.notes}</div>
+                <div class="card-body"><strong>Cost:</strong> ${col.cost}<br><strong>Acceptance:</strong> ${col.acceptance}<br><strong>Typical applicant age:</strong> ${col.ageMin}+<br>${col.notes}</div>
                 <div class="card-actions">
                     <a href="${col.url}" target="_blank" class="btn-action">View Details</a>
                     <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${col.id}')">♥</span>
                 </div>
             </div>`;
     });
+    container.innerHTML = html;
 }
 
 /* --- JOBS RENDER --- */
@@ -327,48 +339,35 @@ function renderJobs() {
     }
 
     let list = JOBS;
+    let notice = '';
 
     if (activeJobMode === 'instate') {
         list = JOBS.filter(j => j.isNJ);
     } else if (activeJobMode === 'outstate') {
         list = JOBS.filter(j => !j.isNJ);
     } else if (activeJobMode === 'foryou') {
-        list = JOBS.filter(j => {
-            const ageMatch = userProfile.age >= j.ageMin;
-            const seasonMatch = (userProfile.season === 'All Seasons' || j.season === 'All Seasons' || j.season === userProfile.season);
-            let locMatch = true;
-            if (userProfile.locationPref === 'In State (NJ)') locMatch = j.isNJ;
-            else if (userProfile.locationPref === 'Out of State') locMatch = !j.isNJ;
-            return ageMatch && seasonMatch && locMatch;
-        });
-
-        if (list.length === 0) {
-            list = JOBS.filter(j => {
-                let locMatch = true;
-                if (userProfile.locationPref === 'In State (NJ)') locMatch = j.isNJ;
-                else if (userProfile.locationPref === 'Out of State') locMatch = !j.isNJ;
-                return locMatch;
-            });
-            if (list.length === 0) list = JOBS.filter(j => userProfile.age >= j.ageMin);
-        }
-
+        const rec = recommendFor(JOBS, true, 'internships and jobs');
+        list = rec.items;
+        notice = rec.notice;
         sortByTownAndCounty(list);
     }
 
+    let html = notice ? noticeCard(notice) : '';
     list.forEach(j => {
         const isLiked = userProfile.savedIds.includes(j.id);
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(j, userProfile.town);
-        container.innerHTML += `
+        html += `
             <div class="card">
-                <span class="card-tag">${j.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''} | ${j.cat.toUpperCase()}</span>
+                <span class="card-tag">${j.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(j)} | ${j.cat.toUpperCase()}</span>
                 <div class="card-title">${j.name}</div>
-                <div class="card-body"><strong>Contact Email:</strong> ${j.email}<br>${j.notes}</div>
+                <div class="card-body"><strong>Minimum age:</strong> ${j.ageMin}+<br><strong>Contact Email:</strong> ${j.email}<br>${j.notes}</div>
                 <div class="card-actions">
                     <a href="${j.url}" target="_blank" class="btn-action">Apply Now</a>
                     <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${j.id}')">♥</span>
                 </div>
             </div>`;
     });
+    container.innerHTML = html;
 }
 
 /* --- OPPORTUNITIES RENDER --- */
@@ -399,15 +398,28 @@ function renderOpportunities() {
 }
 
 /* --- SURVEY HANDLER & DYNAMIC ROUTING FIX --- */
+function normalizeTown(t) {
+    return (t || '').toLowerCase().replace(/\./g, '').replace(/\s+(township|twp|borough|town|village)$/, '').replace(/\s+/g, ' ').trim();
+}
+
+const NJ_TOWN_SET = new Set(VALID_NJ_TOWNS.map(normalizeTown));
+
+function formatTown(t) {
+    return normalizeTown(t).replace(/\b\w/g, ch => ch.toUpperCase());
+}
+
 function isValidNJTown(townInput) {
     if (!townInput || typeof townInput !== 'string') return false;
-    const clean = townInput.trim().toLowerCase();
-    if (clean.length < 3) return false;
-    
-    const matchesList = VALID_NJ_TOWNS.some(t => clean.includes(t) || t.includes(clean));
-    const isValidText = /^[a-zA-Z\s.-]+$/.test(clean);
+    return NJ_TOWN_SET.has(normalizeTown(townInput));
+}
 
-    return matchesList || (isValidText && clean.length >= 3);
+function townErrorMessage(townInput) {
+    const clean = normalizeTown(townInput);
+    const suggestions = clean.length >= 3
+        ? VALID_NJ_TOWNS.filter(t => t.startsWith(clean.slice(0, 3))).slice(0, 4).map(formatTown)
+        : [];
+    return `⚠️ We could not find "${townInput}" in our list of New Jersey towns.` +
+        (suggestions.length ? ` Did you mean: ${suggestions.join(', ')}?` : ' Please check the spelling (e.g. Denville, Morristown, Edison, Newark, Hackensack).');
 }
 
 function handleSurveySubmit(e) {
@@ -427,14 +439,14 @@ function handleSurveySubmit(e) {
     }
 
     if (!isValidNJTown(townVal)) {
-        alert("⚠️ Invalid town/city input! Please enter a recognized New Jersey municipality (e.g. Denville, Morristown, Edison, Newark, Hackensack).");
+        alert(townErrorMessage(townVal));
         document.getElementById('survey-town').focus();
         return false;
     }
 
     // Update global state with newly submitted survey answers
     userProfile.county = countyVal;
-    userProfile.town = townVal;
+    userProfile.town = formatTown(townVal);
     userProfile.age = ageVal;
     userProfile.locationPref = locPrefVal;
     userProfile.season = seasonVal;
@@ -446,10 +458,10 @@ function handleSurveySubmit(e) {
     renderAllGrids();
 
     // DYNAMIC BACK-END ROUTING FIX BASED ON STUDENT LEVEL & AGE
-    if (levelVal === 'College Undergrad' || ageVal >= 18) {
+    if (levelVal !== 'Middle School' && (levelVal === 'College Undergrad' || ageVal >= 18)) {
         alert(`🎉 Survey Updated! Directed to personalized Internships & Paid Jobs based on your profile.`);
         window.location.href = 'jobs.html';
-    } else if (levelVal === 'High School' || (ageVal >= 14 && ageVal < 18)) {
+    } else if (levelVal === 'High School') {
         alert(`🎉 Survey Updated! Directed to personalized College & Degree tracks matching your profile.`);
         window.location.href = 'colleges.html';
     } else {
@@ -462,6 +474,43 @@ function handleSurveySubmit(e) {
    MULTI-TEMPLATE & PROFESSIONAL RESUME BUILDER
    ========================================================================== */
 let currentResumeTemplate = 'modern';
+let resumeIsSample = false;
+const RESUME_FIELD_IDS = ['res-name', 'res-title', 'res-email', 'res-phone', 'res-location', 'res-linkedin', 'res-summary', 'res-school', 'res-grad', 'res-degree', 'res-gpa', 'res-courses', 'res-labskills', 'res-softskills', 'res-certs', 'res-job-title', 'res-job-org', 'res-job-dates', 'res-job-loc', 'res-job-desc', 'res-proj-title', 'res-proj-role', 'res-proj-desc', 'res-honors', 'res-pub-title', 'res-pub-venue', 'res-pub-desc'];
+
+function resumeHasContent() {
+    return !resumeIsSample && RESUME_FIELD_IDS.some(id => getVal(id));
+}
+
+function saveResumeDraft() {
+    try {
+        const fields = {};
+        RESUME_FIELD_IDS.forEach(id => { fields[id] = getVal(id); });
+        localStorage.setItem('biostart_resumeDraft', JSON.stringify({ fields, template: currentResumeTemplate, sample: resumeIsSample }));
+    } catch (e) { /* storage unavailable: resume still works, just not saved */ }
+}
+
+function initResumeBuilder() {
+    let draft = null;
+    try { draft = JSON.parse(localStorage.getItem('biostart_resumeDraft')); } catch (e) { draft = null; }
+
+    if (draft && draft.fields && !draft.sample) {
+        RESUME_FIELD_IDS.forEach(id => setVal(id, draft.fields[id] || ''));
+        if (draft.template) currentResumeTemplate = draft.template;
+    } else {
+        // Start blank, only prefilling what the student already told us in their profile.
+        if (userProfile.name) setVal('res-name', userProfile.name);
+        if (userProfile.email) setVal('res-email', userProfile.email);
+        if (userProfile.town) setVal('res-location', `${userProfile.town}, NJ`);
+    }
+
+    const toggleEl = document.getElementById('sample-toggle');
+    if (toggleEl) toggleEl.checked = false;
+
+    document.querySelectorAll('.resume-field').forEach(el => {
+        el.addEventListener('input', () => { resumeIsSample = false; saveResumeDraft(); });
+    });
+    selectTemplate(currentResumeTemplate);
+}
 
 function selectTemplate(templateKey) {
     currentResumeTemplate = templateKey;
@@ -479,6 +528,7 @@ function selectTemplate(templateKey) {
     if (labelEl) labelEl.innerText = labelMap[templateKey] || 'Modern Biotech';
 
     updateResume();
+    saveResumeDraft();
 }
 
 function setVal(id, value) {
@@ -490,19 +540,32 @@ function getVal(id) {
     return document.getElementById(id)?.value.trim() || '';
 }
 
-function toggleSamplePersonalInfo(show) {
+function applySamplePersonal(show) {
     Object.keys(SAMPLE_PERSONAL_DATA).forEach(id => {
-        setVal(id, show ? SAMPLE_PERSONAL_DATA[id] : "");
+        if (show) setVal(id, SAMPLE_PERSONAL_DATA[id]);
+        else if (getVal(id) === SAMPLE_PERSONAL_DATA[id]) setVal(id, '');
     });
+}
+
+function toggleSamplePersonalInfo(show) {
+    if (show && resumeHasContent() && !confirm('Replace the personal and education details you typed with sample examples?')) {
+        const toggleEl = document.getElementById('sample-toggle');
+        if (toggleEl) toggleEl.checked = false;
+        return;
+    }
+    applySamplePersonal(show);
+    if (show) resumeIsSample = true;
     updateResume();
+    saveResumeDraft();
 }
 
 function loadSampleResumeData() {
+    if (resumeHasContent() && !confirm('This will replace everything you have typed with sample data. Continue?')) return;
     const toggleEl = document.getElementById('sample-toggle');
     if (toggleEl) toggleEl.checked = true;
 
     // 1. Personal & Contact Details
-    toggleSamplePersonalInfo(true);
+    applySamplePersonal(true);
 
     // 2. Professional Summary
     setVal('res-summary', "Motivated Biotechnology student with 2+ years of hands-on lab experience in molecular biology, PCR analysis, and bioinformatics. Passionate about pursuing undergraduate research in bioengineering and molecular genetics.");
@@ -532,18 +595,19 @@ function loadSampleResumeData() {
     setVal('res-pub-venue', "NJ Academy of Science Annual Symposium | April 2025");
     setVal('res-pub-desc', "• Poster presentation evaluating genetic flexibility and phenotypic plasticity in urban vs. rural plant isolates.\n• Co-authored published abstract in Proceedings of the NJ Science Student Symposium.");
 
+    resumeIsSample = true;
     updateResume();
+    saveResumeDraft();
 }
 
 function clearResumeForm() {
-    const ids = ['res-name', 'res-title', 'res-email', 'res-phone', 'res-location', 'res-linkedin', 'res-summary', 'res-school', 'res-grad', 'res-degree', 'res-gpa', 'res-courses', 'res-labskills', 'res-softskills', 'res-certs', 'res-job-title', 'res-job-org', 'res-job-dates', 'res-job-loc', 'res-job-desc', 'res-proj-title', 'res-proj-role', 'res-proj-desc', 'res-honors', 'res-pub-title', 'res-pub-venue', 'res-pub-desc'];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+    if (resumeHasContent() && !confirm('Clear all resume fields? This cannot be undone.')) return;
+    RESUME_FIELD_IDS.forEach(id => setVal(id, ''));
     const toggleEl = document.getElementById('sample-toggle');
     if (toggleEl) toggleEl.checked = false;
+    resumeIsSample = false;
     updateResume();
+    saveResumeDraft();
 }
 
 function formatBulletList(text) {
@@ -567,6 +631,7 @@ function copyResumeText() {
 }
 
 function printResumeOnly() {
+    if (resumeIsSample && !confirm('Your resume still contains sample data. Print anyway?')) return;
     window.print();
 }
 
@@ -887,11 +952,29 @@ function cycleAvatar(direction) {
 
 function saveAccountProfile(e) {
     e.preventDefault();
+    const townVal = document.getElementById('prof-town').value.trim();
+    const ageVal = parseInt(document.getElementById('prof-age').value);
+
+    if (isNaN(ageVal) || ageVal < 10 || ageVal > 99) {
+        alert("⚠️ Please enter a valid age between 10 and 99 years old.");
+        document.getElementById('prof-age').focus();
+        return;
+    }
+    if (!isValidNJTown(townVal)) {
+        alert(townErrorMessage(townVal));
+        document.getElementById('prof-town').focus();
+        return;
+    }
+
     userProfile.name = document.getElementById('prof-fname').value.trim();
     userProfile.email = document.getElementById('prof-email').value.trim();
     userProfile.county = document.getElementById('prof-county').value;
-    userProfile.town = document.getElementById('prof-town').value.trim();
+    userProfile.town = formatTown(townVal);
     userProfile.level = document.getElementById('prof-level').value;
+    userProfile.age = ageVal;
+    userProfile.locationPref = document.getElementById('prof-locpref').value;
+    userProfile.season = document.getElementById('prof-season').value;
+    userProfile.surveyCompleted = true;
 
     saveState();
     updateUserHeaderDisplay();
@@ -905,6 +988,7 @@ function loadProfileDisplay() {
     const emailDisp = document.getElementById('profile-email-display');
     const locDisp = document.getElementById('profile-location-display');
     const levelDisp = document.getElementById('profile-level-display');
+    const prefsDisp = document.getElementById('profile-prefs-display');
     const avatarDisp = document.getElementById('profile-avatar-display');
     const saveBtn = document.getElementById('save-profile-btn');
     const editBtn = document.getElementById('edit-profile-btn');
@@ -914,6 +998,9 @@ function loadProfileDisplay() {
     setVal('prof-county', userProfile.county || '');
     setVal('prof-town', userProfile.town || '');
     setVal('prof-level', userProfile.level || '');
+    if (userProfile.age) setVal('prof-age', userProfile.age);
+    setVal('prof-locpref', userProfile.locationPref || 'In State (NJ)');
+    setVal('prof-season', userProfile.season || 'Summer');
     if (document.getElementById('avatar-display')) document.getElementById('avatar-display').innerText = AVATARS[userProfile.avatarIdx || 0];
 
     if (userProfile.name) {
@@ -923,6 +1010,7 @@ function loadProfileDisplay() {
             emailDisp.style.color = '#333';
         }
         if (locDisp) locDisp.innerText = `Location: ${userProfile.town || 'Unspecified'}, ${userProfile.county || 'Unspecified'} County, NJ`;
+        if (prefsDisp) prefsDisp.innerText = `Age ${userProfile.age} | ${userProfile.locationPref} | Season: ${userProfile.season}`;
         if (levelDisp) levelDisp.innerText = `Academic Level: ${userProfile.level || 'Unspecified'}`;
         if (avatarDisp) avatarDisp.innerText = AVATARS[userProfile.avatarIdx || 0];
 
