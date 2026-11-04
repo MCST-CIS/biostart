@@ -59,21 +59,6 @@
         </div>
     </div>
 
-    <!-- FLOATING AI CHATBOT WIDGET -->
-    <div class="floating-widget chatbot-widget">
-        <div class="widget-header" onclick="toggleWidget('chat-body')">
-            <span>💬 AI Biotech Advisor</span>
-            <span>▲</span>
-        </div>
-        <div id="chat-body" class="widget-body">
-            <div class="chat-msg chat-bot">Hello! I am your BIOSTART advisor. Ask me about CTE high school admissions, college majors, or internships!</div>
-            <div id="chat-messages"></div>
-            <div style="display:flex; gap:6px; margin-top:10px;">
-                <input type="text" id="chat-input" style="width:100%; padding:8px; font-size:12px; border:1px solid #444; background:#222; color:white; border-radius:4px;" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendChatMessage()">
-                <button class="btn-action" onclick="sendChatMessage()">Send</button>
-            </div>
-        </div>
-    </div>
 
 
     <script src="script.js"></script>
