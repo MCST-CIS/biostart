@@ -17,8 +17,16 @@
         <p class="splash-desc">
             Welcome to New Jersey's primary biotechnology career and education prep portal. Discover specialized public CTE high schools, undergraduate college degrees, industry internships, paid jobs, and science competitions tailored to your goals.
         </p>
-        <button class="splash-btn" onclick="document.getElementById('splash-overlay').style.display='none'">GET STARTED ►</button>
+        <button class="splash-btn" onclick="try { sessionStorage.setItem('biostartSplashSeen', '1'); } catch (e) {} document.getElementById('splash-overlay').style.display='none'">GET STARTED ►</button>
     </div>
+    <script>
+        // Show the splash only once per browser session; Home and the logo skip straight to the main page.
+        try {
+            if (sessionStorage.getItem('biostartSplashSeen')) {
+                document.getElementById('splash-overlay').style.display = 'none';
+            }
+        } catch (e) {}
+    </script>
 
     <!-- BRAND HEADER -->
     <header>
