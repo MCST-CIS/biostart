@@ -23,13 +23,12 @@
 body {
     font-family: var(--biostart-font-main);
     background-color: var(--biostart-bg);
-    /* SUBTLE GEOMETRIC DOT GRID PATTERN FOR SIDE MARGINS */
+    /* SUBTLE GEOMETRIC DOT GRID PATTERN */
     background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240' fill='none' stroke='%23D93829' stroke-opacity='.14' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 12h12M36 12v16L22 52q-3 6 4 6h28q7 0 4-6L44 28V12'/%3E%3Cpath d='M27 44h26'/%3E%3Cpath d='M160 20c24 14 24 28 0 42s-24 28 0 42'/%3E%3Cpath d='M160 20c-24 14-24 28 0 42s24 28 0 42'/%3E%3Cpath d='M142 41h36M142 83h36'/%3E%3Ccircle cx='60' cy='180' r='24'/%3E%3Ccircle cx='60' cy='180' r='17'/%3E%3Ccircle cx='54' cy='175' r='3'/%3E%3Ccircle cx='67' cy='186' r='2'/%3E%3Cpath d='M190 168l17 10v20l-17 10-17-10v-20z'/%3E%3Cpath d='M207 178l15-8M173 198l-14 8'/%3E%3Ccircle cx='225' cy='168' r='4'/%3E%3Ccircle cx='156' cy='208' r='4'/%3E%3Cpath d='M104 112h16M106 112v42a6 6 0 0 0 12 0V112'/%3E%3Cpath d='M106 136h12'/%3E%3C/svg%3E"),
         radial-gradient(rgba(217, 56, 41, 0.12) 1.5px, transparent 1.5px),
         radial-gradient(rgba(13, 13, 13, 0.05) 1.5px, transparent 1.5px);
-    background-position: 0 0, 0 0, 16px 16px;
-    background-size: 240px 240px, 32px 32px, 32px 32px;
+    background-position: 0 0, 16px 16px;
+    background-size: 32px 32px, 32px 32px;
     background-attachment: fixed;
     color: var(--biostart-black);
     line-height: 1.5;
@@ -37,17 +36,6 @@ body {
     position: relative;
 }
 
-/* Optional full-page photo: drop a file at images/bg-lab.jpg and it fades in behind everything.
-   If the file isn't there, nothing shows. */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: url('images/bg-lab.jpg') center / cover no-repeat;
-    opacity: 0.09;
-}
 
 /* --- SPLASH OVERLAY PAGE --- */
 #splash-overlay {
@@ -848,58 +836,6 @@ h2 {
     font-weight: 900;
     cursor: pointer;
 }
-
-/* --- FLOATING ASSISTANT WIDGETS --- */
-.floating-widget {
-    position: fixed;
-    bottom: 20px;
-    z-index: 1000;
-    background: var(--biostart-black);
-    color: white;
-    border: 2px solid var(--biostart-red);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
-
-.chatbot-widget { right: 20px; width: 310px; }
-.spotify-widget { left: 20px; width: 300px; }
-
-@media (max-width: 700px) {
-    .spotify-widget { display: none; }
-}
-
-.widget-header {
-    background: var(--biostart-red);
-    padding: 10px 16px;
-    font-weight: 900;
-    font-size: 12px;
-    text-transform: uppercase;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-}
-
-.widget-body {
-    padding: 14px;
-    display: none;
-    max-height: 300px;
-    overflow-y: auto;
-    background: #111;
-}
-
-.widget-body.open { display: block; }
-
-.chat-msg {
-    margin-bottom: 10px;
-    font-size: 12px;
-    padding: 8px 12px;
-    border-radius: 4px;
-}
-
-.chat-bot { background: #222; color: #fff; border-left: 3px solid var(--biostart-red); }
-.chat-user { background: var(--biostart-red); color: #fff; text-align: right; }
 
 /* ==========================================================================
    STRICT PRINT STYLESHEET FOR CLEAN RESUME PRINTING ONLY
