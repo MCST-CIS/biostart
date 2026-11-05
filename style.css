@@ -1113,7 +1113,8 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
 /* Icon rides inside the field; it sits above the input but ignores the mouse */
 .ns-icon {
     position: absolute;
-    left: 12px;
+    left: auto;
+    right: calc(var(--search-closed-w) - 26px);   /* sits 12px inside the field's left edge */
     top: 50%;
     width: 14px;
     height: 14px;
@@ -1121,9 +1122,9 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
     color: #9a9a9a;
     pointer-events: none;
     z-index: 2;
-    transition: color 0.2s ease, transform 0.34s var(--search-ease);
+    transition: color 0.2s ease, transform 0.34s var(--search-ease), right 0.34s var(--search-ease);
 }
-.nav-search:focus-within .ns-icon { color: var(--biostart-red); transform: translateY(-1px); }
+.nav-search:focus-within .ns-icon { color: var(--biostart-red); transform: translateY(-1px); right: calc(var(--search-open-w) - 26px); }
 
 /* Right-hand slot: "/" shortcut hint when idle, clear button once there is text */
 .ns-kbd, .ns-clear {
@@ -1307,3 +1308,7 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
 @media (max-width: 760px) {
     .page-banner.has-photo::after { background: rgba(255, 255, 255, 0.72); }
 }
+
+/* "Did you mean" line at the top of the search results */
+.sr-did { padding: 12px 14px; font-size: 12px; font-weight: 700; color: #444; line-height: 1.9; background: var(--biostart-bg); border-bottom: 2px solid var(--biostart-black); }
+.sr-did .sr-chip { margin: 0 3px; vertical-align: baseline; }
