@@ -171,6 +171,103 @@ function loadSurveyForm() {
     if (userProfile.level) setVal('survey-level', userProfile.level);
 }
 
+/* --- LOGOS & PAGE BANNERS --- */
+// Logos load live from each school/employer's own domain; if one can't be found we show a clean monogram instead.
+function logoDomain(url) {
+    try {
+        const host = new URL(url).hostname.replace(/^www\./, '');
+        return host.split('.').slice(-2).join('.');
+    } catch (e) { return ''; }
+}
+
+function logoInitials(name) {
+    const words = String(name).replace(/[^A-Za-z0-9 ]/g, ' ').split(/\s+/)
+        .filter(w => w && !/^(of|the|and|for|at|in)$/i.test(w));
+    return (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || '?').slice(0, 2)).toUpperCase();
+}
+
+function logoFallback(img) {
+    const box = img.parentNode;
+    box.classList.add('no-img');
+    box.textContent = box.dataset.initials;
+}
+
+function logoLoaded(img) {
+    // Some sites only publish a tiny favicon; show those at native size instead of blowing them up blurry
+    if (img.naturalWidth && img.naturalWidth < 40) img.classList.add('small-logo');
+}
+
+function logoHTML(item, small) {
+    const domain = logoDomain(item.url);
+    const initials = logoInitials(item.name);
+    const inner = domain
+        ? `<img src="https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128" alt="" loading="lazy" referrerpolicy="no-referrer" onload="logoLoaded(this)" onerror="logoFallback(this)">`
+        : initials;
+    return `<div class="card-logo${small ? ' sm' : ''}${domain ? '' : ' no-img'}" data-initials="${initials}" aria-hidden="true">${inner}</div>`;
+}
+
+const PAGE_BANNERS = {
+    'grid-col':  { cls: 'colleges',      sub: 'Biotech degree tracks, research-ready campuses, and where to look beyond New Jersey.' },
+    'grid-hs':   { cls: 'highschools',   sub: 'Hands-on biotech lab training, years before college.' },
+    'grid-jobs': { cls: 'jobs',          sub: 'Internships and paid lab roles matched to your age and season.' },
+    'grid-opp':  { cls: 'opportunities', sub: 'Scholarships, competitions, and summer research programs worth applying to.' }
+};
+
+// Flat illustration in the same palette as the logo: salmon blob, red, black
+const BANNER_SCENE = `<svg viewBox="0 0 540 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <circle cx="290" cy="104" r="92" fill="#EEB0A5"/>
+    <g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <!-- flask -->
+        <path d="M108 30H132V82L168 156Q174 172 158 172H82Q66 172 72 156L108 82Z" fill="#fff"/>
+        <path d="M89 128H151L168 156Q174 172 158 172H82Q66 172 72 156Z" fill="#D94F3B"/>
+        <rect x="102" y="23" width="36" height="9" rx="3" fill="#0d0d0d"/>
+        <circle cx="110" cy="146" r="4" fill="#fff" stroke="none"/>
+        <circle cx="128" cy="154" r="3" fill="#fff" stroke="none"/>
+        <!-- petri dish -->
+        <rect x="222" y="132" width="112" height="30" rx="7" fill="#fff"/>
+        <rect x="230" y="146" width="96" height="12" rx="3" fill="#D94F3B" stroke="none"/>
+        <rect x="216" y="120" width="124" height="15" rx="6" fill="#F6D5CE"/>
+        <circle cx="250" cy="152" r="2.5" fill="#fff" stroke="none"/>
+        <circle cx="276" cy="151" r="3.5" fill="#fff" stroke="none"/>
+        <circle cx="304" cy="153" r="2.5" fill="#fff" stroke="none"/>
+        <!-- test tubes in a rack -->
+        <path d="M368 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M368 112H396V150a14 14 0 0 1-28 0Z" fill="#D94F3B"/>
+        <path d="M404 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M404 128H432V150a14 14 0 0 1-28 0Z" fill="#0d0d0d"/>
+        <path d="M440 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M440 96H468V150a14 14 0 0 1-28 0Z" fill="#EEB0A5"/>
+        <rect x="358" y="88" width="120" height="9" rx="4" fill="#0d0d0d"/>
+        <!-- DNA helix -->
+        <path d="M506 14C534 44 534 74 506 104C478 134 478 164 506 194" fill="none"/>
+        <path d="M506 14C478 44 478 74 506 104C534 134 534 164 506 194" fill="none" stroke="#D94F3B"/>
+        <path d="M482 38H530M480 60H532M482 82H530M482 126H530M480 148H532M482 170H530" stroke-width="2" fill="none"/>
+    </g>
+</svg>`;
+
+function initPageBanners() {
+    const id = Object.keys(PAGE_BANNERS).find(k => document.getElementById(k));
+    const container = document.querySelector('.container');
+    const h2 = container && container.querySelector('h2');
+    if (!id || !h2 || container.querySelector('.page-banner')) return;
+    const cfg = PAGE_BANNERS[id];
+    const banner = document.createElement('section');
+    banner.className = 'page-banner banner-' + cfg.cls;
+    banner.innerHTML = '<div class="pb-scene" aria-hidden="true">' + BANNER_SCENE + '</div><div class="pb-text"></div>';
+    h2.parentNode.insertBefore(banner, h2);
+    const text = banner.querySelector('.pb-text');
+    text.appendChild(h2);
+    const p = document.createElement('p');
+    p.textContent = cfg.sub;
+    text.appendChild(p);
+
+    // If a photo exists for this page, let it replace the illustration
+    const probe = new Image();
+    probe.onload = () => banner.classList.add('has-photo');
+    probe.src = 'images/banner-' + cfg.cls + '.jpg';
+}
+window.addEventListener('DOMContentLoaded', initPageBanners);
+
 function updateUserHeaderDisplay() {
     const greetingEl = document.getElementById('user-greeting');
     if (greetingEl) {
@@ -280,7 +377,7 @@ function renderHighSchools() {
         const isCountyMatch = userProfile.surveyCompleted && userProfile.county && hs.county.toLowerCase() === userProfile.county.toLowerCase();
         container.innerHTML += `
             <div class="card">
-                <span class="card-tag">${hs.county} County${isCountyMatch ? ' ★ YOUR COUNTY' : ''}</span>
+                <div class="card-head">${logoHTML(hs)}<span class="card-tag">${hs.county} County${isCountyMatch ? ' ★ YOUR COUNTY' : ''}</span></div>
                 <div class="card-title">${hs.name}</div>
                 <div class="card-body">${hs.notes}</div>
                 <div class="card-actions">
@@ -359,7 +456,7 @@ function renderColleges() {
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(col, userProfile.town);
         html += `
             <div class="card">
-                <span class="card-tag">${col.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(col)} | ${col.location}</span>
+                <div class="card-head">${logoHTML(col)}<span class="card-tag">${col.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(col)} | ${col.location}</span></div>
                 <div class="card-title">${col.name}</div>
                 <div class="card-body"><strong>Cost:</strong> ${col.cost}<br><strong>Acceptance:</strong> ${col.acceptance}<br><strong>Typical applicant age:</strong> ${col.ageMin}+<br>${col.notes}</div>
                 <div class="card-actions">
@@ -412,7 +509,7 @@ function renderJobs() {
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(j, userProfile.town);
         html += `
             <div class="card">
-                <span class="card-tag">${j.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(j)} | ${j.cat.toUpperCase()}</span>
+                <div class="card-head">${logoHTML(j)}<span class="card-tag">${j.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(j)} | ${j.cat.toUpperCase()}</span></div>
                 <div class="card-title">${j.name}</div>
                 <div class="card-body"><strong>Minimum age:</strong> ${j.ageMin}+<br><strong>Contact Email:</strong> ${j.email}<br>${j.notes}</div>
                 <div class="card-actions">
@@ -440,7 +537,7 @@ function renderOpportunities() {
         const isLiked = userProfile.savedIds.includes(o.id);
         container.innerHTML += `
             <div class="card">
-                <span class="card-tag">${o.cat.toUpperCase()}</span>
+                <div class="card-head">${logoHTML(o)}<span class="card-tag">${o.cat.toUpperCase()}</span></div>
                 <div class="card-title">${o.name}</div>
                 <div class="card-body">${o.notes}</div>
                 <div class="card-actions">
@@ -1145,9 +1242,12 @@ function renderSaved() {
         html += `
             <div class="card saved-card ${cls}" style="margin-bottom:12px; ${delay}">
                 <div style="display:flex; justify-content:space-between; align-items:start;">
-                    <div>
-                        <div class="card-title">${item.name}</div>
-                        <div class="card-body" style="font-size:12px;">${item.notes || ''}</div>
+                    <div style="display:flex; gap:12px; align-items:flex-start;">
+                        ${logoHTML(item, true)}
+                        <div>
+                            <div class="card-title">${item.name}</div>
+                            <div class="card-body" style="font-size:12px;">${item.notes || ''}</div>
+                        </div>
                     </div>
                     <span class="like-heart liked" onclick="toggleLike('${item.id}', event)">♥</span>
                 </div>
