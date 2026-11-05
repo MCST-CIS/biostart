@@ -178,17 +178,51 @@ function updateUserHeaderDisplay() {
     }
 }
 
-function toggleLike(id) {
-    const idx = userProfile.savedIds.indexOf(id);
-    if (idx === -1) {
-        userProfile.savedIds.push(id);
-        userProfile.progress[id] = "Interested";
+function findSavedItem(id) {
+    return [...HIGH_SCHOOLS, ...COLLEGES, ...JOBS, ...OPPORTUNITIES].find(i => i.id === id);
+}
+
+function toggleLike(id, ev) {
+    ev = ev || window.event;
+    const heartEl = ev && ev.target && ev.target.closest ? ev.target.closest('.like-heart') : null;
+    const rect = heartEl ? heartEl.getBoundingClientRect() : null;
+    const origin = rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const wasSaved = userProfile.savedIds.includes(id);
+    const savedCard = heartEl ? heartEl.closest('#saved-grid .card') : null;
+
+    const apply = () => {
+        const idx = userProfile.savedIds.indexOf(id);
+        if (idx === -1) {
+            userProfile.savedIds.push(id);
+            userProfile.progress[id] = "Interested";
+        } else {
+            userProfile.savedIds.splice(idx, 1);
+            delete userProfile.progress[id];
+        }
+        saveState();
+        renderAllGrids();
+        if (!wasSaved) {
+            document.querySelectorAll(`.like-heart[onclick^="toggleLike('${id}'"]`).forEach(h => h.classList.add('just-liked'));
+        }
+        updateSaveBadge(true);
+    };
+
+    if (wasSaved && savedCard) {          // un-saving from the profile page: slide the card out first
+        savedCard.classList.add('card-removing');
+        setTimeout(apply, 320);
     } else {
-        userProfile.savedIds.splice(idx, 1);
-        delete userProfile.progress[id];
+        apply();
     }
-    saveState();
-    renderAllGrids();
+
+    const item = findSavedItem(id);
+    const name = item ? item.name : 'Item';
+    if (!wasSaved) {
+        const first = isFirstSave();
+        playHeartEffect(origin, first);
+        if (first) showFirstSaveTip(name); else showSaveToast(`Saved: ${name}`, true);
+    } else {
+        showSaveToast(`Removed: ${name}`, false);
+    }
 }
 
 /* --- HIGH SCHOOL RENDER --- */
@@ -197,6 +231,7 @@ function filterCounty(county, el) {
     document.querySelectorAll('.county-list li').forEach(li => li.classList.remove('active'));
     if (el) el.classList.add('active');
     renderHighSchools();
+    playGridEnter('grid-hs');
 }
 
 function renderHighSchools() {
@@ -233,7 +268,7 @@ function renderHighSchools() {
                 <div class="card-body">${hs.notes}</div>
                 <div class="card-actions">
                     <a href="${hs.url}" target="_blank" class="btn-action">View Details</a>
-                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${hs.id}')">♥</span>
+                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${hs.id}', event)">♥</span>
                 </div>
             </div>`;
     });
@@ -247,6 +282,7 @@ function selectCollegeTab(mode) {
         if (btn) btn.classList.toggle('selected', mode === m);
     });
     renderColleges();
+    playGridEnter('grid-col');
 }
 
 /* --- SHARED RECOMMENDATION LOGIC --- */
@@ -311,7 +347,7 @@ function renderColleges() {
                 <div class="card-body"><strong>Cost:</strong> ${col.cost}<br><strong>Acceptance:</strong> ${col.acceptance}<br><strong>Typical applicant age:</strong> ${col.ageMin}+<br>${col.notes}</div>
                 <div class="card-actions">
                     <a href="${col.url}" target="_blank" class="btn-action">View Details</a>
-                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${col.id}')">♥</span>
+                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${col.id}', event)">♥</span>
                 </div>
             </div>`;
     });
@@ -326,6 +362,7 @@ function selectJobTab(mode) {
         if (btn) btn.classList.toggle('selected', mode === m);
     });
     renderJobs();
+    playGridEnter('grid-jobs');
 }
 
 function renderJobs() {
@@ -363,7 +400,7 @@ function renderJobs() {
                 <div class="card-body"><strong>Minimum age:</strong> ${j.ageMin}+<br><strong>Contact Email:</strong> ${j.email}<br>${j.notes}</div>
                 <div class="card-actions">
                     <a href="${j.url}" target="_blank" class="btn-action">Apply Now</a>
-                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${j.id}')">♥</span>
+                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${j.id}', event)">♥</span>
                 </div>
             </div>`;
     });
@@ -391,7 +428,7 @@ function renderOpportunities() {
                 <div class="card-body">${o.notes}</div>
                 <div class="card-actions">
                     <a href="${o.url}" target="_blank" class="btn-action">View Details</a>
-                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${o.id}')">♥</span>
+                    <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${o.id}', event)">♥</span>
                 </div>
             </div>`;
     });
@@ -434,12 +471,14 @@ function handleSurveySubmit(e) {
 
     if (isNaN(ageVal) || ageVal < 10 || ageVal > 99) {
         alert("⚠️ Please enter a valid age between 10 and 99 years old before submitting.");
+        shakeField(document.getElementById('survey-age'));
         document.getElementById('survey-age').focus();
         return false;
     }
 
     if (!isValidNJTown(townVal)) {
         alert(townErrorMessage(townVal));
+        shakeField(document.getElementById('survey-town'));
         document.getElementById('survey-town').focus();
         return false;
     }
@@ -490,6 +529,7 @@ function saveResumeDraft() {
 }
 
 function initResumeBuilder() {
+    watchResumePreview();
     let draft = null;
     try { draft = JSON.parse(localStorage.getItem('biostart_resumeDraft')); } catch (e) { draft = null; }
 
@@ -957,11 +997,13 @@ function saveAccountProfile(e) {
 
     if (isNaN(ageVal) || ageVal < 10 || ageVal > 99) {
         alert("⚠️ Please enter a valid age between 10 and 99 years old.");
+        shakeField(document.getElementById('prof-age'));
         document.getElementById('prof-age').focus();
         return;
     }
     if (!isValidNJTown(townVal)) {
         alert(townErrorMessage(townVal));
+        shakeField(document.getElementById('prof-town'));
         document.getElementById('prof-town').focus();
         return;
     }
@@ -980,7 +1022,7 @@ function saveAccountProfile(e) {
     updateUserHeaderDisplay();
     loadProfileDisplay();
     renderAllGrids();
-    alert("Profile saved successfully! Your 'For You' pages have been updated.");
+    flashSaved(document.querySelector('#profile-edit-form button[type="submit"]'));
 }
 
 function loadProfileDisplay() {
@@ -1052,6 +1094,8 @@ function updateSavedStatus(id, value) {
     saveState();
 }
 
+let savedShownIds = null;
+
 function renderSaved() {
     const grid = document.getElementById('saved-grid');
     const countEl = document.getElementById('saved-count');
@@ -1060,24 +1104,34 @@ function renderSaved() {
     const allItems = [...HIGH_SCHOOLS, ...COLLEGES, ...JOBS, ...OPPORTUNITIES];
     const savedItems = allItems.filter(item => userProfile.savedIds.includes(item.id));
 
-    if (countEl) countEl.innerText = savedItems.length;
+    const firstPaint = savedShownIds === null;
+    const prevIds = savedShownIds || [];
+    savedShownIds = savedItems.map(i => i.id);
+    if (countEl) {
+        const changed = countEl.innerText !== String(savedItems.length);
+        countEl.innerText = savedItems.length;
+        if (!firstPaint && changed) { countEl.classList.remove('count-bump'); void countEl.offsetWidth; countEl.classList.add('count-bump'); }
+    }
 
     if (savedItems.length === 0) {
-        grid.innerHTML = '<p style="color:#666; font-style:italic; background: white; padding: 20px; border: 2px solid black;">No saved opportunities yet. Click the heart icon (♥) on any item to save it here!</p>';
+        grid.innerHTML = '<p class="saved-empty" style="color:#666; font-style:italic; background: white; padding: 20px; border: 2px solid black;">No saved opportunities yet. Click the heart icon (♥) on any item to save it here!</p>';
         return;
     }
 
-    grid.innerHTML = '';
-    savedItems.forEach(item => {
+    let html = '';
+    savedItems.forEach((item, i) => {
+        const isNew = firstPaint || !prevIds.includes(item.id);
+        const cls = isNew ? (firstPaint ? 'saved-in' : 'saved-in saved-new') : '';
+        const delay = firstPaint ? `animation-delay:${i * 80}ms;` : '';
         const currentStatus = userProfile.progress[item.id] || "Interested";
-        grid.innerHTML += `
-            <div class="card" style="margin-bottom:12px;">
+        html += `
+            <div class="card saved-card ${cls}" style="margin-bottom:12px; ${delay}">
                 <div style="display:flex; justify-content:space-between; align-items:start;">
                     <div>
                         <div class="card-title">${item.name}</div>
                         <div class="card-body" style="font-size:12px;">${item.notes || ''}</div>
                     </div>
-                    <span class="like-heart liked" onclick="toggleLike('${item.id}')">♥</span>
+                    <span class="like-heart liked" onclick="toggleLike('${item.id}', event)">♥</span>
                 </div>
                 <div style="margin-top:10px;">
                     <label style="font-size:10px; font-weight:800; text-transform:uppercase;">Application Tracker Status:</label><br>
@@ -1090,6 +1144,7 @@ function renderSaved() {
                 </div>
             </div>`;
     });
+    grid.innerHTML = html;
 }
 
 /* --- MODAL DIALOG --- */
@@ -1120,3 +1175,508 @@ function sendChatMessage() {
         msgs.innerHTML += `<div class="chat-msg chat-bot">Thanks for your question! You can explore the High Schools, Colleges, or Jobs tabs above for program details.</div>`;
     }, 500);
 }
+
+
+
+/* ==========================================================================
+   SAVE (HEART) EFFECTS, TOASTS, FIRST-SAVE TIP AND NAV BADGE
+   ========================================================================== */
+const FIRST_SAVE_KEY = 'biostart_firstSaveTipSeen';
+const HEART_COLORS = ['#D93829', '#ff6b81', '#ff9aa8', '#0d0d0d', '#f5b700'];
+let lastHeartFx = '';
+let toastTimer = null;
+
+function isFirstSave() {
+    try { return !localStorage.getItem(FIRST_SAVE_KEY); } catch (e) { return false; }
+}
+
+function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function fxLayer() {
+    let layer = document.getElementById('fx-layer');
+    if (!layer) {
+        layer = document.createElement('div');
+        layer.id = 'fx-layer';
+        layer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(layer);
+    }
+    return layer;
+}
+
+function fxSpawn(text, x, y, size, color) {
+    const el = document.createElement('span');
+    el.className = 'fx-particle';
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.fontSize = size + 'px';
+    el.style.color = color;
+    fxLayer().appendChild(el);
+    return el;
+}
+
+function fxRun(el, frames, duration, delay, easing) {
+    if (!el.animate) { setTimeout(() => el.remove(), duration + delay); return; }
+    const anim = el.animate(frames, { duration, delay, easing: easing || 'ease-out', fill: 'both' });
+    anim.onfinish = () => el.remove();
+}
+
+const fxRand = (a, b) => a + Math.random() * (b - a);
+const fxColor = () => HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
+
+// Fireworks: hearts and sparkles shoot outward in a ring
+function heartBurst(x, y, count, spread) {
+    for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2 + fxRand(-0.15, 0.15);
+        const dist = fxRand(0.6, 1) * spread;
+        const dx = Math.cos(angle) * dist, dy = Math.sin(angle) * dist;
+        const el = fxSpawn(i % 3 === 0 ? '✦' : '♥', x, y, fxRand(12, 22), fxColor());
+        fxRun(el, [
+            { transform: 'translate(-50%,-50%) scale(0.2)', opacity: 1 },
+            { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1.1)`, opacity: 1, offset: 0.55 },
+            { transform: `translate(calc(-50% + ${dx * 1.1}px), calc(-50% + ${dy * 1.1 + 28}px)) scale(0.4)`, opacity: 0 }
+        ], fxRand(800, 1200), 0, 'cubic-bezier(0.15, 0.7, 0.3, 1)');
+    }
+}
+
+// Hearts float up into the air and drift sideways
+function heartRise(x, y, count) {
+    for (let i = 0; i < count; i++) {
+        const drift = fxRand(-50, 50), rise = fxRand(120, 240), tilt = fxRand(-25, 25);
+        const el = fxSpawn('♥', x + fxRand(-12, 12), y, fxRand(14, 30), fxColor());
+        fxRun(el, [
+            { transform: 'translate(-50%,-50%) scale(0.3)', opacity: 0 },
+            { transform: `translate(calc(-50% + ${drift * 0.3}px), ${-rise * 0.25}px) rotate(${tilt * 0.5}deg) scale(1)`, opacity: 1, offset: 0.2 },
+            { transform: `translate(calc(-50% + ${drift}px), ${-rise}px) rotate(${tilt}deg) scale(0.8)`, opacity: 0 }
+        ], fxRand(1100, 1700), i * 70, 'ease-out');
+    }
+}
+
+// Ripple ring plus a circle of spinning sparkles
+function heartRing(x, y) {
+    const ring = document.createElement('span');
+    ring.className = 'fx-ring';
+    ring.style.left = x + 'px';
+    ring.style.top = y + 'px';
+    fxLayer().appendChild(ring);
+    fxRun(ring, [
+        { transform: 'translate(-50%,-50%) scale(0.4)', opacity: 0.9 },
+        { transform: 'translate(-50%,-50%) scale(4.5)', opacity: 0 }
+    ], 700, 0, 'ease-out');
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2, dist = 55;
+        const el = fxSpawn(i % 2 ? '♥' : '✨', x, y, 18, fxColor());
+        fxRun(el, [
+            { transform: 'translate(-50%,-50%) scale(0.2) rotate(0deg)', opacity: 1 },
+            { transform: `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px)) scale(1.2) rotate(180deg)`, opacity: 1, offset: 0.6 },
+            { transform: `translate(calc(-50% + ${Math.cos(angle) * dist * 1.2}px), calc(-50% + ${Math.sin(angle) * dist * 1.2}px)) scale(0.5) rotate(300deg)`, opacity: 0 }
+        ], 900, 0, 'ease-out');
+    }
+}
+
+function playHeartEffect(origin, isFirst) {
+    if (prefersReducedMotion()) return;
+    if (isFirst) {   // first save gets the full celebration
+        heartBurst(origin.x, origin.y, 26, 130);
+        heartRise(origin.x, origin.y, 12);
+        setTimeout(() => heartBurst(origin.x - 50, origin.y - 70, 12, 70), 180);
+        setTimeout(() => heartBurst(origin.x + 50, origin.y - 90, 12, 70), 320);
+        return;
+    }
+    const effects = ['burst', 'rise', 'ring'].filter(e => e !== lastHeartFx);
+    lastHeartFx = effects[Math.floor(Math.random() * effects.length)];
+    if (lastHeartFx === 'burst') heartBurst(origin.x, origin.y, 16, 80);
+    else if (lastHeartFx === 'rise') heartRise(origin.x, origin.y, 9);
+    else heartRing(origin.x, origin.y);
+}
+
+function showSaveToast(msg, withLink) {
+    let toast = document.getElementById('save-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'save-toast';
+        toast.setAttribute('role', 'status');
+        document.body.appendChild(toast);
+    }
+    const showLink = withLink && !/profile\.html/.test(window.location.pathname);
+    toast.innerHTML = `<span class="toast-heart">${withLink ? '♥' : '♡'}</span><span class="toast-msg"></span>${showLink ? '<a href="profile.html">View saved</a>' : ''}`;
+    toast.querySelector('.toast-msg').textContent = msg;   // textContent keeps names from being parsed as HTML
+    toast.classList.remove('show');
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function positionSaveTip() {
+    const tip = document.getElementById('save-tip');
+    const target = document.querySelector('nav a[href="profile.html"]');
+    if (!tip || !target) return;
+    const r = target.getBoundingClientRect();
+    const visible = r.top >= 0 && r.bottom <= window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+    tip.classList.toggle('tip-pinned', !visible);
+    if (visible) {
+        const w = tip.offsetWidth;
+        const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
+        tip.style.left = left + 'px';
+        tip.style.top = (r.bottom + 30) + 'px';
+        tip.style.setProperty('--arrow-x', (r.left + r.width / 2 - left) + 'px');
+    } else {
+        tip.style.left = '';
+        tip.style.top = '';
+        tip.style.removeProperty('--arrow-x');
+    }
+}
+
+function removeSaveTip() {
+    const tip = document.getElementById('save-tip');
+    if (tip) tip.remove();
+    document.querySelectorAll('.nav-spotlight').forEach(el => el.classList.remove('nav-spotlight'));
+    window.removeEventListener('scroll', positionSaveTip);
+    window.removeEventListener('resize', positionSaveTip);
+}
+
+// Shown only the very first time something is saved: points at where saved items live
+function showFirstSaveTip(name) {
+    try { localStorage.setItem(FIRST_SAVE_KEY, '1'); } catch (e) { /* ignore */ }
+    removeSaveTip();
+    const target = document.querySelector('nav a[href="profile.html"]');
+    if (!target) { showSaveToast(`Saved: ${name}`, true); return; }
+
+    const tip = document.createElement('div');
+    tip.id = 'save-tip';
+    tip.className = 'save-tip';
+    tip.setAttribute('role', 'dialog');
+    tip.innerHTML = `
+        <div class="tip-arrow">▲</div>
+        <div class="tip-body">
+            <strong>♥ Saved!</strong> <span class="tip-name"></span>
+            <p>Everything you save lives in <b>Account Profile</b>, under <b>My Saved Opportunities</b>. Your saves are also counted on that tab.</p>
+            <div class="tip-actions">
+                <a class="btn-action" href="profile.html">Take me there</a>
+                <button type="button" class="btn-action tip-show">Show me where ▲</button>
+                <button type="button" class="btn-action tip-close">Got it</button>
+            </div>
+        </div>`;
+    tip.querySelector('.tip-name').textContent = name;
+    document.body.appendChild(tip);
+
+    const navEl = target.parentElement;
+    navEl.scrollLeft = target.offsetLeft - navEl.clientWidth / 2 + target.offsetWidth / 2;
+    target.classList.add('nav-spotlight');
+
+    tip.querySelector('.tip-close').addEventListener('click', removeSaveTip);
+    tip.querySelector('.tip-show').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(positionSaveTip, 600);
+    });
+    window.addEventListener('scroll', positionSaveTip, { passive: true });
+    window.addEventListener('resize', positionSaveTip);
+    positionSaveTip();
+}
+
+// Small heart counter on the Account Profile tab
+function updateSaveBadge(bump) {
+    const link = document.querySelector('nav a[href="profile.html"]');
+    if (!link) return;
+    let badge = link.querySelector('.save-badge');
+    const n = userProfile.savedIds.length;
+    if (!n) { if (badge) badge.remove(); return; }
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'save-badge';
+        link.appendChild(badge);
+    }
+    badge.textContent = `♥ ${n}`;
+    if (bump) { badge.classList.remove('bump'); void badge.offsetWidth; badge.classList.add('bump'); }
+}
+
+document.addEventListener('DOMContentLoaded', () => updateSaveBadge(false));
+
+
+/* ==========================================================================
+   SUBTLE MOTION: grid entrance, form feedback, resume section highlight
+   ========================================================================== */
+// Cards fade up in a short stagger when a tab or filter changes (and on first load)
+function playGridEnter(id) {
+    const grid = document.getElementById(id);
+    if (!grid) return;
+    grid.classList.remove('grid-enter');
+    void grid.offsetWidth;
+    grid.classList.add('grid-enter');
+    // remove afterwards so hearting a card (which re-renders the grid) does not replay it
+    setTimeout(() => grid.classList.remove('grid-enter'), 700);
+}
+
+function shakeField(el) {
+    if (!el) return;
+    el.classList.remove('field-shake');
+    void el.offsetWidth;
+    el.classList.add('field-shake');
+    setTimeout(() => el.classList.remove('field-shake'), 600);
+}
+
+function flashSaved(btn) {
+    if (!btn) return;
+    if (!btn.dataset.label) btn.dataset.label = btn.innerHTML;
+    btn.innerHTML = 'Saved ✓';
+    btn.classList.add('btn-saved');
+    clearTimeout(btn._savedTimer);
+    btn._savedTimer = setTimeout(() => {
+        btn.innerHTML = btn.dataset.label;
+        btn.classList.remove('btn-saved');
+    }, 1800);
+}
+
+// Briefly tints whichever resume section changed, so you can see what your edit did
+function watchResumePreview() {
+    const box = document.getElementById('printable-resume');
+    if (!box || !window.MutationObserver) return;
+    const selector = '.tpl-sec, .tpl-compact-box, .tpl-modern-header, .tpl-corp-name, .tpl-academic-name';
+    let prevHTML = null, prevTemplate = null;
+    new MutationObserver(() => {
+        const els = [...box.querySelectorAll(selector)];
+        const html = els.map(e => e.innerHTML);
+        if (prevHTML && prevTemplate === currentResumeTemplate) {
+            const before = new Set(prevHTML);
+            const changed = els.filter((e, i) => !before.has(html[i]));
+            if (changed.length && changed.length <= 2) changed.forEach(e => e.classList.add('tpl-flash'));
+        }
+        prevHTML = html;
+        prevTemplate = currentResumeTemplate;
+    }).observe(box, { childList: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    ['grid-hs', 'grid-col', 'grid-jobs', 'grid-opp'].forEach(playGridEnter);
+});
+
+/* ==========================================================================
+   SITE SEARCH (nav bar): searches schools, colleges, internships, opportunities
+   and the site's own pages. Press "/" or Ctrl/Cmd+K to jump to it.
+   ========================================================================== */
+const SEARCH_PAGES = [
+    { name: 'Home', href: 'index.html', text: 'home welcome biotechnology career college prep student resources' },
+    { name: 'Take the Survey', href: 'survey.html', text: 'personalized matching survey recommendations age county town season location preference student level' },
+    { name: 'Vocational High Schools', href: 'highschools.html', text: 'public CTE high schools academies county middle school biotechnology filter by county' },
+    { name: 'Colleges & Universities', href: 'colleges.html', text: 'colleges universities degrees B.S. A.S. research labs undergraduate in-state out-of-state' },
+    { name: 'Internships & Jobs', href: 'jobs.html', text: 'internships paid jobs workplace positions apply student' },
+    { name: 'Scholarships, Competitions & Summer Programs', href: 'opportunities.html', text: 'scholarships competitions summer programs STEM opportunities research databases certifications' },
+    { name: 'Create Resume', href: 'resume.html', text: 'resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
+    { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' }
+];
+
+let searchIndex = null;
+let searchActive = -1;
+let searchShown = [];
+
+function buildSearchIndex() {
+    const rows = [];
+    HIGH_SCHOOLS.forEach(h => rows.push({ type: '🏫 High School', id: h.id, page: 'highschools.html', name: h.name, sub: `${h.town}, ${h.county} County`, notes: h.notes, extra: `${h.county} county high school CTE vocational academy ages ${h.ageMin}+ ${h.season}` }));
+    COLLEGES.forEach(c => rows.push({ type: '🎓 College', id: c.id, page: 'colleges.html', name: c.name, sub: `${c.location} · ${c.cost}`, notes: c.notes, extra: `${c.location} ${c.cost} ${c.acceptance} ${c.isNJ ? 'in-state new jersey' : 'out-of-state'} college university degree` }));
+    JOBS.forEach(j => rows.push({ type: j.cat === 'internship' ? '💼 Internship' : '💼 Job', id: j.id, page: 'jobs.html', name: j.name, sub: `${j.town} · ${j.season} · ages ${j.ageMin}+`, notes: j.notes, extra: `${j.town} ${j.season} ${j.cat} ${j.email || ''} ${j.isNJ ? 'in-state new jersey' : 'out-of-state'} paid` }));
+    OPPORTUNITIES.forEach(o => rows.push({ type: '🏆 Opportunity', id: o.id, page: 'opportunities.html', name: o.name, sub: `${o.town} · ${o.season} · ages ${o.ageMin}+`, notes: o.notes, extra: `${o.cat} ${o.town} ${o.season} scholarship competition summer program` }));
+    SEARCH_PAGES.forEach(p => rows.push({ type: '📄 Page', id: null, page: p.href, name: p.name, sub: '', notes: '', extra: p.text }));
+    return rows.map(r => ({ ...r, nameLc: r.name.toLowerCase(), subLc: r.sub.toLowerCase(), hay: `${r.name} ${r.sub} ${r.notes} ${r.extra}`.toLowerCase() }));
+}
+
+function searchEscape(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function searchHighlight(str, tokens) {
+    if (!tokens.length) return searchEscape(str);
+    const re = new RegExp('(' + tokens.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+    return str.split(re).map((part, i) => i % 2 ? `<mark>${searchEscape(part)}</mark>` : searchEscape(part)).join('');
+}
+
+function runSiteSearch(query) {
+    if (!searchIndex) searchIndex = buildSearchIndex();
+    const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return { tokens, results: [] };
+    const results = [];
+    searchIndex.forEach((row, order) => {
+        if (!tokens.every(t => row.hay.includes(t))) return;
+        let score = 0;
+        tokens.forEach(t => {
+            if (row.nameLc.startsWith(t)) score += 10;
+            else if (row.nameLc.includes(' ' + t)) score += 6;
+            else if (row.nameLc.includes(t)) score += 4;
+            else if (row.subLc.includes(t)) score += 2;
+            else score += 1;
+        });
+        results.push({ row, score, order });
+    });
+    results.sort((a, b) => b.score - a.score || a.order - b.order);
+    return { tokens, results: results.slice(0, 8).map(r => r.row) };
+}
+
+// Short excerpt from the notes around the first matching word
+function searchSnippet(row, tokens) {
+    const text = row.notes || '';
+    const lc = text.toLowerCase();
+    const hit = tokens.map(t => lc.indexOf(t)).filter(i => i >= 0).sort((a, b) => a - b)[0];
+    if (hit === undefined) return row.sub || text.slice(0, 90);
+    const start = Math.max(0, hit - 40), end = Math.min(text.length, hit + 90);
+    return (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
+}
+
+function positionSearchPanel() {
+    const panel = document.getElementById('search-results');
+    const input = document.getElementById('site-search-input');
+    if (!panel || !input || !panel.classList.contains('open')) return;
+    const r = input.getBoundingClientRect();
+    const width = Math.min(440, window.innerWidth - 16);
+    panel.style.width = width + 'px';
+    panel.style.left = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8)) + 'px';
+    panel.style.top = (r.bottom + 10) + 'px';
+}
+
+function closeSearchPanel() {
+    const panel = document.getElementById('search-results');
+    const input = document.getElementById('site-search-input');
+    if (panel) panel.classList.remove('open');
+    if (input) { input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); }
+    searchActive = -1;
+}
+
+function setSearchActive(i) {
+    const items = document.querySelectorAll('#search-results .sr-item');
+    if (!items.length) return;
+    searchActive = (i + items.length) % items.length;
+    items.forEach((el, n) => el.classList.toggle('active', n === searchActive));
+    items[searchActive].scrollIntoView({ block: 'nearest' });
+    document.getElementById('site-search-input').setAttribute('aria-activedescendant', items[searchActive].id);
+}
+
+function renderSearchPanel() {
+    const panel = document.getElementById('search-results');
+    const input = document.getElementById('site-search-input');
+    const query = input.value.trim();
+    searchActive = -1;
+    if (!query) {
+        panel.innerHTML = `<div class="sr-hint">Search schools, colleges, internships, scholarships and tools.<div class="sr-chips">${['Rutgers', 'internship', 'BACE', 'Morris', 'summer', 'resume'].map(w => `<button type="button" class="sr-chip" data-q="${w}">${w}</button>`).join('')}</div></div>`;
+        searchShown = [];
+    } else {
+        const { tokens, results } = runSiteSearch(query);
+        searchShown = results;
+        panel.innerHTML = results.length
+            ? results.map((r, i) => `<a class="sr-item" role="option" id="sr-${i}" href="${r.id ? `${r.page}?find=${encodeURIComponent(r.id)}` : r.page}" data-i="${i}">
+                    <span class="sr-type">${r.type}</span>
+                    <span class="sr-main"><span class="sr-name">${searchHighlight(r.name, tokens)}</span><span class="sr-snip">${searchHighlight(searchSnippet(r, tokens), tokens)}</span></span>
+                </a>`).join('')
+            : `<div class="sr-hint">No matches for “${searchEscape(query)}”. Try a school name, a town, or a keyword like <b>internship</b>.</div>`;
+    }
+    panel.classList.add('open');
+    input.setAttribute('aria-expanded', 'true');
+    positionSearchPanel();
+}
+
+function openSearchResult(el, ev) {
+    const row = searchShown[parseInt(el.dataset.i, 10)];
+    if (!row) return;
+    const here = window.location.pathname.replace(/\.html$/, '').split('/').pop() || 'index';
+    const there = row.page.replace(/\.html$/, '');
+    if (row.id && here === there) {          // already on that page: no reload, just jump to the card
+        if (ev) ev.preventDefault();
+        closeSearchPanel();
+        revealSearchItem(row.id);
+    }
+}
+
+// Scroll to a card and pulse it. If the For You filter is hiding it, widen the view first.
+function revealSearchItem(id) {
+    const find = () => {
+        const heart = document.querySelector(`.like-heart[onclick^="toggleLike('${id}'"]`);
+        return heart ? heart.closest('.card') : null;
+    };
+    let card = find();
+    if (!card) {
+        if (document.getElementById('grid-col')) selectCollegeTab('all');
+        else if (document.getElementById('grid-jobs')) selectJobTab('all');
+        else if (document.getElementById('grid-hs')) filterCounty('ALL', document.querySelector('.county-list li'));
+        card = find();
+    }
+    if (!card) {
+        showSaveToast('That item is hidden by your survey filters. Retake the survey to see it.', false);
+        const icon = document.querySelector('#save-toast .toast-heart');
+        if (icon) icon.textContent = 'ℹ️';
+        return;
+    }
+    card.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+    card.classList.remove('search-hit');
+    void card.offsetWidth;
+    card.classList.add('search-hit');
+    setTimeout(() => card.classList.remove('search-hit'), 3200);
+}
+
+function initSiteSearch() {
+    const nav = document.querySelector('nav');
+    if (!nav || document.getElementById('site-search')) return;
+
+    const wrap = document.createElement('div');
+    wrap.id = 'site-search';
+    wrap.className = 'nav-search';
+    wrap.innerHTML = '<span class="ns-icon" aria-hidden="true">🔍</span><input type="text" id="site-search-input" placeholder="Search the site   /" aria-label="Search the site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results">';
+    nav.appendChild(wrap);
+
+    const panel = document.createElement('div');
+    panel.id = 'search-results';
+    panel.setAttribute('role', 'listbox');
+    document.body.appendChild(panel);
+
+    const input = document.getElementById('site-search-input');
+    input.addEventListener('input', renderSearchPanel);
+    input.addEventListener('focus', renderSearchPanel);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown') { e.preventDefault(); setSearchActive(searchActive + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setSearchActive(searchActive - 1); }
+        else if (e.key === 'Enter') {
+            const items = panel.querySelectorAll('.sr-item');
+            const target = items[searchActive >= 0 ? searchActive : 0];
+            if (target) { e.preventDefault(); openSearchResult(target, { preventDefault() {} }); if (target.isConnected && panel.classList.contains('open')) target.click(); }
+        }
+        else if (e.key === 'Escape') { closeSearchPanel(); input.blur(); }
+    });
+    panel.addEventListener('click', e => {
+        const chip = e.target.closest('.sr-chip');
+        if (chip) { input.value = chip.dataset.q; renderSearchPanel(); input.focus(); return; }
+        const item = e.target.closest('.sr-item');
+        if (item) openSearchResult(item, e);
+    });
+    panel.addEventListener('mousemove', e => {
+        const item = e.target.closest('.sr-item');
+        if (item) { searchActive = parseInt(item.dataset.i, 10); panel.querySelectorAll('.sr-item').forEach((el, n) => el.classList.toggle('active', n === searchActive)); }
+    });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#site-search') && !e.target.closest('#search-results')) closeSearchPanel();
+    });
+    window.addEventListener('resize', positionSearchPanel);
+    window.addEventListener('scroll', positionSearchPanel, { passive: true });
+    nav.addEventListener('scroll', positionSearchPanel, { passive: true });
+
+    // "/" or Ctrl/Cmd+K jumps to the search box
+    document.addEventListener('keydown', e => {
+        const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName) || (document.activeElement && document.activeElement.isContentEditable);
+        if ((e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+            e.preventDefault();
+            input.focus();
+            input.select();
+        }
+    });
+}
+
+// Runs after the grids have rendered, so a ?find=id link can jump straight to its card
+window.addEventListener('DOMContentLoaded', () => {
+    initSiteSearch();
+    const id = new URLSearchParams(window.location.search).get('find');
+    if (!id) return;
+    revealSearchItem(id);
+    try {
+        const u = new URL(window.location.href);
+        u.searchParams.delete('find');
+        window.history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) { /* ignore */ }
+});
