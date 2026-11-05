@@ -1631,6 +1631,90 @@ function runSiteSearch(query) {
     return { tokens, results: results.slice(0, 8).map(r => r.row) };
 }
 
+// ----- "Did you mean": fixes typos using the words that actually appear on the site -----
+let searchVocab = null;
+const SEARCH_STOP = new Set(['the', 'and', 'for', 'with', 'are', 'you', 'your', 'that', 'this', 'from', 'has', 'have', 'its', 'who', 'can', 'all', 'any', 'new', 'not', 'com', 'org', 'net', 'edu']);
+
+function buildSearchVocab() {
+    const map = new Map();
+    const add = (text, weight) => {
+        (String(text || '').match(/[A-Za-z0-9]{3,}/g) || []).forEach(w => {
+            const lc = w.toLowerCase();
+            if (SEARCH_STOP.has(lc) || /^\d+$/.test(lc)) return;
+            const e = map.get(lc) || { lc, display: lc, count: 0, prio: 0 };
+            e.count++;
+            if (weight > e.prio) { e.prio = weight; e.display = weight >= 2 ? w : lc; }   // keep "NJIT", "Rutgers" as written
+            map.set(lc, e);
+        });
+    };
+    searchIndex.forEach(r => { add(r.name, 3); add(r.sub, 2); add(r.extra, 1); add(r.notes, 1); });
+    return [...map.values()];
+}
+
+// Edit distance that counts a swapped pair of letters ("teh" → "the") as one mistake
+function editDistance(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    let prev2 = null, prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+        const cur = [i];
+        let rowMin = i;
+        for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            let v = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+            if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, prev2[j - 2] + 1);
+            cur[j] = v;
+            if (v < rowMin) rowMin = v;
+        }
+        if (rowMin > max) return max + 1;
+        prev2 = prev; prev = cur;
+    }
+    return prev[b.length];
+}
+
+// Returns up to 3 corrected searches that actually have results, best first
+function suggestSearch(query) {
+    if (!searchIndex) searchIndex = buildSearchIndex();
+    if (!searchVocab) searchVocab = buildSearchVocab();
+    const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const bad = tokens.map(t => !searchIndex.some(r => r.hay.includes(t)));
+    if (!bad.some(Boolean)) return [];
+
+    const options = tokens.map((t, i) => {
+        if (!bad[i]) return [{ lc: t, display: t }];
+        if (t.length < 3) return [];
+        const max = t.length <= 4 ? 1 : 2;
+        const cands = [];
+        searchVocab.forEach(v => {
+            let d = editDistance(t, v.lc, max);
+            // also catch a typo in a word that is only partly typed ("biotechnolo")
+            if (t.length >= 5 && v.lc.length > t.length) d = Math.min(d, editDistance(t, v.lc.slice(0, t.length), max) + 0.5);
+            if (d <= max) cands.push({ v, d });
+        });
+        cands.sort((x, y) => x.d - y.d
+            || (y.v.lc[0] === t[0]) - (x.v.lc[0] === t[0])
+            || y.v.prio - x.v.prio
+            || y.v.count - x.v.count);
+        return cands.slice(0, 3).map(c => ({ lc: c.v.lc, display: c.v.display }));
+    });
+    if (options.some(o => !o.length)) return [];
+
+    const phrases = tokens.length === 1 ? options[0].map(o => [o]) : [options.map(o => o[0])];
+    return phrases
+        .map(p => {
+            const lcTokens = p.map(o => o.lc);
+            return { text: p.map(o => o.display).join(' '), tokens: lcTokens, results: runSiteSearch(lcTokens.join(' ')).results };
+        })
+        .filter(s => s.results.length);
+}
+
+function searchRowsHTML(results, tokens) {
+    return results.map((r, i) => `<a class="sr-item" role="option" id="sr-${i}" href="${r.id ? `${r.page}?find=${encodeURIComponent(r.id)}` : r.page}" data-i="${i}">
+                    <span class="sr-type">${r.type}</span>
+                    <span class="sr-main"><span class="sr-name">${searchHighlight(r.name, tokens)}</span><span class="sr-snip">${searchHighlight(searchSnippet(r, tokens), tokens)}</span></span>
+                </a>`).join('');
+}
+
+
 // Short excerpt from the notes around the first matching word
 function searchSnippet(row, tokens) {
     const text = row.notes || '';
@@ -1699,13 +1783,20 @@ function renderSearchPanel() {
         searchShown = [];
     } else {
         const { tokens, results } = runSiteSearch(query);
-        searchShown = results;
-        panel.innerHTML = results.length
-            ? results.map((r, i) => `<a class="sr-item" role="option" id="sr-${i}" href="${r.id ? `${r.page}?find=${encodeURIComponent(r.id)}` : r.page}" data-i="${i}">
-                    <span class="sr-type">${r.type}</span>
-                    <span class="sr-main"><span class="sr-name">${searchHighlight(r.name, tokens)}</span><span class="sr-snip">${searchHighlight(searchSnippet(r, tokens), tokens)}</span></span>
-                </a>`).join('')
-            : `<div class="sr-hint">No matches for “${searchEscape(query)}”. Try a school name, a town, or a keyword like <b>internship</b>.</div>`;
+        if (results.length) {
+            searchShown = results;
+            panel.innerHTML = searchRowsHTML(results, tokens);
+        } else {
+            const sugg = suggestSearch(query);
+            if (sugg.length) {
+                searchShown = sugg[0].results;
+                panel.innerHTML = `<div class="sr-did">No matches for “${searchEscape(query)}”. Did you mean ${sugg.map(x => `<button type="button" class="sr-chip" data-q="${searchEscape(x.text)}">${searchEscape(x.text)}</button>`).join('')}?</div>`
+                    + searchRowsHTML(sugg[0].results, sugg[0].tokens);
+            } else {
+                searchShown = [];
+                panel.innerHTML = `<div class="sr-hint">No matches for “${searchEscape(query)}”. Try a school name, a town, or a keyword like <b>internship</b>.</div>`;
+            }
+        }
     }
     panel.classList.add('open');
     input.setAttribute('aria-expanded', 'true');
