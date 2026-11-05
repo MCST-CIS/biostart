@@ -176,6 +176,23 @@ function updateUserHeaderDisplay() {
     if (greetingEl) {
         greetingEl.innerText = userProfile.name ? `${userProfile.name} (${userProfile.town || userProfile.county || 'NJ'})` : 'Guest Account';
     }
+
+    // Swap the placeholder 👤 in the header pill for the avatar picked on the profile page
+    const pill = document.querySelector('.user-pill');
+    if (!pill) return;
+    let badge = pill.querySelector('.user-avatar');
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'user-avatar';
+        badge.setAttribute('aria-hidden', 'true');
+        Array.from(pill.childNodes).forEach(n => {          // drop the hardcoded 👤 text node
+            if (n.nodeType === 3 && n.textContent.includes('👤')) n.remove();
+        });
+        pill.insertBefore(badge, pill.firstChild);
+    }
+    const picked = !!userProfile.name || (userProfile.avatarIdx || 0) > 0;
+    badge.textContent = picked ? AVATARS[userProfile.avatarIdx || 0] : '👤';
+    badge.classList.toggle('is-picked', picked);
 }
 
 function findSavedItem(id) {
@@ -988,6 +1005,7 @@ function cycleAvatar(direction) {
     const display = document.getElementById('avatar-display');
     if (display) display.innerText = AVATARS[userProfile.avatarIdx];
     saveState();
+    updateUserHeaderDisplay();
 }
 
 function saveAccountProfile(e) {
@@ -1523,15 +1541,34 @@ function searchSnippet(row, tokens) {
     return (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
 }
 
+// Grow the field only into the empty space beside the nav buttons, never over them
+function sizeSearchField() {
+    const wrap = document.getElementById('site-search');
+    const nav = document.querySelector('nav');
+    if (!wrap || !nav) return;
+    const closedW = 168;
+    const w = wrap.getBoundingClientRect();
+    let rightmost = null;
+    nav.querySelectorAll('a.nav-btn').forEach(b => {
+        const r = b.getBoundingClientRect();
+        const sameRow = r.bottom > w.top + 2 && r.top < w.bottom - 2;
+        if (sameRow && (rightmost === null || r.right > rightmost)) rightmost = r.right;
+    });
+    const navR = nav.getBoundingClientRect();
+    const floor = rightmost === null ? navR.left + 20 : rightmost + 8;
+    const open = Math.max(closedW, Math.min(420, w.right - floor));
+    wrap.style.setProperty('--search-open-w', open + 'px');
+}
+
 function positionSearchPanel() {
     const panel = document.getElementById('search-results');
     const input = document.getElementById('site-search-input');
     if (!panel || !input || !panel.classList.contains('open')) return;
-    const r = input.getBoundingClientRect();
-    const width = Math.min(440, window.innerWidth - 16);
+    const r = document.getElementById('site-search').getBoundingClientRect();
+    const width = Math.min(420, window.innerWidth - 32);   // matches --search-open-w
     panel.style.width = width + 'px';
     panel.style.left = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8)) + 'px';
-    panel.style.top = (r.bottom + 10) + 'px';
+    panel.style.top = (r.bottom + 8) + 'px';
 }
 
 function closeSearchPanel() {
@@ -1556,6 +1593,7 @@ function renderSearchPanel() {
     const input = document.getElementById('site-search-input');
     const query = input.value.trim();
     searchActive = -1;
+    document.getElementById('site-search').classList.toggle('has-value', input.value.length > 0);
     if (!query) {
         panel.innerHTML = `<div class="sr-hint">Search schools, colleges, internships, scholarships and tools.<div class="sr-chips">${['Rutgers', 'internship', 'BACE', 'Morris', 'summer', 'resume'].map(w => `<button type="button" class="sr-chip" data-q="${w}">${w}</button>`).join('')}</div></div>`;
         searchShown = [];
@@ -1619,7 +1657,11 @@ function initSiteSearch() {
     const wrap = document.createElement('div');
     wrap.id = 'site-search';
     wrap.className = 'nav-search';
-    wrap.innerHTML = '<span class="ns-icon" aria-hidden="true">🔍</span><input type="text" id="site-search-input" placeholder="Search the site   /" aria-label="Search the site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results">';
+    wrap.innerHTML =
+        '<svg class="ns-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.75"/><path d="M10 10l4.5 4.5"/></svg>' +
+        '<input type="text" id="site-search-input" placeholder="Search" aria-label="Search the site" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results">' +
+        '<span class="ns-kbd" aria-hidden="true">/</span>' +
+        '<button type="button" class="ns-clear" aria-label="Clear search" tabindex="-1">&times;</button>';
     nav.appendChild(wrap);
 
     const panel = document.createElement('div');
@@ -1629,7 +1671,12 @@ function initSiteSearch() {
 
     const input = document.getElementById('site-search-input');
     input.addEventListener('input', renderSearchPanel);
-    input.addEventListener('focus', renderSearchPanel);
+    input.addEventListener('focus', () => { sizeSearchField(); renderSearchPanel(); });
+    window.addEventListener('resize', sizeSearchField);
+    sizeSearchField();
+    const clearBtn = wrap.querySelector('.ns-clear');
+    clearBtn.addEventListener('mousedown', e => e.preventDefault());
+    clearBtn.addEventListener('click', () => { input.value = ''; renderSearchPanel(); input.focus(); });
     input.addEventListener('keydown', e => {
         if (e.key === 'ArrowDown') { e.preventDefault(); setSearchActive(searchActive + 1); }
         else if (e.key === 'ArrowUp') { e.preventDefault(); setSearchActive(searchActive - 1); }
