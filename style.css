@@ -185,39 +185,61 @@ header {
     border-color: var(--biostart-red);
 }
 
-/* --- ROUNDED FLOATING SITE NAVIGATION BAR --- */
+.user-pill { display: inline-flex; align-items: center; gap: 9px; }
+
+/* Avatar badge: same red-ringed circle used on the profile page, scaled down */
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 13px;
+    line-height: 1;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.user-avatar.is-picked {
+    background: #eee;
+    border: 2px solid var(--biostart-red);
+    font-size: 12px;
+}
+
+/* Updated Navigation Bar Container */
 nav {
     background-color: var(--biostart-black);
     border: 3px solid var(--biostart-black);
-    border-radius: 50px;
+    border-radius: 25px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 6px 12px;
+    flex-wrap: wrap; /* Allows wrapping on narrower screens instead of forcing a scrollbar */
+    overflow-x: visible; /* Removes horizontal scrollbar */
+    white-space: normal;
+    padding: 8px 16px;
     margin: 20px auto 0;
-    max-width: 1232px;
+    max-width: 1280px; /* Expands to match main container width */
     box-shadow: 0 4px 0 var(--biostart-black);
     position: relative;
     z-index: 10;
 }
 
+/* Adjusted Navigation Buttons to fit comfortably */
 nav a.nav-btn {
     background: none;
     border: none;
     color: var(--biostart-white);
-    padding: 10px 18px;
+    padding: 8px 12px; /* Reduced padding from 10px 18px */
     font-weight: 800;
     text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
+    font-size: 11.5px;
+    letter-spacing: 0.3px;
     cursor: pointer;
     transition: all 0.2s;
     border-radius: 25px;
     text-decoration: none;
     display: inline-block;
-    margin: 0 2px;
+    margin: 2px 1px;
 }
 
 nav a.nav-btn:hover, nav a.nav-btn.active {
@@ -1026,25 +1048,143 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
 }
 
 /* ==========================================================================
-   SITE SEARCH (inside the nav bar)
+   SITE SEARCH
+   The wrapper keeps a fixed footprint in the nav, so nothing around it ever
+   reflows. On focus the field grows leftward over the nav as an overlay.
    ========================================================================== */
-.nav-search { position: sticky; right: 0; margin-left: auto; padding-left: 12px; flex-shrink: 0; display: flex; align-items: center; background: var(--biostart-black); }
-.ns-icon { position: absolute; left: 24px; font-size: 12px; pointer-events: none; }
-#site-search-input {
-    width: 190px; background: #1c1c1c; color: var(--biostart-white); border: 2px solid #444; border-radius: 22px;
-    padding: 8px 14px 8px 32px; font-size: 12px; font-weight: 700; font-family: inherit; outline: none;
-    transition: width 0.2s, border-color 0.2s, background 0.2s;
+.nav-search {
+    --search-closed-w: 168px;
+    --search-open-w: min(420px, calc(100vw - 32px));
+    --search-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    margin-left: auto;
+    order: 99;
+    flex: 0 0 var(--search-closed-w);
+    width: var(--search-closed-w);
+    height: 34px;
+    z-index: 5;
 }
-#site-search-input::placeholder { color: #999; font-weight: 600; }
-#site-search-input:focus { width: 270px; border-color: var(--biostart-red); background: #000; }
 
-#search-results {
-    display: none; position: fixed; z-index: 10002; max-height: 60vh; overflow-y: auto;
-    background: var(--biostart-white); border: 3px solid var(--biostart-black); border-radius: 10px;
-    box-shadow: 0 4px 0 var(--biostart-black);
+#site-search-input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background: #1c1c1c;
+    color: var(--biostart-white);
+    border: 2px solid #444;
+    border-radius: 22px;
+    padding: 0 40px 0 34px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.2px;
+    outline: none;
+    box-shadow: 0 0 0 var(--biostart-red);
+    transition: width 0.34s var(--search-ease),
+                background 0.2s ease,
+                border-color 0.2s ease,
+                border-radius 0.34s var(--search-ease),
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
 }
-#search-results.open { display: block; }
-.sr-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; text-decoration: none; color: inherit; border-bottom: 1px solid #eee; border-left: 4px solid transparent; }
+#site-search-input::placeholder { color: #8a8a8a; font-weight: 600; transition: color 0.2s ease; }
+#site-search-input:hover { border-color: #6a6a6a; }
+#site-search-input:focus {
+    width: var(--search-open-w);
+    background: #000;
+    border-color: var(--biostart-red);
+    border-radius: 10px;
+    box-shadow: 0 3px 0 var(--biostart-red);
+    transform: translateY(-1px);
+}
+#site-search-input:focus::placeholder { color: #666; }
+#site-search-input::-webkit-search-cancel-button { display: none; }
+
+/* Icon rides inside the field; it sits above the input but ignores the mouse */
+.ns-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin-top: -7px;
+    color: #9a9a9a;
+    pointer-events: none;
+    z-index: 2;
+    transition: color 0.2s ease, transform 0.34s var(--search-ease);
+}
+.nav-search:focus-within .ns-icon { color: var(--biostart-red); transform: translateY(-1px); }
+
+/* Right-hand slot: "/" shortcut hint when idle, clear button once there is text */
+.ns-kbd, .ns-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    z-index: 2;
+    transition: opacity 0.15s ease, transform 0.2s ease, background 0.15s ease;
+}
+.ns-kbd {
+    transform: translateY(-50%);
+    min-width: 18px;
+    padding: 1px 5px 2px;
+    text-align: center;
+    font: 800 10px/1.2 var(--biostart-font-main);
+    color: #999;
+    border: 1px solid #555;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+.nav-search:focus-within .ns-kbd,
+.nav-search.has-value .ns-kbd { opacity: 0; }
+
+.ns-clear {
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #ddd;
+    font: 800 13px/20px var(--biostart-font-main);
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.7);
+}
+.nav-search.has-value .ns-clear { opacity: 1; pointer-events: auto; transform: scale(1); }
+.ns-clear:hover { background: var(--biostart-red); color: #fff; }
+
+/* Results panel: stays in the DOM so it can ease in and out */
+#search-results {
+    position: fixed;
+    z-index: 10002;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: var(--biostart-white);
+    border: 3px solid var(--biostart-black);
+    border-radius: 10px;
+    box-shadow: 0 4px 0 var(--biostart-black);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transform-origin: top right;
+    transition: opacity 0.16s ease, transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.26s;
+}
+#search-results.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity 0.16s ease, transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+}
+.sr-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; text-decoration: none; color: inherit; border-bottom: 1px solid #eee; border-left: 4px solid transparent; transition: background 0.12s ease, border-left-color 0.12s ease; }
 .sr-item:last-child { border-bottom: none; }
 .sr-item.active { background: var(--biostart-bg); border-left-color: var(--biostart-red); }
 .sr-type { flex-shrink: 0; min-width: 104px; font-size: 10px; font-weight: 900; text-transform: uppercase; padding-top: 3px; color: #555; }
@@ -1053,9 +1193,13 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
 .sr-snip { font-size: 11px; font-weight: 600; color: #666; line-height: 1.35; }
 .sr-hint { padding: 14px; font-size: 12px; font-weight: 600; color: #444; line-height: 1.5; }
 .sr-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.sr-chip { background: var(--biostart-bg); border: 2px solid var(--biostart-black); border-radius: 14px; padding: 3px 10px; font-size: 11px; font-weight: 800; cursor: pointer; }
+.sr-chip { background: var(--biostart-bg); border: 2px solid var(--biostart-black); border-radius: 14px; padding: 3px 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: background 0.12s ease, color 0.12s ease; }
 .sr-chip:hover { background: var(--biostart-red); color: var(--biostart-white); }
 #search-results mark { background: rgba(217, 56, 41, 0.22); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+    #site-search-input, .ns-icon, .ns-kbd, .ns-clear, #search-results, #search-results.open { transition: none !important; }
+}
 
 .search-hit { outline: 3px solid var(--biostart-red); outline-offset: 3px; animation: searchHit 1.1s ease-out 2; }
 @keyframes searchHit {
@@ -1063,7 +1207,5 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
     50% { box-shadow: 0 4px 0 var(--biostart-black), 0 0 0 14px rgba(217, 56, 41, 0.25); }
 }
 @media (max-width: 600px) {
-    #site-search-input { width: 140px; }
-    #site-search-input:focus { width: 180px; }
     .sr-type { min-width: 78px; }
 }
