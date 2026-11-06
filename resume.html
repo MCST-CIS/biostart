@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Resume - BIOSTART</title>
+    <title>Create - BIOSTART</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="poster.css">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="favicon-192.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -30,11 +31,39 @@
         <a href="colleges.html" class="nav-btn">Colleges</a>
         <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
         <a href="opportunities.html" class="nav-btn">Opportunities</a>
-        <a href="resume.html" class="nav-btn active">Create Resume</a>
+        <a href="resume.html" class="nav-btn active">Create</a>
         <a href="profile.html" class="nav-btn">Account Profile</a>
     </nav>
 
     <div class="container">
+        <!-- CREATE HUB: two big buttons -->
+        <div id="create-hub">
+            <h2>Create</h2>
+            <p style="color:#444; font-weight:600; max-width:760px;">Two tools for showing off what you know. Build a resume for applications and internships, or make an informational biotech poster for a class, club, or science fair.</p>
+            <div class="hub-grid">
+                <a class="hub-card" href="#resume">
+                    <div class="hub-art"><svg viewBox="0 0 150 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="78" cy="54" r="46" fill="#EEB0A5"/><g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="40" y="10" width="62" height="84" rx="4" fill="#fff" transform="rotate(-6 71 52)"/><rect x="52" y="6" width="62" height="84" rx="4" fill="#fff"/><circle cx="68" cy="26" r="7" fill="#D94F3B"/><path d="M80 22H104M80 30H98" fill="none"/><path d="M60 46H106M60 56H106M60 66H92M60 76H100" fill="none" stroke-width="2.5"/></g></svg></div>
+                    <div class="hub-sub">Applications &amp; internships</div>
+                    <div class="hub-title">Resume Builder</div>
+                    <div class="hub-desc">Build, customize, and export an industry-tailored biotechnology resume for CTE high school applications, college admissions, research labs, and paid internships.</div>
+                    <div class="hub-chips"><span class="hub-chip">Live preview</span><span class="hub-chip">Templates</span><span class="hub-chip">PDF export</span></div>
+                    <div class="hub-go">Start my resume ►</div>
+                </a>
+                <a class="hub-card" href="#poster">
+                    <span class="hub-badge">NEW</span>
+                    <div class="hub-art"><svg viewBox="0 0 190 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="96" cy="54" r="46" fill="#EEB0A5"/><g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="34" y="8" width="110" height="82" rx="4" fill="#fff"/><rect x="34" y="8" width="110" height="20" rx="4" fill="#D94F3B"/><path d="M44 18H98" stroke="#fff" fill="none" stroke-width="4"/><rect x="44" y="38" width="38" height="44" rx="2" fill="#F6D5CE" stroke-width="2.5"/><path d="M52 74V62M62 74V52M72 74V58" stroke="#D94F3B" stroke-width="7" fill="none"/><path d="M92 40H134M92 50H134M92 60H122M92 70H130" fill="none" stroke-width="2.5"/><path d="M156 16V68a9 9 0 0 0 18 0V16" fill="#fff"/><path d="M156 44H174V68a9 9 0 0 1-18 0Z" fill="#D94F3B"/><path d="M152 16H178" fill="none"/></g></svg></div>
+                    <div class="hub-sub">Project assistance</div>
+                    <div class="hub-title">Poster Lab</div>
+                    <div class="hub-desc">Fill in a template to make a biotech poster: research posters, concept infographics, career spotlights, and lab safety guides, with writing tips and graphics built in.</div>
+                    <div class="hub-chips"><span class="hub-chip">4 templates</span><span class="hub-chip">Guides &amp; examples</span><span class="hub-chip">Graphics library</span></div>
+                    <div class="hub-go">Make a poster ►</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- RESUME BUILDER (original tool, unchanged) -->
+        <div id="create-resume" hidden>
+            <a class="back-link" href="#hub">← All create tools</a>
         <h2>Professional Resume Builder</h2>
         <p style="margin-bottom: 20px; color: #444; font-weight: 600;">
             Build, customize, and export an industry-tailored biotechnology resume for CTE high school applications, college admissions, research labs, and paid internships.
@@ -270,8 +299,50 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- POSTER LAB -->
+        <div id="create-poster" hidden>
+            <a class="back-link" href="#hub">← All create tools</a>
+            <h2>Poster Lab</h2>
+            <p class="poster-intro poster-noprint">Pick a template, follow the tips under each box, and watch your poster build itself. Load the example first if you want to see how a finished one looks, then print or save it as a PDF.</p>
+
+            <div class="template-selector-section poster-noprint" style="margin-bottom: 24px;">
+                <h3 style="font-size:16px; text-transform:uppercase; font-weight:900; margin-bottom:12px;">1. Choose a poster template</h3>
+                <div class="template-options-grid" id="poster-template-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));"></div>
+            </div>
+
+            <div class="poster-workspace">
+                <div class="form-card poster-form poster-noprint">
+                    <div class="pf-top">
+                        <h3>2. Fill it in</h3>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn-action-sm" id="poster-example-btn">✨ Load example</button>
+                            <button type="button" class="btn-action-sm" id="poster-clear-btn">Clear</button>
+                        </div>
+                    </div>
+                    <div class="poster-guide" id="poster-guide"></div>
+                    <div id="poster-fields"></div>
+                    <div class="poster-checklist" id="poster-checklist"></div>
+                </div>
+
+                <div class="poster-preview">
+                    <div class="preview-header-bar">
+                        <span>Live Preview: <span id="poster-active-label"></span></span>
+                        <span style="display:flex; gap:6px;">
+                            <button type="button" class="btn-action-sm" id="poster-copy-btn">📋 Copy text</button>
+                            <button type="button" class="btn-action-sm" id="poster-print-btn">🖨️ Print / Save PDF</button>
+                        </span>
+                    </div>
+                    <div class="poster-meter poster-noprint" id="poster-meter"><span id="pm-text"></span><div class="pm-bar"><div class="pm-fill" id="pm-fill"></div></div></div>
+                    <div class="poster-overflow poster-noprint" id="poster-overflow" hidden>⚠️ Your content is taller than one page, so it would print on two. Shorten a few sections.</div>
+                    <div class="poster-stage"><div class="poster-wrap" id="printable-poster"></div></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
+    <script src="poster.js"></script>
 </body>
 </html>
