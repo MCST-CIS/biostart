@@ -2446,3 +2446,570 @@ window.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', route);
     document.addEventListener('DOMContentLoaded', route);
 })();
+
+/* ==========================================================================
+   JOURNEY TIMELINE
+   A tab beside the logo opens a panel above the nav bar. The student's avatar
+   and name sit on the track at the stage they're in, worked out from the
+   graduation date on their resume (or their profile), and the stage's steps
+   are ticked off from what they've typed into the resume and saved on the site.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const CHECK_KEY = 'biostart_timelineChecks';
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const lvl = (n, doneAt, doingAt) => n >= doneAt ? 'done' : n >= doingAt ? 'doing' : 'todo';
+    const sentState = g => (g.n > 0 && g.sent === g.n) ? 'done' : (g.sent > 0 || g.applying > 0) ? 'doing' : 'todo';
+    const T = (id, title, when, detail, o) => Object.assign({ id, title, when, detail }, o || {});
+    const SRC = { resume: 'Tracked from your resume', saved: 'Tracked from your saved list', profile: 'Tracked from your profile' };
+
+    const L = {
+        survey: ['survey.html', 'Take the survey'],
+        hs: ['highschools.html', 'Browse high schools'],
+        col: ['colleges.html', 'Browse colleges'],
+        jobs: ['jobs.html', 'See internships and jobs'],
+        opp: ['opportunities.html', 'See opportunities'],
+        resume: ['resume.html#resume', 'Open the resume builder'],
+        poster: ['resume.html#poster', 'Open Poster Lab'],
+        profile: ['profile.html', 'Update statuses']
+    };
+
+    /* ---------- the path ---------- */
+    const STAGES = [
+        {
+            key: 'ms', name: 'Explore', span: 'Grades 6–7',
+            goal: 'Find out what biotech work really is, and build the habits that make high school applications easier.',
+            tasks: [
+                T('ms-survey', 'Take the survey and save your profile', 'Do this first',
+                    'The survey tells BIOSTART your county, town, age, and the season you’re free. The schools, jobs, and opportunities pages then sort themselves around you instead of showing everything at once. It takes a couple of minutes and you can retake it whenever something changes.',
+                    { auto: 'profile', check: c => c.p.surveyCompleted ? 'done' : 'todo', link: L.survey, core: true }),
+                T('ms-explore', 'Find out what biotech work looks like', 'Any time in 6th–7th grade',
+                    'Lab technician, quality control analyst, bioinformatics, process development, clinical research coordinator. Pick two that sound interesting and write one sentence on why. You’re collecting options, not choosing a career. Short videos on company career pages and open houses at the schools on the Vocational High Schools page are good places to start.'),
+                T('ms-grades', 'Keep science and math steady', 'All of middle school',
+                    'Many selective programs look at grades, attendance, and teacher comments. You don’t need perfect marks; you need a pattern of effort and improvement. If one subject slips, ask the teacher what to change that month rather than waiting for the report card.'),
+                T('ms-save', 'Save three high schools you could see yourself at', 'By the end of 7th grade',
+                    'Use the heart on the Vocational High Schools page, starting with your own county and then the neighboring ones. Each school sets its own rules about who can apply, so read the eligibility notes before you get attached to one.',
+                    { auto: 'saved', check: c => lvl(c.sv.hs.n, 3, 1), link: L.hs, core: true }),
+                T('ms-club', 'Join one hands-on science activity', 'This school year',
+                    'Science club, Science Olympiad, robotics, or a school science fair all count. One real experiment, with a question, a control, and results, is worth more than a long list of clubs. The Opportunities page lists competitions open to students your age.',
+                    { link: L.opp }),
+                T('ms-resume', 'Start a one-page activity list', 'Before 8th grade starts',
+                    'Your name, school, clubs, awards, and anything you’ve built. It doesn’t need to be fancy. The resume builder shows a live preview, and what you type is saved in your browser, so you can add to it each year.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 3, 1), link: L.resume })
+            ]
+        },
+        {
+            key: 'ms8', name: 'Choose', span: '8th grade',
+            goal: 'Pick programs, meet every deadline, and apply. Each school sets its own dates, so confirm them directly.',
+            tasks: [
+                T('ms8-list', 'Narrow to three to five programs', 'September–October',
+                    'Compare the biotech course sequence at each school, the certifications or college credit students can earn, the commute, and how admission works. Your saved list keeps everything in one place on the Account Profile page.',
+                    { auto: 'saved', check: c => lvl(c.sv.hs.n, 3, 1), link: L.hs, core: true }),
+                T('ms8-visit', 'Go to open houses and shadow days', 'Usually fall',
+                    'Ask what students actually do in the biotech lab, how many periods a day the program takes, which certifications students leave with, and what happens if the program turns out not to be a fit. Write notes right after each visit while the details are fresh.'),
+                T('ms8-dates', 'Write down every requirement and date', 'As soon as you shortlist',
+                    'Entrance tests, essays, interviews, transcripts, recommendations, and the application deadline can all differ from school to school. Put each on a calendar with a reminder two weeks ahead. Deadlines for many programs fall in late fall or winter, but check with the school.'),
+                T('ms8-rec', 'Ask a teacher for a recommendation, if one is required', 'Two to three weeks before it’s due',
+                    'Choose the science or math teacher who has watched you work the hardest. Give them your activity list and the deadline in writing, and thank them afterwards.'),
+                T('ms8-apply', 'Submit your applications', 'Before each deadline',
+                    'Change each school’s status in your saved list (Interested, Applying, Applied, Accepted) and this timeline moves with it. Keep confirmation emails together in one folder.',
+                    { auto: 'saved', check: c => c.sv.hs.sent > 0 ? 'done' : c.sv.hs.applying > 0 ? 'doing' : 'todo', link: L.profile, core: true }),
+                T('ms8-resume', 'Finish your activity list', 'Before applications are due',
+                    'Add contact details, your school, clubs, awards, and one or two things you’ve made or done. Export it as a PDF in case a school asks for it.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 4, 2), link: L.resume }),
+                T('ms8-planb', 'Learn your home school’s science pathway', 'Before decisions come out',
+                    'Find out which biology, chemistry, and CTE courses your local high school offers and whether it has a biotech elective or club. Knowing your plan B takes the pressure off decision day.')
+            ]
+        },
+        {
+            key: 'hs-early', name: 'Build', span: '9th–10th grade',
+            goal: 'Learn real lab technique, keep your grades strong, and start collecting proof of what you can do.',
+            tasks: [
+                T('he-courses', 'Take and list your core science and math courses', 'Freshman and sophomore year',
+                    'Biology, then chemistry, with math moving steadily upward. If your school has a biotech academy, follow its sequence. Add each course to the coursework box on your resume so colleges see the path and not just the grades.',
+                    { auto: 'resume', check: c => lvl(c.courseN, 3, 1), link: L.resume, core: true }),
+                T('he-lab', 'Learn at least five lab techniques', 'Across 9th–10th grade',
+                    'Micropipetting, gel electrophoresis, PCR, aseptic technique, DNA extraction, and making solutions are the usual starting set. List a technique only once you’ve done it yourself, and be ready to explain what it’s for if someone asks.',
+                    { auto: 'resume', check: c => lvl(c.labN, 5, 1), link: L.resume, core: true }),
+                T('he-bace', 'Prepare for the BACE credential', 'Open from age 14',
+                    'Biotility’s Biotechnology Aptitude & Competency Exam is an industry-recognized credential for entry-level lab roles. Ask your biotech teacher how students at your school register, and add it to your certifications once you pass.',
+                    { auto: 'resume', check: c => c.bace ? 'done' : 'todo', link: L.opp, core: true }),
+                T('he-resume', 'Start your resume', 'This semester',
+                    'Fill in contact details, education, coursework, and one activity. Update it every semester instead of rebuilding it from memory senior year.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 5, 2), link: L.resume, core: true }),
+                T('he-activity', 'Join a team or club that does science', 'This year',
+                    'HOSA, TSA, Science Olympiad, or a school research club. Colleges care what you did in the role, so write down your title, your dates, and one result in the Projects section.',
+                    { auto: 'resume', check: c => c.g('res-proj-title') ? 'done' : 'todo', link: L.resume }),
+                T('he-fair', 'Run a small research project', 'Sophomore year',
+                    'Pick a question you can test in a school lab or at home, repeat it, and write up what happened, including what didn’t work. A school or regional science fair is a natural finish line, and the Opportunities page lists the bigger competitions you can grow into.',
+                    { link: L.opp }),
+                T('he-gpa', 'Record your GPA and honors every year', 'End of each school year',
+                    'Add your GPA, honor roll terms, and any awards while they’re fresh. They’re much harder to reconstruct as a senior.',
+                    { auto: 'resume', check: c => c.g('res-gpa') ? 'done' : 'todo', link: L.resume }),
+                T('he-summer', 'Save two summer programs for next year', 'Look in the fall',
+                    'BIOSTART lists Rutgers’ Aresty research program (15 and up) and Pathways to Science, which collects funded programs for the same age range. Summer applications often open in winter, so looking in the fall gives you time to prepare.',
+                    { auto: 'saved', check: c => lvl(c.sv.opp.n + c.sv.job.n, 2, 1), link: L.opp })
+            ]
+        },
+        {
+            key: 'hs11', name: 'Prove it', span: '11th grade',
+            goal: 'Go from learning to doing: real experience, a credential or two, and a college list that makes sense.',
+            tasks: [
+                T('h11-exp', 'Get real lab or work experience', 'This year or next summer',
+                    'A paid job, internship, or supervised research all count. On the Internships & Jobs page several roles start at 16 and most company internships want 18, so start with what you’re eligible for now. Log the position, organization, and dates in the Experience section.',
+                    { auto: 'resume', check: c => c.hasJob ? 'done' : (c.sv.job.sent > 0 || c.sv.job.applying > 0) ? 'doing' : 'todo', link: L.jobs, core: true }),
+                T('h11-bullets', 'Write experience bullets that show results', 'Right after each experience',
+                    'Start with a verb and add a number or an outcome. “Ran 24 PCR reactions and checked results by gel electrophoresis” says far more than “helped in the lab.” Aim for three bullets per position.',
+                    { auto: 'resume', check: c => lvl(c.jobLines, 3, 1), link: L.resume }),
+                T('h11-cert', 'Earn CITI RCR and BACE', 'By spring',
+                    'University labs often ask for CITI’s Responsible Conduct of Research course before you touch samples or data, and BACE signals entry-level lab skills. Both go on your certifications line.',
+                    { auto: 'resume', check: c => (c.citi && c.bace) ? 'done' : (c.citi || c.bace) ? 'doing' : 'todo', link: L.opp, core: true }),
+                T('h11-comp', 'Enter a competition', 'Most run in spring',
+                    'The Opportunities page lists BioGENEius, HOSA, TSA, and ISEF-affiliated fairs. Even if you don’t place, the poster or presentation becomes a line on your resume. Registration can close months ahead. Set a saved competition to Applied once you’ve registered and this step will turn green.',
+                    { auto: 'saved', check: c => c.sv.comp.sent > 0 ? 'done' : c.sv.comp.n > 0 ? 'doing' : 'todo', link: L.opp }),
+                T('h11-present', 'Present or publish something', 'Spring or summer',
+                    'A poster at a school or regional symposium counts. Use Poster Lab to lay it out, then record it under Presentations and Publications on your resume.',
+                    { auto: 'resume', check: c => c.g('res-pub-title') ? 'done' : 'todo', link: L.poster }),
+                T('h11-colleges', 'Build a balanced college list', 'Winter–spring',
+                    'Aim for a mix: a couple of likely schools, a few that fit your grades, and one or two reaches. Check that each offers biotechnology, molecular biology, or a related major, plus undergraduate research. Saving them on the Colleges page lets you compare cost and acceptance rates side by side.',
+                    { auto: 'saved', check: c => lvl(c.sv.col.n, 5, 1), link: L.col, core: true }),
+                T('h11-tests', 'Plan your SAT/ACT and AP exams', 'Spring of junior year',
+                    'Many colleges are test-optional, but not all, so check every school on your list. If you plan to test, leave time for a retake before applications are due. AP Biology and AP Chemistry are the usual picks for this path.'),
+                T('h11-recs', 'Build two recommender relationships', 'Ask in spring',
+                    'One teacher who has seen your lab or problem-solving work, and one supervisor from a job, internship, or research project if you have one. Hand them your resume and a short list of where you’re applying.')
+            ]
+        },
+        {
+            key: 'hs12', name: 'Apply', span: '12th grade',
+            goal: 'Turn two years of work into applications, financial aid, and a decision you feel good about.',
+            tasks: [
+                T('h12-resume', 'Proofread and finalize your resume', 'Before applications open',
+                    'Fill in every section that applies, then read it out loud. Pick the Academic & Research template for university labs and scholarships, or Industry Corporate for jobs. Export a PDF and keep a plain-text copy for application forms that won’t take attachments.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 8, 5), link: L.resume, core: true }),
+                T('h12-essay', 'Draft your personal essay', 'Summer through fall',
+                    'Write about one real moment in a lab or project, not a list of achievements. Get feedback from a teacher and from someone who doesn’t know biotech, and plan on at least three drafts.'),
+                T('h12-apps', 'Submit your college applications', 'Many deadlines fall between November and mid-January',
+                    'Early rounds close sooner than regular decision. Track each school in your saved list (Applying, Applied, Accepted) and re-check each college’s own deadline page, since dates change from year to year.',
+                    { auto: 'saved', check: c => sentState(c.sv.col), link: L.profile, core: true }),
+                T('h12-fafsa', 'File the FAFSA and New Jersey aid forms', 'Opens in the fall of senior year',
+                    'File as early as you can, since some aid is limited. New Jersey’s HESAA lists state grant deadlines, and many colleges have their own financial aid forms on top of the FAFSA.'),
+                T('h12-sch', 'Apply for scholarships', 'Ongoing; many close in winter',
+                    'Start with the scholarships on the Opportunities page, then ask your school counselor about local awards. Reuse your essay and resume, and keep a short list of deadlines so nothing slips.',
+                    { auto: 'saved', check: c => c.sv.sch.sent > 0 ? 'done' : c.sv.sch.n > 0 ? 'doing' : 'todo', link: L.opp }),
+                T('h12-credit', 'Ask about credit for your CTE and AP work', 'After acceptances',
+                    'Ask each admissions office whether your CTE courses, AP scores, dual enrollment, or certifications earn credit or placement. Community colleges such as CCM and Middlesex have transfer routes into New Jersey four-year schools if that fits your plan.'),
+                T('h12-summer', 'Line up your summer before graduation', 'Winter–spring',
+                    'A paid lab or pharmacy job is a good bridge to college. Check Internships & Jobs for roles that match your age and season, and apply early, since hiring for summer often starts in winter.',
+                    { auto: 'saved', check: c => c.sv.job.sent > 0 ? 'done' : c.sv.job.n > 0 ? 'doing' : 'todo', link: L.jobs }),
+                T('h12-decide', 'Compare offers and commit', 'Many colleges set a May 1 reply date',
+                    'Compare what you would actually pay after aid, not the sticker price, and ask how first-years get into research. Send your deposit and decline the others so someone on a waitlist gets the spot.')
+            ]
+        },
+        {
+            key: 'col-early', name: 'Join a lab', span: 'College years 1–2',
+            goal: 'Get into a lab early, build your technical skills, and keep your options open.',
+            tasks: [
+                T('ce-advisor', 'Meet your advisor and map out four years', 'First semester',
+                    'Bring a list of courses you’re considering and ask which ones lead to lab work. Find out whether your major has a research or co-op requirement, and when it kicks in.'),
+                T('ce-lab', 'Join a research lab', 'First or second year',
+                    'Read the department’s faculty pages, pick three to five labs whose work makes sense to you, and email each with a short note and your resume. Mention one specific paper or project. Many labs take first- and second-year students who show up reliably.',
+                    { auto: 'resume', check: c => c.hasJob ? 'done' : 'todo', link: L.resume, core: true }),
+                T('ce-citi', 'Complete CITI training', 'Before your first lab shift',
+                    'University labs commonly require CITI’s Responsible Conduct of Research course before you handle samples or data. It’s online, and you can list it on your resume right away.',
+                    { auto: 'resume', check: c => c.citi ? 'done' : 'todo', link: L.opp, core: true }),
+                T('ce-resume', 'Move your resume to a college format', 'Each semester',
+                    'Move high school items down, bring research and coursework up, and keep every bullet about results. Academic & Research suits labs; Industry Corporate suits jobs.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 7, 4), link: L.resume }),
+                T('ce-data', 'Add a data skill', 'First two years',
+                    'R, Python, or advanced Excel appears in many biotech job postings. Even one course project is worth listing under software and data skills.',
+                    { auto: 'resume', check: c => lvl(c.softN, 3, 1), link: L.resume }),
+                T('ce-summer', 'Apply for a summer research program or internship', 'Often open in fall, closing by early spring',
+                    'The NSF REU directory and Pathways to Science list funded programs, and several pay a stipend. Apply to more than one, and ask your lab mentor for a recommendation.',
+                    { auto: 'saved', check: c => c.sv.opp.sent > 0 ? 'done' : c.sv.opp.n > 0 ? 'doing' : 'todo', link: L.opp }),
+                T('ce-network', 'Meet people working in the field', 'Once a semester',
+                    'Career fairs, department seminars, and industry groups such as BioNJ often have student options. Ask people what they do day to day, and send a thank-you note within a day.'),
+                T('ce-transfer', 'If you’re at a community college, plan your transfer', 'By the start of year two',
+                    'Confirm which credits transfer to your target four-year school and which courses it requires before you apply. Ask for the transfer agreement in writing.')
+            ]
+        },
+        {
+            key: 'col-late', name: 'Launch', span: 'College years 3–4',
+            goal: 'Turn your experience into a first job, a graduate program, or both.',
+            tasks: [
+                T('cl-intern', 'Land an industry internship', 'Apply the fall before',
+                    'Many companies recruit summer interns in fall and winter. Save openings on the Internships & Jobs page and set their status as you go, so you always know what’s pending.',
+                    { auto: 'saved', check: c => c.sv.job.accepted > 0 ? 'done' : (c.sv.job.n > 0 || c.sv.job.sent > 0) ? 'doing' : 'todo', link: L.jobs }),
+                T('cl-project', 'Take on an independent project or thesis', 'Third year',
+                    'Ask your lab mentor what a project you could own would look like. A project with your name on the poster is worth more than extra hours at the bench.',
+                    { auto: 'resume', check: c => c.g('res-pub-title') ? 'done' : c.g('res-proj-title') ? 'doing' : 'todo', link: L.resume }),
+                T('cl-present', 'Present a poster or co-author an abstract', 'Spring',
+                    'Campus research days and regional symposia are the usual first stops. Poster Lab can lay out the poster, and the resume builder has a section for the citation.',
+                    { auto: 'resume', check: c => c.g('res-pub-title') ? 'done' : 'todo', link: L.poster }),
+                T('cl-resume', 'Tailor your resume for each application', 'Before every application',
+                    'Rewrite your summary line and reorder bullets to match the posting. Industry Corporate works well with applicant tracking systems; Academic & Research suits graduate programs.',
+                    { auto: 'resume', check: c => lvl(c.secDone, 9, 6), link: L.resume, core: true }),
+                T('cl-path', 'Decide between industry, grad school, or both', 'Third year',
+                    'Talk with three people: a recent graduate, a professor, and someone working at a company. Ask what they would do differently. Many people work for a couple of years before grad school, and some employers help pay for it.'),
+                T('cl-grad', 'If grad school is the plan, start applications early', 'Summer into fall of senior year',
+                    'Ask recommenders by early fall and give them your resume and statement drafts. Check each program’s testing requirements, since many no longer require the GRE.'),
+                T('cl-jobs', 'Apply for entry-level roles', 'Fall of senior year',
+                    'Many companies hire new graduates months before graduation. Set job alerts, apply to ten to fifteen roles, and use your internship supervisor and lab mentor as references.'),
+                T('cl-refs', 'Collect references and a portfolio', 'Before applications',
+                    'Ask your lab mentor and internship supervisor for permission to list them. Keep a folder with poster PDFs, protocols you wrote, and anything else you’re allowed to share.')
+            ]
+        }
+    ];
+
+    /* ---------- reading what the student has told us ---------- */
+    const items = s => (s || '').split(/[,;\n•|]+/).map(x => x.trim()).filter(x => x.length > 1);
+    const lines = s => (s || '').split(/\n+/).map(x => x.replace(/^[•\-*\s]+/, '').trim()).filter(Boolean);
+
+    function resumeData() {
+        const out = {};
+        try {
+            if (document.getElementById('printable-resume')) {
+                // On the resume page, read the live fields (but never the sample data)
+                if (typeof resumeIsSample === 'undefined' || !resumeIsSample) {
+                    RESUME_FIELD_IDS.forEach(id => { const el = document.getElementById(id); out[id] = el ? (el.value || '').trim() : ''; });
+                }
+            } else {
+                const d = JSON.parse(localStorage.getItem('biostart_resumeDraft'));
+                if (d && d.fields && !d.sample) Object.keys(d.fields).forEach(k => { out[k] = String(d.fields[k] || '').trim(); });
+            }
+        } catch (e) { /* storage unavailable: treat the resume as empty */ }
+        return out;
+    }
+
+    function groupOf(list) {
+        const st = i => (userProfile.progress || {})[i.id] || 'Interested';
+        const applied = list.filter(i => st(i) === 'Applied').length;
+        const accepted = list.filter(i => st(i) === 'Accepted').length;
+        return { n: list.length, applying: list.filter(i => st(i) === 'Applying').length, sent: applied + accepted, accepted };
+    }
+
+    function savedInfo() {
+        const ids = Array.isArray(userProfile.savedIds) ? userProfile.savedIds : [];
+        const pick = arr => arr.filter(i => ids.includes(i.id));
+        const opp = pick(OPPORTUNITIES);
+        return {
+            hs: groupOf(pick(HIGH_SCHOOLS)),
+            col: groupOf(pick(COLLEGES)),
+            job: groupOf(pick(JOBS)),
+            opp: groupOf(opp),
+            sch: groupOf(opp.filter(i => i.cat === 'scholarship')),
+            comp: groupOf(opp.filter(i => i.cat === 'competition'))
+        };
+    }
+
+    function buildCtx() {
+        const r = resumeData();
+        const g = id => r[id] || '';
+        const certs = g('res-certs').toLowerCase();
+        const sections = [
+            ['Contact details', !!(g('res-name') && g('res-email'))],
+            ['Summary', !!g('res-summary')],
+            ['Education', !!g('res-school')],
+            ['Coursework', !!g('res-courses')],
+            ['Lab skills', !!g('res-labskills')],
+            ['Software and data skills', !!g('res-softskills')],
+            ['Certifications', !!g('res-certs')],
+            ['Experience', !!(g('res-job-title') || g('res-job-org'))],
+            ['Projects and activities', !!g('res-proj-title')],
+            ['Honors', !!g('res-honors')],
+            ['Presentations and publications', !!g('res-pub-title')]
+        ];
+        return {
+            r, g, sections, p: userProfile, sv: savedInfo(),
+            secDone: sections.filter(s => s[1]).length,
+            labN: items(g('res-labskills')).length,
+            softN: items(g('res-softskills')).length,
+            courseN: items(g('res-courses')).length,
+            jobLines: lines(g('res-job-desc')).length,
+            hasJob: sections[7][1],
+            bace: /bace|biotility/.test(certs),
+            citi: /citi|rcr|responsible conduct/.test(certs)
+        };
+    }
+
+    const ordinal = n => n + (n === 6 || n === 7 || n === 8 ? 'th' : '');
+
+    function detect(ctx) {
+        const p = userProfile;
+        const now = new Date();
+        const ayEnd = now.getMonth() >= 7 ? now.getFullYear() + 1 : now.getFullYear();   // school year ends in the summer
+        const m = /(20\d{2})/.exec(ctx.g('res-grad'));
+        const left = m ? parseInt(m[1], 10) - ayEnd : null;                                // school years still to go, 0 = final year
+        const age = parseInt(p.age, 10) || 16;
+        const level = p.level || 'High School';
+        let key, label, viaGrad = false;
+
+        if (level === 'Middle School') {
+            let grade;
+            if (left !== null && left >= 0 && left <= 2) { grade = 8 - left; viaGrad = true; }
+            else grade = age <= 11 ? 6 : age === 12 ? 7 : 8;
+            key = grade === 8 ? 'ms8' : 'ms';
+            label = ordinal(grade) + ' grade';
+        } else if (level === 'College Undergrad') {
+            let yr;
+            if (left !== null) { yr = left <= 0 ? 4 : left === 1 ? 3 : left === 2 ? 2 : 1; viaGrad = true; }
+            else yr = age <= 18 ? 1 : age === 19 ? 2 : age === 20 ? 3 : 4;
+            key = yr <= 2 ? 'col-early' : 'col-late';
+            label = ['First', 'Second', 'Third', 'Fourth'][yr - 1] + ' year of college';
+        } else {
+            let grade;
+            if (left !== null && left >= 0 && left <= 3) { grade = 12 - left; viaGrad = true; }
+            else grade = age <= 14 ? 9 : age === 15 ? 10 : age === 16 ? 11 : 12;
+            key = grade <= 10 ? 'hs-early' : grade === 11 ? 'hs11' : 'hs12';
+            label = ['Freshman', 'Sophomore', 'Junior', 'Senior'][grade - 9] + ' year';
+        }
+        const known = !!p.surveyCompleted;
+        const basis = viaGrad
+            ? `the graduation date on your resume (${m[1]})`
+            : known ? `the age (${age}) and school level in your profile`
+                    : `a default age (${age}) and school level (${level})`;
+        return { idx: STAGES.findIndex(s => s.key === key), label, basis, guess: !viaGrad && !known };
+    }
+
+    /* ---------- manual check-offs ---------- */
+    function loadChecks() { try { return JSON.parse(localStorage.getItem(CHECK_KEY)) || {}; } catch (e) { return {}; } }
+    function saveChecks(o) { try { localStorage.setItem(CHECK_KEY, JSON.stringify(o)); } catch (e) { /* ignore */ } }
+
+    /* ---------- state ---------- */
+    let tab = null, panel = null, card = null;
+    let ctx = null, cur = null, checks = {};
+    let isOpen = false, preview = null, dirty = true;
+
+    const statusOf = t => {
+        if (t.check) { try { return t.check(ctx); } catch (e) { return 'todo'; } }
+        return checks[t.id] ? 'done' : 'todo';
+    };
+    const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function markerHTML() {
+        const picked = !!userProfile.name || (userProfile.avatarIdx || 0) > 0;
+        const av = picked ? AVATARS[userProfile.avatarIdx || 0] : '👤';
+        const nm = userProfile.name ? userProfile.name : 'You';
+        return `<span class="tl-marker"><span class="tl-flag">${esc(nm)}${cur.guess ? ' (est.)' : ''}</span><span class="tl-avatar" aria-hidden="true">${av}</span></span>`;
+    }
+
+    function taskHTML(t, st) {
+        const manual = !t.check;
+        const icon = manual
+            ? `<button type="button" class="tl-check${st === 'done' ? ' on' : ''}" data-id="${t.id}" role="checkbox" aria-checked="${st === 'done'}" aria-label="${esc(t.title)}"></button>`
+            : `<span class="tl-state s-${st}" aria-hidden="true"></span>`;
+        const src = manual ? 'You tick this one off' : SRC[t.auto] || '';
+        if (st === 'done') {
+            return `<li class="tl-task is-done">${icon}<div><div class="tl-task-head"><strong>${esc(t.title)}</strong></div><div class="tl-foot"><span class="tl-src">${esc(src)}</span></div></div></li>`;
+        }
+        return `<li class="tl-task is-${st}">${icon}<div>
+            <div class="tl-task-head"><strong>${esc(t.title)}</strong><span class="tl-when">${esc(t.when)}</span></div>
+            <p>${esc(t.detail)}</p>
+            <div class="tl-foot"><span class="tl-src">${esc(src)}</span>${t.link ? `<a class="tl-go" href="${t.link[0]}">${esc(t.link[1])}</a>` : ''}</div>
+        </div></li>`;
+    }
+
+    function groupHTML(title, rows) {
+        if (!rows.length) return '';
+        return `<section class="tl-group"><h4>${title}<span class="tl-count">${rows.length}</span></h4><ul class="tl-list">${rows.map(r => taskHTML(r.t, r.s)).join('')}</ul></section>`;
+    }
+
+    function renderPanel() {
+        if (!card) return;
+        const track0 = card.querySelector('.tl-track');
+        const keepScroll = track0 ? track0.scrollLeft : null;
+
+        const idx = preview === null ? cur.idx : preview;
+        const stage = STAGES[idx];
+        const isCur = idx === cur.idx;
+        const rows = stage.tasks.map(t => ({ t, s: statusOf(t) }));
+        const done = rows.filter(r => r.s === 'done');
+        const doing = rows.filter(r => r.s === 'doing');
+        const todo = rows.filter(r => r.s === 'todo');
+        const pct = Math.round(done.length / rows.length * 100);
+        const last = STAGES.length - 1;
+
+        const track = STAGES.map((s, i) => {
+            const pos = i < cur.idx ? 'past' : i === cur.idx ? 'now' : 'next';
+            return `<button type="button" class="tl-col ${pos}${i === idx ? ' is-view' : ''}" data-stage="${i}" aria-pressed="${i === idx}" aria-label="${esc(s.name)}, ${esc(s.span)}${i === cur.idx ? ', you are here' : ''}">
+                <span class="tl-slot">${i === cur.idx ? markerHTML() : ''}</span>
+                <span class="tl-rail${i <= cur.idx ? ' l-on' : ''}${i < cur.idx ? ' r-on' : ''}${i === 0 ? ' first' : ''}${i === last ? ' last' : ''}"><span class="tl-dot"></span></span>
+                <span class="tl-name">${esc(s.name)}</span><span class="tl-span">${esc(s.span)}</span>
+            </button>`;
+        }).join('');
+
+        const missing = ctx.sections.filter(s => !s[1]).map(s => s[0]);
+        const side = `<div class="tl-side">
+            <h3 class="tl-title">${esc(isCur ? cur.label : stage.name)}</h3>
+            <div class="tl-sub">${isCur ? `${esc(stage.name)} · ${esc(stage.span)}` : esc(stage.span)}</div>
+            ${isCur
+                ? `<p class="tl-basis">${cur.guess ? 'This is a best guess. ' : ''}Placed using ${esc(cur.basis)}.${cur.guess ? ' Take the survey or add a graduation date to your resume to pin it down.' : ''}</p>`
+                : `<p class="tl-basis">You’re currently in <strong>${esc(cur.label)}</strong>.</p>`}
+            <p class="tl-goal">${esc(stage.goal)}</p>
+            <div class="tl-meter" role="img" aria-label="${done.length} of ${rows.length} steps done"><i style="width:${pct}%"></i></div>
+            <p class="tl-meter-label">${done.length} of ${rows.length} steps done</p>
+            <div class="tl-resumebox"><strong>Resume: ${ctx.secDone} of ${ctx.sections.length} sections filled.</strong>${missing.length ? `<br>Still empty: ${esc(missing.slice(0, 4).join(', '))}${missing.length > 4 ? ` and ${missing.length - 4} more` : ''}.` : '<br>Every section has something in it.'}</div>
+            <div class="tl-actions"><a class="btn-action" href="resume.html#resume">Edit resume</a><a class="btn-action tl-alt" href="profile.html">Update profile</a></div>
+        </div>`;
+
+        const banner = isCur ? '' : `<div class="tl-banner"><span>Previewing ${esc(stage.name.toLowerCase())}. Anything your resume already covers still counts.</span><button type="button" class="tl-linkbtn" data-act="back">Back to my stage</button></div>`;
+        const allDone = done.length === rows.length
+            ? `<p class="tl-alldone">Everything in this stage is done.${idx < last ? ` <button type="button" class="tl-linkbtn dark" data-stage="${idx + 1}">Look ahead to ${esc(STAGES[idx + 1].name.toLowerCase())}</button>` : ''}</p>` : '';
+        const main = `<div class="tl-main">${banner}${groupHTML('You’re already doing', doing)}${groupHTML('Do next', todo)}${allDone}${groupHTML('Finished', done)}</div>`;
+
+        // Anything important from earlier stages that is still open, and a look at what is next
+        const behind = [];
+        for (let i = 0; i < cur.idx; i++) STAGES[i].tasks.forEach(t => { if (t.core && statusOf(t) !== 'done') behind.push({ t, i }); });
+        const nextStage = cur.idx < last ? STAGES[cur.idx + 1] : null;
+        const boxBehind = `<div class="tl-box"><h4>Worth catching up on</h4>${behind.length
+            ? `<ul>${behind.slice(0, 5).map(b => `<li><button type="button" class="tl-linkbtn dark" data-stage="${b.i}">${esc(b.t.title)}</button> <span class="tl-src">from ${esc(STAGES[b.i].name.toLowerCase())}</span></li>`).join('')}</ul>`
+            : '<p>Nothing from earlier stages is waiting on you.</p>'}</div>`;
+        const boxNext = nextStage ? `<div class="tl-box"><h4>Coming up: ${esc(nextStage.name.toLowerCase())} (${esc(nextStage.span)})</h4><p>${esc(nextStage.goal)}</p><ul>${nextStage.tasks.slice(0, 3).map(t => `<li>${esc(t.title)} <span class="tl-src">${esc(t.when)}</span></li>`).join('')}</ul><button type="button" class="tl-linkbtn dark" data-stage="${cur.idx + 1}">See the full stage</button></div>`
+            : `<div class="tl-box"><h4>Past this timeline</h4><p>After this stage the path is yours: industry roles, graduate study, or both. Keep your resume current and keep saving what interests you.</p></div>`;
+
+        card.innerHTML = `<div class="tl-trackwrap">
+                <div class="tl-trackhead"><span>Pick any stage to see what it asks of you.</span><button type="button" class="tl-linkbtn dark" data-act="close">Hide timeline</button></div>
+                <div class="tl-track">${track}</div>
+            </div>
+            <div class="tl-body">${side}${main}</div>
+            <div class="tl-more">${boxBehind}${boxNext}</div>`;
+
+        const t1 = card.querySelector('.tl-track');
+        if (t1) {
+            if (keepScroll !== null) t1.scrollLeft = keepScroll;
+            else centerNow(t1);
+        }
+        dirty = false;
+    }
+
+    function centerNow(track) {
+        const now = track.querySelector('.tl-col.now');
+        if (!now) return;
+        track.scrollLeft = Math.max(0, now.offsetLeft - (track.clientWidth - now.offsetWidth) / 2);
+    }
+
+    // The one animated moment: the avatar travels from the start of the path to where you are
+    function playMarker() {
+        if (reduced() || !card || !card.animate) return;
+        const m = card.querySelector('.tl-marker');
+        const first = card.querySelector('.tl-col');
+        const now = card.querySelector('.tl-col.now');
+        if (!m || !first || !now || first === now) return;
+        const dx = (first.getBoundingClientRect().left + first.offsetWidth / 2) - (now.getBoundingClientRect().left + now.offsetWidth / 2);
+        m.animate([{ transform: `translateX(${dx}px)` }, { transform: 'translateX(0)' }], { duration: 800, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    }
+
+    function setOpen(open, fromUser) {
+        isOpen = open;
+        tab.setAttribute('aria-expanded', String(open));
+        panel.classList.toggle('open', open);
+        if (open) panel.removeAttribute('inert'); else panel.setAttribute('inert', '');
+        if (open) {
+            if (dirty) renderPanel();
+            const t = card.querySelector('.tl-track');
+            if (t) centerNow(t);
+            if (fromUser) requestAnimationFrame(playMarker);
+        }
+    }
+
+    function refresh() {
+        if (!tab) return;
+        ctx = buildCtx();
+        checks = loadChecks();
+        cur = detect(ctx);
+        const rows = STAGES[cur.idx].tasks.map(statusOf);
+        const done = rows.filter(s => s === 'done').length;
+        tab.querySelector('.tl-tab-sub').textContent = `${cur.label} · ${done} of ${rows.length} done`;
+        dirty = true;
+        if (isOpen) renderPanel();
+    }
+
+    function build() {
+        const header = document.querySelector('header');
+        const nav = document.querySelector('nav');
+        if (!header || !nav || document.getElementById('tl-tab')) return;
+
+        tab = document.createElement('button');
+        tab.type = 'button';
+        tab.id = 'tl-tab';
+        tab.className = 'tl-tab';
+        tab.setAttribute('aria-expanded', 'false');
+        tab.setAttribute('aria-controls', 'tl-panel');
+        tab.innerHTML = '<svg class="tl-tab-icon" viewBox="0 0 26 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 18h20" stroke-dasharray="3 3"/><path d="M3 18h9" stroke-dasharray="none"/><circle cx="4" cy="18" r="2.2" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="2.2" fill="currentColor" stroke="none"/><circle cx="21" cy="18" r="2.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="8" r="3.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/></svg>'
+            + '<span class="tl-tab-text"><b>My timeline</b><span class="tl-tab-sub">&nbsp;</span></span>'
+            + '<svg class="tl-chev" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>';
+
+        const brand = header.querySelector('.brand-box');
+        if (brand) {
+            const cluster = document.createElement('div');
+            cluster.className = 'brand-cluster';
+            brand.parentNode.insertBefore(cluster, brand);
+            cluster.appendChild(brand);
+            cluster.appendChild(tab);
+        } else {
+            header.insertBefore(tab, header.firstChild);
+        }
+
+        panel = document.createElement('section');
+        panel.id = 'tl-panel';
+        panel.className = 'tl-panel';
+        panel.setAttribute('aria-label', 'Your biotech timeline');
+        panel.setAttribute('inert', '');
+        panel.innerHTML = '<div class="tl-clip"><div class="tl-card" id="tl-card"></div></div>';
+        nav.parentNode.insertBefore(panel, nav);
+        card = panel.querySelector('#tl-card');
+
+        tab.addEventListener('click', () => setOpen(!isOpen, true));
+
+        panel.addEventListener('click', e => {
+            const chk = e.target.closest('.tl-check');
+            if (chk) {
+                const id = chk.dataset.id;
+                const o = loadChecks();
+                if (o[id]) delete o[id]; else o[id] = true;
+                saveChecks(o);
+                refresh();
+                const again = card.querySelector('.tl-check[data-id="' + id + '"]');
+                if (again) again.focus();
+                return;
+            }
+            const act = e.target.closest('[data-act]');
+            if (act) {
+                if (act.dataset.act === 'close') { setOpen(false); tab.focus(); }
+                if (act.dataset.act === 'back') { preview = null; renderPanel(); }
+                return;
+            }
+            const col = e.target.closest('[data-stage]');
+            if (col) {
+                const i = parseInt(col.dataset.stage, 10);
+                preview = i === cur.idx ? null : i;
+                renderPanel();
+                const again = card.querySelector('.tl-col[data-stage="' + i + '"]');
+                if (again && col.classList.contains('tl-col')) again.focus({ preventScroll: true });
+            }
+        });
+
+        panel.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) { setOpen(false); tab.focus(); } });
+        refresh();
+    }
+
+    /* ---------- keep it in step with everything else on the page ---------- */
+    let timer = null;
+    const soon = () => { clearTimeout(timer); timer = setTimeout(refresh, 250); };
+
+    ['toggleLike', 'updateSavedStatus', 'updateUserHeaderDisplay', 'saveAccountProfile', 'loadSampleResumeData', 'clearResumeForm', 'toggleSamplePersonalInfo'].forEach(name => {
+        const fn = window[name];
+        if (typeof fn !== 'function') return;
+        window[name] = function () {
+            const out = fn.apply(this, arguments);
+            try { soon(); } catch (e) { /* ignore */ }
+            return out;
+        };
+    });
+
+    document.addEventListener('input', e => {
+        if (e.target && e.target.classList && e.target.classList.contains('resume-field')) soon();
+    });
+    window.addEventListener('storage', soon);
+    window.addEventListener('DOMContentLoaded', build);
+})();
