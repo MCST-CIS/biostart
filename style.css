@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
 /* style.css */
 /* ==========================================================================
    BIOSTART CANVA DESIGN SYSTEM (RED #D93829, BLACK #0D0D0D, SOFT PINK/CREAM)
@@ -11,7 +13,10 @@
     --biostart-card-bg: hsl(351, 100%, 96%);
     --biostart-gray-light: rgb(255, 255, 255);
     --biostart-border: #0d0d0d;
-    --biostart-font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    --font-display: 'Jost', 'Century Gothic', 'Avenir Next', 'Futura', sans-serif;
+    --font-body: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    --font-mono: 'Jost', 'Century Gothic', 'Avenir Next', 'Futura', sans-serif;   /* small labels use the display face */
+    --biostart-font-main: var(--font-body);
 }
 
 * {
@@ -1723,3 +1728,34 @@ textarea.pf-input { resize: vertical; line-height: 1.4; }
 }
 
 @media print { .tl-panel, .tl-tab { display: none !important; } }
+
+/* Account pill doubles as the Account Profile entry now that the nav tab is gone */
+.user-pill.active { background: var(--biostart-red); border-color: var(--biostart-red); }
+.user-pill .save-badge { margin-left: 2px; background: #fff; color: var(--biostart-red); }
+
+
+/* ==========================================================================
+   TYPOGRAPHY (fonts only; no sizes, weights, spacing or colors changed)
+   Jost (geometric, in the spirit of the logo lettering) -> headings, nav, buttons, small labels
+   Source Sans 3 (humanist, built for scientific reading)  -> body text
+   The resume templates keep their own fonts (Georgia / Arial) on purpose.
+   ========================================================================== */
+button, input, select, textarea { font-family: inherit; }
+
+h1, h2, h3, h4,
+.hero-title, .hero-tagline, .splash-title, .splash-sub,
+.brand-title h1, .choice-card-title, .card-title, .template-title,
+.county-list li, nav a.nav-btn, .user-pill,
+.btn-action, .btn-action-sm, .splash-btn, .arrow-btn, .back-link,
+.hub-title, .hub-go, .tl-title, .tl-name, .tl-group h4, .tl-box h4, .tl-tab,
+.tip-body strong, .sr-name, .pb-text h2,
+.poster .pp-title, .poster .pp-sec h3, .poster .pp-step h4 {
+    font-family: var(--font-display);
+}
+
+.brand-title p, .card-tag, .filter-header-bar, .template-badge,
+.form-label, .form-section-title, .toggle-label, label,
+.hub-sub, .hub-chip, .hub-badge, .save-badge, .sr-type, .ns-kbd,
+.tl-when, .tl-src, .tl-span, .tl-count, .tl-flag, .tl-tab-sub, .tl-meter-label, .sr-did, .tip-name {
+    font-family: var(--font-mono);
+}
