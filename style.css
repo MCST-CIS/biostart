@@ -1248,3 +1248,238 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
 /* "Did you mean" line at the top of the search results */
 .sr-did { padding: 12px 14px; font-size: 12px; font-weight: 700; color: #444; line-height: 1.9; background: var(--biostart-bg); border-bottom: 2px solid var(--biostart-black); }
 .sr-did .sr-chip { margin: 0 3px; vertical-align: baseline; }
+
+/* ==========================================================================
+   CREATE HUB + POSTER LAB
+   Loaded only on resume.html (after style.css)
+   ========================================================================== */
+[hidden] { display: none !important; }
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 14px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--biostart-black);
+    text-decoration: none;
+    border-bottom: 2px solid var(--biostart-red);
+}
+.back-link:hover { color: var(--biostart-red); }
+
+/* ---------- HUB: two big buttons ---------- */
+.hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 26px 0 10px; }
+@media (max-width: 768px) { .hub-grid { grid-template-columns: 1fr; } }
+
+.hub-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 330px;
+    padding: 30px;
+    background: #fff;
+    border: 3px solid var(--biostart-black);
+    border-radius: 12px;
+    box-shadow: 0 7px 0 var(--biostart-black);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.hub-card:hover, .hub-card:focus-visible {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 0 var(--biostart-red);
+    border-color: var(--biostart-red);
+    outline: none;
+}
+.hub-card:active { transform: translateY(1px); box-shadow: 0 4px 0 var(--biostart-red); }
+.hub-art { height: 104px; margin-bottom: 4px; }
+.hub-art svg { height: 100%; width: auto; display: block; }
+.hub-sub { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--biostart-red); }
+.hub-title { font-size: 30px; font-weight: 900; text-transform: uppercase; line-height: 1.05; margin-top: -6px; }
+.hub-desc { font-size: 14px; color: #444; line-height: 1.5; }
+.hub-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+.hub-chip { font-size: 10.5px; font-weight: 800; text-transform: uppercase; border: 2px solid var(--biostart-black); border-radius: 14px; padding: 3px 10px; background: var(--biostart-bg); }
+.hub-go { font-weight: 900; font-size: 13px; text-transform: uppercase; color: var(--biostart-red); }
+.hub-badge {
+    position: absolute; top: -13px; right: 20px;
+    background: var(--biostart-red); color: #fff;
+    font-size: 10px; font-weight: 900; letter-spacing: 0.1em;
+    padding: 4px 10px; border: 2px solid var(--biostart-black); border-radius: 4px;
+}
+
+/* ---------- POSTER LAB: workspace ---------- */
+.poster-intro { margin-bottom: 20px; color: #444; font-weight: 600; max-width: 820px; }
+.poster-workspace { display: grid; grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1000px) { .poster-workspace { grid-template-columns: 1fr; } }
+
+.poster-form .pf-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 2px solid var(--biostart-black); padding-bottom: 8px; }
+.poster-form .pf-top h3 { font-size: 16px; text-transform: uppercase; font-weight: 900; margin: 0; }
+.pf-input {
+    width: 100%; padding: 10px; margin-bottom: 14px;
+    border: 2px solid var(--biostart-black); border-radius: 4px;
+    font-family: inherit; font-size: 13px; background: #fff; color: var(--biostart-black);
+    box-sizing: border-box;
+}
+.pf-input:focus { outline: none; border-color: var(--biostart-red); box-shadow: 0 0 0 3px rgba(217, 56, 41, 0.18); }
+textarea.pf-input { resize: vertical; line-height: 1.4; }
+.pf-hint { margin: -2px 0 6px; font-size: 11px; font-weight: 600; color: #666; line-height: 1.35; }
+.poster-form .form-row-2 > div { min-width: 0; }
+
+/* Guide */
+.poster-guide { background: #fff7f5; border: 2px solid var(--biostart-black); border-left: 6px solid var(--biostart-red); border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; }
+.poster-guide summary { cursor: pointer; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; }
+.poster-guide ul { margin: 10px 0 8px 18px; padding: 0; font-size: 12.5px; line-height: 1.5; color: #333; }
+.poster-guide li { margin-bottom: 4px; }
+.poster-guide .pg-meta { font-size: 11.5px; font-weight: 700; color: #555; margin: 6px 0 0; }
+
+/* Pickers */
+.theme-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.theme-btn { display: flex; align-items: center; gap: 7px; background: #fff; border: 2px solid var(--biostart-black); border-radius: 20px; padding: 5px 12px 5px 6px; font: 800 11px inherit; font-family: inherit; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; }
+.theme-btn:hover { transform: translateY(-1px); }
+.theme-btn.on { border-color: var(--biostart-red); box-shadow: 0 3px 0 var(--biostart-red); }
+.theme-dots { display: inline-flex; }
+.theme-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--biostart-black); display: block; }
+.theme-dots i + i { margin-left: -5px; }
+
+.icon-picker { --pa: #D94F3B; --pb: #F6D5CE; --ink: #0d0d0d; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+@media (max-width: 520px) { .icon-picker { grid-template-columns: repeat(5, 1fr); } }
+.icon-btn { background: #fff; border: 2px solid var(--biostart-black); border-radius: 8px; padding: 3px; aspect-ratio: 1; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; }
+.icon-btn svg { width: 100%; height: 100%; display: block; }
+.icon-btn:hover { transform: translateY(-2px); }
+.icon-btn.on { border-color: var(--biostart-red); background: #fff1ee; box-shadow: 0 3px 0 var(--biostart-red); }
+.icon-name { font-size: 11px; font-weight: 800; color: var(--biostart-red); margin: -8px 0 12px; }
+
+/* Checklist */
+.poster-checklist { background: #f9f9f9; border: 1px solid #ddd; border-left: 4px solid var(--biostart-black); border-radius: 4px; padding: 12px 14px; margin: 6px 0 16px; }
+.poster-checklist summary { cursor: pointer; font-size: 12px; font-weight: 900; text-transform: uppercase; }
+.poster-checklist label { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; font-weight: 600; margin-top: 8px; cursor: pointer; line-height: 1.35; }
+.poster-checklist input { margin-top: 2px; accent-color: var(--biostart-red); }
+.pc-count { color: var(--biostart-red); }
+
+/* Preview column */
+.poster-meter { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #fff; border: 2px solid var(--biostart-black); border-top: none; font-size: 12px; font-weight: 800; }
+.poster-meter .pm-bar { flex: 1; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; border: 1px solid #bbb; }
+.poster-meter .pm-fill { height: 100%; width: 0; background: #e0a100; transition: width 0.25s ease, background 0.25s; }
+.poster-meter.ok .pm-fill { background: #2E7D32; }
+.poster-meter.over .pm-fill { background: #C62828; }
+.poster-overflow { background: #FDECEA; border: 2px solid #C62828; border-top: none; color: #8a1c1c; padding: 8px 16px; font-size: 12px; font-weight: 700; }
+.poster-stage { background: #fff; border: 2px solid var(--biostart-black); border-top: none; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+
+/* ==========================================================================
+   THE POSTER ITSELF
+   Everything inside is sized in em and the base size comes from the poster's
+   own width (cqw), so it scales exactly the same on screen and on paper.
+   ========================================================================== */
+.poster-wrap { container-type: inline-size; width: 100%; margin: 0 auto; }
+.poster-wrap.portrait { max-width: 640px; }
+
+.poster {
+    --ink: #0d0d0d;
+    display: flex; flex-direction: column;
+    width: 100%;
+    color: var(--ink);
+    background: #fff;
+    background: color-mix(in srgb, var(--pb) 26%, #fff);
+    border: 0.22em solid var(--ink);
+    box-shadow: 0 0.4em 0 var(--ink);
+    line-height: 1.35;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.poster.landscape { font-size: 1.42cqw; aspect-ratio: 11 / 8.5; }
+.poster.portrait  { font-size: 2.25cqw; aspect-ratio: 8.5 / 11; }
+.poster * { box-sizing: border-box; }
+.poster svg.pi { display: block; }
+
+.pp-head { display: flex; align-items: center; gap: 1.2em; background: var(--pa); color: #fff; padding: 1em 1.5em; border-bottom: 0.22em solid var(--ink); }
+.pp-head-text { flex: 1; min-width: 0; }
+.pp-title { margin: 0; font-size: 2.3em; line-height: 1.05; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; overflow-wrap: anywhere; }
+.landscape .pp-title { font-size: 2.1em; }
+.pp-tagline { margin: 0.5em 0 0; font-size: 1.05em; font-weight: 700; }
+.pp-meta { margin: 0.5em 0 0; font-size: 0.95em; font-weight: 700; opacity: 0.95; }
+.pp-head-icon { flex: 0 0 5.4em; width: 5.4em; height: 5.4em; border-radius: 50%; background: #fff; border: 0.2em solid var(--ink); display: grid; place-items: center; }
+.pp-head-icon svg { width: 74%; height: 74%; }
+.pp-ph { opacity: 0.55; font-style: italic; font-weight: 600; text-transform: none; }
+
+.pp-body { flex: 1; padding: 1.1em 1.3em; display: grid; gap: 1em; align-content: start; }
+.pp-3col { grid-template-columns: 1fr 1.45fr 1fr; align-items: start; }
+.pp-col { display: flex; flex-direction: column; gap: 1em; min-width: 0; }
+
+.pp-sec { background: #fff; border: 0.14em solid var(--ink); border-radius: 0.6em; box-shadow: 0.2em 0.2em 0 var(--ink); overflow: hidden; padding-bottom: 0.7em; min-width: 0; }
+.pp-sec h3 { margin: 0 0 0.6em; padding: 0.45em 0.9em; background: var(--ink); color: #fff; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.07em; }
+.pp-sec.hl h3 { background: var(--pa); }
+.pp-sec.hl .pp-sec-body { font-weight: 800; }
+.pp-sec-body { padding: 0 0.9em; font-size: 0.95em; }
+.pp-sec-body p { margin: 0 0 0.5em; }
+.pp-sec-body p:last-child { margin-bottom: 0; }
+.pp-list { margin: 0; padding-left: 1.2em; }
+.pp-list li { margin-bottom: 0.3em; }
+.pp-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.pp-steps li { counter-increment: s; position: relative; padding-left: 2em; margin-bottom: 0.45em; }
+.pp-steps li::before { content: counter(s); position: absolute; left: 0; top: 0.05em; width: 1.5em; height: 1.5em; border-radius: 50%; background: var(--pa); color: #fff; font-weight: 900; font-size: 0.85em; display: grid; place-items: center; border: 0.12em solid var(--ink); }
+
+.pp-fig { margin: 0 0 0.6em; }
+.pp-fig figcaption { font-size: 0.82em; font-weight: 800; margin-bottom: 0.2em; }
+.pchart { width: 100%; height: auto; max-height: 15em; display: block; }
+.pchart text { font-family: inherit; fill: var(--ink); }
+
+.pp-foot { display: flex; justify-content: space-between; gap: 1em; padding: 0.6em 1.3em; background: #fff; border-top: 0.18em solid var(--ink); font-size: 0.72em; line-height: 1.4; }
+.pp-src { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pp-brand { flex: 0 0 auto; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pc); white-space: nowrap; }
+
+/* Concept explainer */
+.pp-def { background: var(--ink); color: #fff; border-radius: 0.7em; padding: 0.9em 1.2em; font-size: 1.02em; font-weight: 700; line-height: 1.4; }
+.pp-def b { color: var(--pb); text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.08em; display: block; margin-bottom: 0.2em; }
+.pp-flow { display: flex; flex-direction: column; }
+.pp-step { display: grid; grid-template-columns: 2.9em 1fr 4.2em; gap: 0.9em; align-items: center; position: relative; background: #fff; border: 0.14em solid var(--ink); border-radius: 0.7em; padding: 0.7em 0.9em; box-shadow: 0.2em 0.2em 0 var(--ink); }
+.pp-step + .pp-step { margin-top: 1.05em; }
+.pp-step + .pp-step::before { content: '▼'; position: absolute; top: -1.15em; left: 2em; color: var(--pa); font-size: 0.85em; line-height: 1; }
+.pp-num { width: 2.7em; height: 2.7em; border-radius: 50%; background: var(--pa); color: #fff; font-weight: 900; font-size: 1.05em; display: grid; place-items: center; border: 0.14em solid var(--ink); }
+.pp-step h4 { margin: 0 0 0.15em; font-size: 1.08em; font-weight: 900; text-transform: uppercase; }
+.pp-step p { margin: 0; font-size: 0.92em; }
+.pp-step-icon { width: 4.2em; height: 4.2em; border-radius: 50%; background: var(--pb); border: 0.14em solid var(--ink); display: grid; place-items: center; }
+.pp-step-icon svg { width: 72%; height: 72%; }
+.pp-duo { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1em; align-items: stretch; }
+.pp-why { background: var(--pa); color: #fff; border: 0.14em solid var(--ink); border-radius: 0.7em; padding: 0.8em 1em; box-shadow: 0.2em 0.2em 0 var(--ink); }
+.pp-why h3, .pp-fact h3 { margin: 0 0 0.3em; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.08em; }
+.pp-why p, .pp-fact p { margin: 0; font-size: 0.92em; font-weight: 600; }
+.pp-fact { background: var(--pb); border: 0.14em dashed var(--ink); border-radius: 1.2em; padding: 0.8em 1em; }
+
+/* Career spotlight */
+.pp-career { display: grid; grid-template-columns: 0.82fr 1.5fr; gap: 1em; align-items: start; }
+.pp-tags { display: flex; flex-wrap: wrap; gap: 0.4em; padding: 0 0.9em; }
+.pp-tag { background: var(--pb); border: 0.12em solid var(--ink); border-radius: 2em; padding: 0.2em 0.7em; font-size: 0.82em; font-weight: 800; }
+.pp-fact-row { display: block; margin-bottom: 0.55em; }
+.pp-fact-row b { display: block; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.07em; color: var(--pc); }
+.pp-time { list-style: none; margin: 0 0.9em; padding: 0 0 0 0.2em; border-left: 0.2em solid var(--pa); }
+.pp-time li { position: relative; padding: 0.15em 0 0.5em 1em; font-size: 0.95em; }
+.pp-time li::before { content: ""; position: absolute; left: -0.8em; top: 0.5em; width: 0.7em; height: 0.7em; border-radius: 50%; background: #fff; border: 0.15em solid var(--ink); }
+.pp-time .t { font-weight: 900; color: var(--pc); display: inline-block; margin-right: 0.35em; }
+.pp-stairs { list-style: none; margin: 0 0.9em; padding: 0; }
+.pp-stairs li { margin: 0 0 0.35em calc(var(--i, 0) * 0.9em); padding: 0.4em 0.7em; background: var(--pb); border: 0.12em solid var(--ink); border-left: 0.5em solid var(--pa); border-radius: 0.3em; font-size: 0.92em; font-weight: 700; }
+
+/* Lab safety & technique */
+.pp-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; align-items: stretch; }
+.pp-do h3 { background: #2E7D32; }
+.pp-dont h3 { background: #C62828; }
+.pp-check { list-style: none; margin: 0; padding: 0 0.9em; }
+.pp-check li { display: flex; gap: 0.6em; align-items: flex-start; padding: 0.25em 0; font-size: 0.92em; font-weight: 600; }
+.pp-check li::before { content: '✓'; flex: 0 0 1.55em; height: 1.55em; border-radius: 50%; background: #2E7D32; color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 0.85em; margin-top: 0.05em; }
+.pp-dont .pp-check li::before { content: '✕'; background: #C62828; }
+.pp-emergency { display: flex; gap: 1em; align-items: center; background: #FDECEA; border: 0.2em solid #C62828; border-radius: 0.7em; padding: 0.8em 1em; }
+.pp-emergency svg { flex: 0 0 4em; width: 4em; height: 4em; }
+.pp-emergency h3 { margin: 0 0 0.2em; color: #C62828; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.07em; }
+.pp-emergency p { margin: 0; font-size: 0.92em; font-weight: 700; }
+.pp-intro { margin: 0; font-size: 1.05em; font-weight: 700; padding: 0 0.1em; }
+
+/* ---------- PRINT: only the poster ---------- */
+@media print {
+    .poster-noprint, .back-link, .poster-meter, .poster-overflow { display: none !important; }
+    .poster-workspace, .poster-preview { display: block !important; }
+    .poster-stage { padding: 0 !important; border: none !important; box-shadow: none !important; background: none !important; }
+    .poster-wrap { max-width: none !important; margin: 0 !important; }
+    .poster-wrap.portrait  { width: 8in !important; }
+    .poster-wrap.landscape { width: 10.3in !important; }
+    .poster { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; }
+}
