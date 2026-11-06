@@ -214,7 +214,36 @@ const PAGE_BANNERS = {
 };
 
 // Flat illustration in the same palette as the logo: salmon blob, red, black
-const BANNER_SCENE = ``;
+const BANNER_SCENE = `<svg viewBox="0 0 540 200" preserveAspectRatio="xMaxYMid meet" xmlns="http://www.w3.org/2000/svg" focusable="false">
+    <circle cx="290" cy="104" r="92" fill="#EEB0A5"/>
+    <g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <!-- flask -->
+        <path d="M108 30H132V82L168 156Q174 172 158 172H82Q66 172 72 156L108 82Z" fill="#fff"/>
+        <path d="M89 128H151L168 156Q174 172 158 172H82Q66 172 72 156Z" fill="#D94F3B"/>
+        <rect x="102" y="23" width="36" height="9" rx="3" fill="#0d0d0d"/>
+        <circle cx="110" cy="146" r="4" fill="#fff" stroke="none"/>
+        <circle cx="128" cy="154" r="3" fill="#fff" stroke="none"/>
+        <!-- petri dish -->
+        <rect x="222" y="132" width="112" height="30" rx="7" fill="#fff"/>
+        <rect x="230" y="146" width="96" height="12" rx="3" fill="#D94F3B" stroke="none"/>
+        <rect x="216" y="120" width="124" height="15" rx="6" fill="#F6D5CE"/>
+        <circle cx="250" cy="152" r="2.5" fill="#fff" stroke="none"/>
+        <circle cx="276" cy="151" r="3.5" fill="#fff" stroke="none"/>
+        <circle cx="304" cy="153" r="2.5" fill="#fff" stroke="none"/>
+        <!-- test tubes in a rack -->
+        <path d="M368 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M368 112H396V150a14 14 0 0 1-28 0Z" fill="#D94F3B"/>
+        <path d="M404 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M404 128H432V150a14 14 0 0 1-28 0Z" fill="#0d0d0d"/>
+        <path d="M440 56V150a14 14 0 0 0 28 0V56" fill="#fff"/>
+        <path d="M440 96H468V150a14 14 0 0 1-28 0Z" fill="#EEB0A5"/>
+        <rect x="358" y="88" width="120" height="9" rx="4" fill="#0d0d0d"/>
+        <!-- DNA helix -->
+        <path d="M506 14C534 44 534 74 506 104C478 134 478 164 506 194" fill="none"/>
+        <path d="M506 14C478 44 478 74 506 104C534 134 534 164 506 194" fill="none" stroke="#D94F3B"/>
+        <path d="M482 38H530M480 60H532M482 82H530M482 126H530M480 148H532M482 170H530" stroke-width="2" fill="none"/>
+    </g>
+</svg>`;
 
 function initPageBanners() {
     const id = Object.keys(PAGE_BANNERS).find(k => document.getElementById(k));
@@ -1553,7 +1582,8 @@ const SEARCH_PAGES = [
     { name: 'Colleges & Universities', href: 'colleges.html', text: 'colleges universities degrees B.S. A.S. research labs undergraduate in-state out-of-state' },
     { name: 'Internships & Jobs', href: 'jobs.html', text: 'internships paid jobs workplace positions apply student' },
     { name: 'Scholarships, Competitions & Summer Programs', href: 'opportunities.html', text: 'scholarships competitions summer programs STEM opportunities research databases certifications' },
-    { name: 'Create Resume', href: 'resume.html', text: 'resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
+    { name: 'Create: Resume Builder', href: 'resume.html#resume', text: 'create resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
+    { name: 'Create: Poster Lab', href: 'resume.html#poster', text: 'create poster lab project assistance help science fair research poster infographic concept explainer career spotlight lab safety technique guide template graphics presentation display print pdf' },
     { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' }
 ];
 
@@ -1889,3 +1919,530 @@ window.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState(null, '', u.pathname + u.search + u.hash);
     } catch (e) { /* ignore */ }
 });
+
+/* ==========================================================================
+   CREATE HUB + POSTER LAB  (resume.html only)
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const lines = t => String(t || '').split('\n').map(l => l.replace(/^\s*(?:[•\-*]|\d+[.)])\s+/, '').trim()).filter(Boolean);
+    const has = t => !!(t && String(t).trim());
+    const ph = (t, fb) => has(t) ? esc(t) : `<span class="pp-ph">${esc(fb)}</span>`;
+    const phPara = (t, fb) => has(t) ? esc(t).replace(/\n+/g, '<br>') : `<span class="pp-ph">${esc(fb)}</span>`;
+
+    /* ---------------------------------------------------------------
+       GRAPHICS LIBRARY  (flat illustrations in the BIOSTART style;
+       colors come from the poster theme via --pa / --pb / --ink)
+       --------------------------------------------------------------- */
+    const S = 'stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
+    const ICONS = {
+        dna: ['DNA Helix', `<path d="M18 6C50 20 50 44 18 58" fill="none" stroke="var(--pa)" stroke-width="4.5" stroke-linecap="round"/><path d="M46 6C14 20 14 44 46 58" fill="none" ${S}/><path d="M27 10H37M28 19H36M24 32H40M28 45H36M27 54H37" fill="none" ${S} stroke-width="2.5"/>`],
+        flask: ['Flask', `<path d="M27 8V26L12 52Q9 58 16 58H48Q55 58 52 52L37 26V8" fill="#fff" ${S}/><path d="M19 40H45L52 52Q55 58 48 58H16Q9 58 12 52Z" fill="var(--pa)" ${S}/><path d="M23 8H41" ${S}/><circle cx="26" cy="49" r="2.5" fill="#fff"/><circle cx="36" cy="46" r="2" fill="#fff"/>`],
+        microscope: ['Microscope', `<g transform="rotate(22 32 24)"><rect x="25" y="4" width="14" height="34" rx="4" fill="var(--pa)" ${S}/><rect x="28" y="38" width="8" height="8" fill="#fff" ${S}/></g><path d="M46 26C58 34 52 52 36 52" fill="none" ${S}/><rect x="12" y="52" width="40" height="7" rx="3" fill="var(--ink)"/><rect x="20" y="46" width="22" height="3" rx="1.5" fill="var(--ink)"/>`],
+        petri: ['Petri Dish', `<circle cx="32" cy="32" r="25" fill="#fff" ${S}/><circle cx="32" cy="32" r="18" fill="var(--pb)" stroke="var(--ink)" stroke-width="2"/><circle cx="26" cy="26" r="3.5" fill="var(--pa)"/><circle cx="38" cy="29" r="2.5" fill="var(--pa)"/><circle cx="30" cy="40" r="4" fill="var(--pa)"/><circle cx="41" cy="40" r="2" fill="var(--pa)"/><circle cx="23" cy="36" r="2" fill="var(--pa)"/>`],
+        tubes: ['Test Tubes', `<path d="M8 8V46a6 6 0 0 0 12 0V8" fill="#fff" ${S}/><path d="M8 30H20V46a6 6 0 0 1-12 0Z" fill="var(--pa)"/><path d="M26 8V46a6 6 0 0 0 12 0V8" fill="#fff" ${S}/><path d="M26 38H38V46a6 6 0 0 1-12 0Z" fill="var(--ink)"/><path d="M44 8V46a6 6 0 0 0 12 0V8" fill="#fff" ${S}/><path d="M44 24H56V46a6 6 0 0 1-12 0Z" fill="var(--pb)"/><rect x="3" y="16" width="58" height="6" rx="3" fill="var(--ink)"/>`],
+        cell: ['Cell', `<circle cx="32" cy="32" r="25" fill="var(--pb)" ${S}/><circle cx="28" cy="30" r="9" fill="var(--pa)" ${S}/><circle cx="28" cy="30" r="3" fill="#fff"/><ellipse cx="46" cy="42" rx="5" ry="3" fill="#fff" stroke="var(--ink)" stroke-width="2"/><ellipse cx="42" cy="17" rx="4" ry="2.5" fill="#fff" stroke="var(--ink)" stroke-width="2"/><ellipse cx="22" cy="47" rx="4" ry="2.5" fill="#fff" stroke="var(--ink)" stroke-width="2"/>`],
+        molecule: ['Molecule', `<path d="M32 18L16 44M32 18L48 44M16 44H48" fill="none" ${S}/><circle cx="32" cy="16" r="9" fill="var(--pa)" ${S}/><circle cx="14" cy="46" r="8" fill="#fff" ${S}/><circle cx="50" cy="46" r="8" fill="var(--ink)" ${S}/>`],
+        pipette: ['Pipette', `<rect x="25" y="3" width="14" height="16" rx="6" fill="var(--pa)" ${S}/><rect x="22" y="19" width="20" height="6" rx="2" fill="#fff" ${S}/><path d="M26 25V44L32 55L38 44V25Z" fill="#fff" ${S}/><path d="M26 36H38V44L32 55L26 44Z" fill="var(--pa)"/><circle cx="32" cy="60" r="2" fill="var(--pa)"/>`],
+        leaf: ['Plant', `<path d="M10 54C8 26 28 8 56 8C56 38 40 56 10 54Z" fill="var(--pa)" ${S}/><path d="M10 54L42 22" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`],
+        bacteria: ['Microbe', `<rect x="14" y="22" width="36" height="20" rx="10" fill="var(--pa)" ${S}/><circle cx="26" cy="32" r="2.5" fill="#fff"/><circle cx="36" cy="30" r="2" fill="#fff"/><circle cx="42" cy="35" r="2" fill="#fff"/><path d="M20 22V14M32 22V12M44 22V14M20 42V50M32 42V52M44 42V50M50 32Q56 24 61 32" fill="none" ${S} stroke-width="2.5"/>`],
+        bulb: ['Idea', `<path d="M32 6A17 17 0 0 1 42 37V44H22V37A17 17 0 0 1 32 6Z" fill="var(--pb)" ${S}/><path d="M25 51H39M27 57H37" fill="none" ${S}/><path d="M27 38L30 28L34 34L37 24" fill="none" stroke="var(--pa)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`],
+        shield: ['Safety', `<path d="M32 5L53 13V32C53 46 43 55 32 59C21 55 11 46 11 32V13Z" fill="var(--pb)" ${S}/><path d="M21 32L29 40L44 24" fill="none" stroke="var(--pa)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`],
+        goggles: ['Goggles', `<path d="M6 30Q6 24 12 24H52Q58 24 58 30V36Q58 44 50 44H40Q34 44 32 38Q30 44 24 44H14Q6 44 6 36Z" fill="var(--pb)" ${S}/><ellipse cx="19" cy="34" rx="8" ry="6" fill="#fff" stroke="var(--ink)" stroke-width="2.5"/><ellipse cx="45" cy="34" rx="8" ry="6" fill="#fff" stroke="var(--ink)" stroke-width="2.5"/><path d="M6 32H2M58 32H62" fill="none" ${S}/>`],
+        chart: ['Bar Chart', `<path d="M8 8V56H58" fill="none" ${S}/><rect x="16" y="34" width="9" height="22" fill="var(--pa)" stroke="var(--ink)" stroke-width="2.5"/><rect x="30" y="22" width="9" height="34" fill="var(--pb)" stroke="var(--ink)" stroke-width="2.5"/><rect x="44" y="12" width="9" height="44" fill="var(--pa)" stroke="var(--ink)" stroke-width="2.5"/>`]
+    };
+    const iconSVG = (key, cls) => `<svg class="pi ${cls || ''}" viewBox="0 0 64 64" aria-hidden="true">${(ICONS[key] || ICONS.flask)[1]}</svg>`;
+
+    const THEMES = {
+        biostart: { name: 'BIOSTART Red', pa: '#D94F3B', pb: '#F6D5CE', pc: '#A83325' },
+        teal:     { name: 'Lab Teal',     pa: '#1F8A8A', pb: '#D3EEEC', pc: '#126060' },
+        violet:   { name: 'Helix Violet', pa: '#6C4AB6', pb: '#E4DCF4', pc: '#4B2F8C' },
+        green:    { name: 'Field Green',  pa: '#3E8E41', pb: '#DCEFD7', pc: '#2A6A2E' }
+    };
+
+    /* ---------------------------------------------------------------
+       BAR CHART from "Label: value" lines
+       --------------------------------------------------------------- */
+    function splitLabel(label) {
+        const mid = Math.floor(label.length / 2);
+        let i = label.lastIndexOf(' ', mid);
+        if (i < 1) i = label.indexOf(' ', mid);
+        return i < 1 ? [label] : [label.slice(0, i), label.slice(i + 1)];
+    }
+
+    function barChart(text, unit) {
+        const rows = lines(text).map(l => {
+            const m = l.match(/^(.*?)\s*[:=,\t]\s*(-?\d+(?:\.\d+)?)\s*$/);
+            return m ? { label: m[1].trim(), value: Math.max(0, parseFloat(m[2])) } : null;
+        }).filter(Boolean).slice(0, 8);
+        if (!rows.length) return '';
+        const W = 400, H = 260, L = 50, R = 10, T = 22, B = 52;
+        const max = Math.max(...rows.map(r => r.value), 0);
+        const mag = Math.pow(10, Math.floor(Math.log10(max || 1)));
+        const top = ([1, 2, 2.5, 5, 10].find(n => n * mag >= max) || 10) * mag;
+        const ph_ = H - T - B, bw = (W - L - R) / rows.length, w = Math.min(64, bw * 0.62);
+        let g = '';
+        for (let i = 0; i <= 4; i++) {
+            const val = top * i / 4, y = T + ph_ - ph_ * i / 4;
+            g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#d6d6d6" stroke-width="1"/><text x="${L - 6}" y="${y + 4}" text-anchor="end" font-size="11">${+val.toFixed(2)}</text>`;
+        }
+        rows.forEach((r, i) => {
+            const h = r.value / top * ph_, x = L + i * bw + (bw - w) / 2, y = T + ph_ - h;
+            g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${i % 2 ? 'var(--pc)' : 'var(--pa)'}" stroke="var(--ink)" stroke-width="2"/>`;
+            g += `<text x="${(x + w / 2).toFixed(1)}" y="${(y - 5).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800">${r.value}</text>`;
+            (r.label.length > 11 ? splitLabel(r.label) : [r.label]).forEach((part, k) => {
+                g += `<text x="${(x + w / 2).toFixed(1)}" y="${T + ph_ + 16 + k * 13}" text-anchor="middle" font-size="11" font-weight="700">${esc(part.slice(0, 15))}</text>`;
+            });
+        });
+        g += `<path d="M${L} ${T}V${T + ph_}H${W - R}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+        if (has(unit)) g += `<text transform="rotate(-90 12 ${T + ph_ / 2})" x="12" y="${T + ph_ / 2}" text-anchor="middle" font-size="11" font-weight="800">${esc(unit.slice(0, 28))}</text>`;
+        return `<svg class="pchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of results">${g}</svg>`;
+    }
+
+    /* ---------------------------------------------------------------
+       SHARED POSTER PIECES
+       --------------------------------------------------------------- */
+    const sec = (title, body, cls) => `<section class="pp-sec ${cls || ''}"><h3>${esc(title)}</h3><div class="pp-sec-body">${body}</div></section>`;
+    const bullets = (t, fb) => lines(t).length ? `<ul class="pp-list">${lines(t).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<p><span class="pp-ph">${esc(fb)}</span></p>`;
+    const numbered = (t, fb) => lines(t).length ? `<ol class="pp-steps">${lines(t).map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : `<p><span class="pp-ph">${esc(fb)}</span></p>`;
+
+    function head(v, meta, tagline) {
+        return `<div class="pp-head"><div class="pp-head-text"><h1 class="pp-title">${ph(v.title, 'Your poster title goes here')}</h1>${tagline ? `<p class="pp-tagline">${tagline}</p>` : ''}${meta ? `<p class="pp-meta">${meta}</p>` : ''}</div><div class="pp-head-icon">${iconSVG(v.icon)}</div></div>`;
+    }
+    function foot(text, fb) {
+        const src = lines(text);
+        return `<div class="pp-foot"><div class="pp-src">${src.length ? '<b>Sources:</b> ' + src.map(esc).join(' · ') : `<span class="pp-ph">${esc(fb || 'Sources & acknowledgments go here')}</span>`}</div><div class="pp-brand">BIOSTART Poster Lab</div></div>`;
+    }
+    const iconOpts = Object.keys(ICONS);
+    const stepFields = n => [
+        { id: `s${n}t`, label: 'Step title', type: 'text', half: true, group: `Step ${n}`, ph: 'Short and active' },
+        { id: `s${n}i`, label: 'Graphic', type: 'iconsel', half: true, def: iconOpts[n * 2 % iconOpts.length] },
+        { id: `s${n}d`, label: 'What happens', type: 'area', rows: 2, hint: n === 1 ? '1–2 sentences. Use plain words a 6th grader would understand.' : '', ph: '' }
+    ];
+
+    /* ---------------------------------------------------------------
+       TEMPLATES
+       --------------------------------------------------------------- */
+    const TEMPLATES = {
+        research: {
+            label: 'Science Fair Research Poster', icon: '🔬', orient: 'landscape', words: [220, 420],
+            desc: 'The classic three-column poster: question, methods, results graph, conclusion.',
+            defaults: { icon: 'microscope' },
+            guide: {
+                tips: [
+                    'Title = your question or finding, not “Science Project.” 12 words or fewer.',
+                    'Readers go left → right, top → bottom. Put the most important thing (your graph) in the middle.',
+                    'Methods: start each step with a verb (Measured, Mixed, Incubated) so someone could repeat it.',
+                    'One clean graph beats three messy ones. Always label the axis and include units.',
+                    'In the conclusion, say if your hypothesis was supported, and why. It’s okay if it wasn’t!'
+                ],
+                meta: 'Great for school science fairs, club showcases, and summer-program poster sessions.'
+            },
+            fields: [
+                { id: 'title', label: 'Poster title', type: 'text', hint: 'Make it a question or a finding.', ph: 'Does Light Color Change How Fast Plants Grow?' },
+                { id: 'authors', label: 'Name(s)', type: 'text', half: true, ph: 'Jordan Lee, Priya Shah' },
+                { id: 'school', label: 'School / program', type: 'text', half: true, ph: 'Biotechnology Academy, Gr. 10' },
+                { id: 'icon', label: 'Header graphic', type: 'icon' },
+                { id: 'question', label: 'Background & question', type: 'area', rows: 3, hint: '2–3 sentences: what’s already known, what’s missing, what you asked.', group: 'Intro' },
+                { id: 'hypothesis', label: 'Hypothesis', type: 'area', rows: 2, hint: 'One sentence: “If ___, then ___, because ___.”' },
+                { id: 'methods', label: 'Methods (one step per line)', type: 'area', rows: 5, hint: '4–6 short steps, in order. Mention your control group.', group: 'Method & results' },
+                { id: 'dataTitle', label: 'Graph title', type: 'text', half: true, count: false, ph: 'Avg. height after 7 days' },
+                { id: 'unit', label: 'Y-axis label', type: 'text', half: true, count: false, ph: 'Height (cm)' },
+                { id: 'data', label: 'Results data (Label: value)', type: 'area', rows: 4, count: false, hint: 'One per line. We turn this into a bar chart automatically (up to 8 bars).', ph: 'Control: 8.2\nRed light: 6.1\nBlue light: 9.4' },
+                { id: 'results', label: 'What the data show', type: 'area', rows: 3, hint: 'Describe the trend in 2–3 sentences and include at least one number.' },
+                { id: 'conclusion', label: 'Conclusion', type: 'area', rows: 3, group: 'Wrap-up' },
+                { id: 'next', label: 'Limits & next steps (one per line)', type: 'area', rows: 3, hint: 'What would you test next? What could have affected your results?' },
+                { id: 'refs', label: 'Sources & acknowledgments (one per line)', type: 'area', rows: 3, count: false, hint: '2–4 sources, plus a thank-you to your teacher or mentor.' }
+            ],
+            sample: {
+                title: 'Does Light Color Change How Fast Radish Seedlings Grow?',
+                authors: 'Jordan Lee & Priya Shah', school: 'Biotechnology Academy, Grade 10', icon: 'leaf',
+                question: 'Plants use light to make food, but they absorb some colors better than others. We wanted to know whether the color of light changes how tall radish seedlings grow in their first week.',
+                hypothesis: 'If radish seedlings grow under blue light, then they will be taller than seedlings under red or white light, because blue light helps plants build strong stems and leaves.',
+                methods: 'Planted 10 radish seeds in each of 3 identical trays\nCovered trays with clear (control), red, or blue filters\nWatered each tray with 20 mL every day at the same time\nMeasured seedling height in cm every day for 7 days\nAveraged the 10 seedlings in each tray and compared groups',
+                dataTitle: 'Average height after 7 days (sample data)', unit: 'Height (cm)',
+                data: 'White (control): 8.2\nRed light: 6.1\nBlue light: 9.4',
+                results: 'Seedlings under blue light averaged 9.4 cm, about 15% taller than the white-light control (8.2 cm). Seedlings under red light were the shortest at 6.1 cm.',
+                conclusion: 'Our data support the hypothesis: blue light produced the tallest seedlings. We only tested one plant for one week, so more trials are needed before drawing a firm conclusion.',
+                next: 'Repeat with 30 seeds per group\nTest green and mixed light\nMeasure leaf area and mass, not just height',
+                refs: 'Replace with your real sources, e.g. Author, A. (Year). Title. Journal.\nThank you to [teacher / mentor] for lab space and guidance.'
+            },
+            render(v) {
+                const chart = barChart(v.data, v.unit);
+                const results = (chart ? `<figure class="pp-fig">${has(v.dataTitle) ? `<figcaption>${esc(v.dataTitle)}</figcaption>` : ''}${chart}</figure>` : `<p><span class="pp-ph">Enter data as “Label: value” and a bar chart appears here.</span></p>`)
+                    + `<p>${phPara(v.results, 'Describe the trend in 2–3 sentences and include a number.')}</p>`;
+                const meta = [v.authors, v.school].filter(has).map(esc).join(' · ');
+                return head(v, meta || '<span class="pp-ph">Names · School</span>')
+                    + `<div class="pp-body pp-3col">
+                        <div class="pp-col">${sec('Background & Question', `<p>${phPara(v.question, 'What is known, what is missing, what did you ask?')}</p>`)}${sec('Hypothesis', `<p>${phPara(v.hypothesis, 'If ___, then ___, because ___.')}</p>`, 'hl')}</div>
+                        <div class="pp-col">${sec('Methods', numbered(v.methods, 'List 4–6 steps, one per line.'))}${sec('Results', results)}</div>
+                        <div class="pp-col">${sec('Conclusion', `<p>${phPara(v.conclusion, 'Was your hypothesis supported? Why?')}</p>`)}${sec('Limits & Next Steps', bullets(v.next, 'What would you test next?'))}</div>
+                    </div>` + foot(v.refs);
+            }
+        },
+
+        explainer: {
+            label: 'Concept Explainer (Infographic)', icon: '🧬', orient: 'portrait', words: [150, 300],
+            desc: 'Explain one biotech idea in four visual steps, like “How CRISPR works.”',
+            defaults: { icon: 'dna', s1i: 'molecule', s2i: 'cell', s3i: 'dna', s4i: 'petri' },
+            guide: {
+                tips: [
+                    'Pick ONE idea. If it needs more than four steps, split it into two posters.',
+                    'Write each step as an action: “Cut,” “Copy,” “Grow,” not “The cutting stage.”',
+                    'Keep step text to 1–2 sentences. Let the graphics do the heavy lifting.',
+                    'Define the key term in one plain sentence at the top.',
+                    '“Why it matters” should connect to real life: health, food, environment, careers.'
+                ],
+                meta: 'Great for class presentations, HOSA/club events, science nights, and hallway displays.'
+            },
+            fields: [
+                { id: 'title', label: 'Poster title', type: 'text', ph: 'How CRISPR Edits a Gene' },
+                { id: 'hook', label: 'Tagline', type: 'text', hint: 'One catchy line that makes someone stop and read.', ph: 'Molecular scissors that can be programmed.' },
+                { id: 'icon', label: 'Header graphic', type: 'icon' },
+                { id: 'definition', label: 'In one sentence', type: 'area', rows: 2, hint: 'Define the main term as if explaining to a friend.', group: 'Big idea' },
+                ...stepFields(1), ...stepFields(2), ...stepFields(3), ...stepFields(4),
+                { id: 'why', label: 'Why it matters', type: 'area', rows: 3, hint: 'Real-world impact: health, food, environment, jobs.', group: 'Wrap-up' },
+                { id: 'fact', label: 'Fun fact', type: 'area', rows: 2 },
+                { id: 'sources', label: 'Sources (one per line)', type: 'area', rows: 2, count: false, hint: 'Use .gov, .edu, or journal pages and cite what you actually read.' }
+            ],
+            sample: {
+                title: 'How CRISPR Edits a Gene', hook: 'Molecular scissors that can be programmed to find one exact spot in DNA.', icon: 'dna',
+                definition: 'CRISPR-Cas9 is a tool that lets scientists cut DNA at a chosen location so a gene can be turned off, repaired, or replaced.',
+                s1t: 'Design the guide', s1i: 'molecule', s1d: 'Scientists build a short piece of RNA that matches the DNA sequence they want to change.',
+                s2t: 'Find the target', s2i: 'cell', s2d: 'The guide RNA leads the Cas9 protein through the cell until it locks onto the matching DNA.',
+                s3t: 'Make the cut', s3i: 'dna', s3d: 'Cas9 works like scissors and cuts both strands of the DNA at the target spot.',
+                s4t: 'Repair or rewrite', s4i: 'petri', s4d: 'The cell repairs the break. Scientists can let it fix itself to switch a gene off, or supply a template to change the sequence.',
+                why: 'Gene editing is being studied to treat genetic diseases, build hardier crops, and speed up basic research. It also raises ethical questions, so scientists, doctors, and the public all help set the rules.',
+                fact: 'CRISPR was adapted from a defense system bacteria use to fight viruses.',
+                sources: 'Replace with the pages you actually used, e.g. NIH National Human Genome Research Institute: genome editing fact sheet'
+            },
+            render(v) {
+                const steps = [1, 2, 3, 4].map(n => {
+                    const t = v[`s${n}t`], d = v[`s${n}d`];
+                    return `<div class="pp-step"><div class="pp-num">${n}</div><div><h4>${ph(t, 'Step ' + n + ' title')}</h4><p>${phPara(d, 'Describe what happens in 1–2 sentences.')}</p></div><div class="pp-step-icon">${iconSVG(v[`s${n}i`])}</div></div>`;
+                }).join('');
+                return head(v, '', has(v.hook) ? esc(v.hook) : '<span class="pp-ph">Your catchy tagline</span>')
+                    + `<div class="pp-body">
+                        <div class="pp-def"><b>The big idea</b>${phPara(v.definition, 'Define the main term in one plain sentence.')}</div>
+                        <div class="pp-flow">${steps}</div>
+                        <div class="pp-duo"><div class="pp-why"><h3>Why it matters</h3><p>${phPara(v.why, 'Connect it to health, food, environment, or jobs.')}</p></div><div class="pp-fact"><h3>Did you know?</h3><p>${phPara(v.fact, 'Add a surprising fact.')}</p></div></div>
+                    </div>` + foot(v.sources);
+            }
+        },
+
+        career: {
+            label: 'Biotech Career Spotlight', icon: '💼', orient: 'portrait', words: [150, 320],
+            desc: 'Profile a biotech job: what they do, a day in the life, and how to get there.',
+            defaults: { icon: 'microscope' },
+            guide: {
+                tips: [
+                    'Look up pay and growth in the BLS Occupational Outlook Handbook (bls.gov/ooh) and note the year.',
+                    '“A day in the life” works best as 4–5 times with one short activity each.',
+                    'Show the path as steps from high school to the job, including any certificates (like BACE).',
+                    'List real New Jersey employers. Check each company’s careers page for entry-level roles.',
+                    'Interview someone in the field if you can, and thank them under Sources.'
+                ],
+                meta: 'Great for career-day displays, CTE class projects, and guidance-office bulletin boards.'
+            },
+            fields: [
+                { id: 'title', label: 'Career title', type: 'text', ph: 'Biomanufacturing Technician' },
+                { id: 'tagline', label: 'Tagline', type: 'text', ph: 'Turning lab discoveries into real medicines.' },
+                { id: 'icon', label: 'Header graphic', type: 'icon' },
+                { id: 'what', label: 'What they do', type: 'area', rows: 3, hint: '2–3 sentences, no jargon.', group: 'The job' },
+                { id: 'day', label: 'A day in the life (“time — activity”)', type: 'area', rows: 5, hint: 'One per line, e.g. “8:00 — Review the batch record”.' },
+                { id: 'path', label: 'Your path (one step per line)', type: 'area', rows: 4, hint: 'Order from high school → first job → advancement.', group: 'Getting there' },
+                { id: 'skills', label: 'Key skills (comma-separated)', type: 'text', ph: 'Attention to detail, Teamwork, Lab math' },
+                { id: 'pay', label: 'Typical pay', type: 'text', half: true, group: 'Quick facts', ph: 'Check BLS.gov/ooh' },
+                { id: 'outlook', label: 'Job outlook', type: 'text', half: true, ph: 'Growing / Stable' },
+                { id: 'employers', label: 'Where to work in NJ (one per line)', type: 'area', rows: 3 },
+                { id: 'fact', label: 'Fun fact', type: 'area', rows: 2 },
+                { id: 'sources', label: 'Sources (one per line)', type: 'area', rows: 2, count: false, hint: 'BLS page, an interview, a company careers page…' }
+            ],
+            sample: {
+                title: 'Biomanufacturing Technician', tagline: 'Helps turn lab discoveries into medicines people can actually use.', icon: 'tubes',
+                what: 'Biomanufacturing technicians run and monitor the equipment that grows cells and purifies proteins in large amounts. They follow strict procedures so every batch is safe and consistent.',
+                day: '8:00 — Review the batch record and safety checklist\n10:00 — Set up and sterilize equipment\n12:30 — Monitor cell growth and record readings\n2:30 — Test samples and log the results\n4:00 — Hand off to the next shift',
+                path: 'High school: biotechnology, chemistry, and math\nEarn a lab credential such as BACE\nAssociate degree or certificate in biotechnology\nEntry-level technician, then bachelor’s degree or on-the-job training to advance',
+                skills: 'Attention to detail, Clean technique, Careful documentation, Teamwork, Problem solving, Lab math',
+                pay: 'Roughly $45,000–$75,000 (verify at bls.gov/ooh)', outlook: 'Strong demand in NJ’s pharma hub',
+                employers: 'Merck (Rahway)\nJohnson & Johnson (New Brunswick)\nBristol Myers Squibb (Lawrenceville)\nNovartis (East Hanover)',
+                fact: 'Making one batch of some biologic medicines can take weeks, and every step is documented.',
+                sources: 'Replace with yours, e.g. BLS Occupational Outlook Handbook; interview with [name]'
+            },
+            render(v) {
+                const day = lines(v.day).map(l => { const m = l.match(/^(.{1,12}?)\s*[—–-]\s+(.*)$/); return m ? `<li><span class="t">${esc(m[1])}</span>${esc(m[2])}</li>` : `<li>${esc(l)}</li>`; }).join('');
+                const path = lines(v.path).map((l, i) => `<li style="--i:${i}">${esc(l)}</li>`).join('');
+                const skills = String(v.skills || '').split(',').map(s => s.trim()).filter(Boolean).map(s => `<span class="pp-tag">${esc(s)}</span>`).join('');
+                return head(v, '', has(v.tagline) ? esc(v.tagline) : '<span class="pp-ph">Your tagline</span>')
+                    + `<div class="pp-body"><div class="pp-career">
+                        <div class="pp-col">
+                            ${sec('Quick Facts', `<span class="pp-fact-row"><b>Typical pay</b>${ph(v.pay, 'Add pay range')}</span><span class="pp-fact-row"><b>Job outlook</b>${ph(v.outlook, 'Add outlook')}</span>`)}
+                            ${sec('Key Skills', skills ? `<div class="pp-tags" style="padding:0">${skills}</div>` : '<p><span class="pp-ph">Comma-separated skills</span></p>')}
+                            ${sec('Where to Work in NJ', bullets(v.employers, 'List local employers.'))}
+                        </div>
+                        <div class="pp-col">
+                            ${sec('What They Do', `<p>${phPara(v.what, 'Explain the job in 2–3 plain sentences.')}</p>`)}
+                            ${sec('A Day in the Life', day ? `<ul class="pp-time" style="margin:0">${day}</ul>` : '<p><span class="pp-ph">8:00 — First task (one per line)</span></p>')}
+                            ${sec('Your Path', path ? `<ul class="pp-stairs" style="margin:0">${path}</ul>` : '<p><span class="pp-ph">One step per line, high school → first job.</span></p>')}
+                            <div class="pp-fact"><h3>Did you know?</h3><p>${phPara(v.fact, 'Add a surprising fact about this career.')}</p></div>
+                        </div>
+                    </div></div>` + foot(v.sources);
+            }
+        },
+
+        safety: {
+            label: 'Lab Safety & Technique Guide', icon: '🥽', orient: 'portrait', words: [130, 280],
+            desc: 'Do’s, don’ts, and a step-by-step technique, ready to hang by the lab bench.',
+            defaults: { icon: 'goggles' },
+            guide: {
+                tips: [
+                    'Start every Do and Don’t with a verb. Keep each under 10 words.',
+                    'Put the Don’ts people most often break first.',
+                    'Technique steps should be in the exact order someone would do them, 6–8 steps max.',
+                    'Emergency box: who to tell, where the eyewash and exits are, and what to do first.',
+                    'Check your school’s own lab rules and have your teacher approve the poster before posting it.'
+                ],
+                meta: 'Great for biotech labs, club demos, and sharing with younger students.'
+            },
+            fields: [
+                { id: 'title', label: 'Poster title', type: 'text', ph: 'Lab Safety Basics' },
+                { id: 'intro', label: 'Opening line', type: 'area', rows: 2, ph: 'Know where the exits, eyewash, and safety shower are.' },
+                { id: 'icon', label: 'Header graphic', type: 'icon' },
+                { id: 'dos', label: 'Do (one per line)', type: 'area', rows: 5, group: 'Rules' },
+                { id: 'donts', label: 'Don’t (one per line)', type: 'area', rows: 5 },
+                { id: 'stepsTitle', label: 'Technique title', type: 'text', group: 'Technique', ph: 'Using a Micropipette' },
+                { id: 'steps', label: 'Steps (one per line)', type: 'area', rows: 6 },
+                { id: 'emergency', label: 'In an emergency', type: 'area', rows: 3, group: 'Wrap-up' },
+                { id: 'sources', label: 'Sources (one per line)', type: 'area', rows: 2, count: false }
+            ],
+            sample: {
+                title: 'Lab Safety Basics', icon: 'goggles',
+                intro: 'Before you touch anything, find the exits, the eyewash station, and the safety shower.',
+                dos: 'Wear goggles, gloves, and a lab coat\nTie back long hair and wear closed-toe shoes\nLabel every tube and container\nWash your hands before you leave\nTell your teacher about spills right away',
+                donts: 'Eat, drink, or apply makeup in the lab\nPipette by mouth\nTaste or sniff chemicals directly\nWork alone or unsupervised\nPour chemicals back into the stock bottle',
+                stepsTitle: 'Using a Micropipette',
+                steps: 'Set the volume dial to the amount you need\nPress a clean tip firmly onto the pipette\nPush to the first stop, then put the tip in the liquid\nSlowly release to draw up the liquid\nPush to the second stop to dispense into the tube\nEject the tip into the waste container',
+                emergency: 'Spill or splash: tell your teacher, step away, and use the eyewash for 15 minutes if it reaches your eyes. Fire alarm: stop work, turn off equipment, and exit calmly.',
+                sources: 'Replace with your school’s lab rules and the OSHA Laboratory Standard (osha.gov)'
+            },
+            render(v) {
+                return head(v, '')
+                    + `<div class="pp-body">
+                        <p class="pp-intro">${phPara(v.intro, 'Open with the one thing everyone must know.')}</p>
+                        <div class="pp-two">
+                            <section class="pp-sec pp-do"><h3>Do</h3><ul class="pp-check">${lines(v.dos).map(x => `<li>${esc(x)}</li>`).join('') || '<li><span class="pp-ph">One rule per line</span></li>'}</ul></section>
+                            <section class="pp-sec pp-dont"><h3>Don’t</h3><ul class="pp-check">${lines(v.donts).map(x => `<li>${esc(x)}</li>`).join('') || '<li><span class="pp-ph">One rule per line</span></li>'}</ul></section>
+                        </div>
+                        ${sec(has(v.stepsTitle) ? 'Technique: ' + v.stepsTitle : 'Technique', numbered(v.steps, 'List the steps in order, one per line.'))}
+                        <div class="pp-emergency">${iconSVG('shield')}<div><h3>In an emergency</h3><p>${phPara(v.emergency, 'Who to tell, where the eyewash and exits are, what to do first.')}</p></div></div>
+                    </div>` + foot(v.sources);
+            }
+        }
+    };
+
+    const CHECKLIST = [
+        'Title is readable from 6 feet away',
+        'Every graph or graphic has a label (and units)',
+        'No more than 2–3 fonts and strong contrast',
+        'Facts are checked and sources are cited',
+        'Spelling and capitalization are checked',
+        'A friend read it and could explain it back to you',
+        'Your teacher or mentor has approved it'
+    ];
+
+    /* ---------------------------------------------------------------
+       STATE
+       --------------------------------------------------------------- */
+    const KEY = 'biostart_posterDraft_v1';
+    let state = { template: 'research', theme: 'biostart', values: {}, sample: {} };
+    let ready = false;
+
+    function load() {
+        try { const raw = localStorage.getItem(KEY); if (raw) state = Object.assign(state, JSON.parse(raw)); } catch (e) {}
+        if (!TEMPLATES[state.template]) state.template = 'research';
+        if (!THEMES[state.theme]) state.theme = 'biostart';
+        state.values = state.values || {}; state.sample = state.sample || {};
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    const tpl = () => TEMPLATES[state.template];
+    const vals = () => Object.assign({}, tpl().defaults, state.values[state.template] || {});
+
+    /* ---------------------------------------------------------------
+       FORM
+       --------------------------------------------------------------- */
+    function controlHTML(f, val) {
+        const id = 'pf-' + f.id;
+        const label = `<label class="form-label" for="${id}" style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:4px;">${esc(f.label)}</label>` + (f.hint ? `<p class="pf-hint">${esc(f.hint)}</p>` : '');
+        let ctl = '';
+        if (f.type === 'text') ctl = `<input type="text" class="pf-input" id="${id}" data-f="${f.id}" value="${esc(val)}" placeholder="${esc(f.ph || '')}" autocomplete="off">`;
+        else if (f.type === 'area') ctl = `<textarea class="pf-input" id="${id}" data-f="${f.id}" rows="${f.rows || 3}" placeholder="${esc(f.ph || '')}">${esc(val)}</textarea>`;
+        else if (f.type === 'iconsel') {
+            const cur = val || f.def;
+            ctl = `<select class="pf-input" id="${id}" data-f="${f.id}">${iconOpts.map(k => `<option value="${k}"${k === cur ? ' selected' : ''}>${esc(ICONS[k][0])}</option>`).join('')}</select>`;
+        } else if (f.type === 'icon') {
+            const cur = val || (tpl().defaults || {}).icon || 'flask';
+            ctl = `<div class="icon-picker" data-f="${f.id}" role="group" aria-label="${esc(f.label)}">${iconOpts.map(k => `<button type="button" class="icon-btn${k === cur ? ' on' : ''}" data-icon="${k}" title="${esc(ICONS[k][0])}" aria-label="${esc(ICONS[k][0])}" aria-pressed="${k === cur}">${iconSVG(k)}</button>`).join('')}</div><div class="icon-name">${esc(ICONS[cur][0])}</div>`;
+        }
+        return `<div class="pf-field">${label}${ctl}</div>`;
+    }
+
+    function buildForm() {
+        const t = tpl(), v = vals();
+        // Guide
+        $('poster-guide').innerHTML = `<details open><summary>📘 Guide: how to build this poster</summary><ul>${t.guide.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="pg-meta">${esc(t.guide.meta)}</p></details>`;
+        // Theme picker
+        const themes = `<div class="pf-field"><label class="form-label" style="display:block; font-weight:900; text-transform:uppercase; font-size:11px; margin-bottom:6px;">Color theme</label><div class="theme-picker" id="theme-picker">${Object.entries(THEMES).map(([k, th]) => `<button type="button" class="theme-btn${k === state.theme ? ' on' : ''}" data-theme="${k}"><span class="theme-dots"><i style="background:${th.pa}"></i><i style="background:${th.pb}"></i></span>${esc(th.name)}</button>`).join('')}</div></div>`;
+        // Fields (with group headings and half-width pairs)
+        let html = themes, group = null;
+        for (let i = 0; i < t.fields.length; i++) {
+            const f = t.fields[i];
+            if (f.group && f.group !== group) { group = f.group; html += `<h4 style="font-size:12px; text-transform:uppercase; font-weight:900; margin:6px 0 10px; padding-top:10px; border-top:2px dashed #ccc; color:var(--biostart-red);">${esc(group)}</h4>`; }
+            if (f.half && t.fields[i + 1] && t.fields[i + 1].half && !t.fields[i + 1].group) {
+                const g = t.fields[i + 1];
+                html += `<div class="form-row-2" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">${controlHTML(f, v[f.id])}${controlHTML(g, v[g.id])}</div>`;
+                i++;
+            } else html += controlHTML(f, v[f.id]);
+        }
+        $('poster-fields').innerHTML = html;
+        // Checklist
+        $('poster-checklist').innerHTML = `<details><summary>✅ Poster checklist <span class="pc-count" id="pc-count">0/${CHECKLIST.length}</span></summary>${CHECKLIST.map((c, i) => `<label><input type="checkbox" data-check="${i}"> ${esc(c)}</label>`).join('')}</details>`;
+        $('poster-active-label').textContent = t.label;
+    }
+
+    function buildTemplateCards() {
+        $('poster-template-grid').innerHTML = Object.entries(TEMPLATES).map(([k, t]) => `<div class="template-card${k === state.template ? ' selected' : ''}" data-tpl="${k}" tabindex="0" role="button"><div class="template-icon">${t.icon}</div><div class="template-title">${esc(t.label)}</div><div class="template-desc">${esc(t.desc)}</div></div>`).join('');
+    }
+
+    /* ---------------------------------------------------------------
+       RENDER
+       --------------------------------------------------------------- */
+    function wordCount(v) {
+        return tpl().fields.filter(f => (f.type === 'text' || f.type === 'area') && f.count !== false)
+            .reduce((n, f) => n + (String(v[f.id] || '').trim().split(/\s+/).filter(Boolean).length), 0);
+    }
+
+    function render() {
+        const t = tpl(), v = vals(), th = THEMES[state.theme];
+        const wrap = $('printable-poster');
+        wrap.className = 'poster-wrap ' + t.orient;
+        wrap.innerHTML = `<div class="poster ${t.orient}" style="--pa:${th.pa}; --pb:${th.pb}; --pc:${th.pc};">${t.render(v)}</div>`;
+        syncPageStyle();
+        // Word meter
+        const n = wordCount(v), [lo, hi] = t.words, meter = $('poster-meter');
+        meter.className = 'poster-meter poster-noprint' + (n > hi ? ' over' : n >= lo ? ' ok' : '');
+        $('pm-fill').style.width = Math.min(100, Math.round(n / hi * 100)) + '%';
+        $('pm-text').textContent = `${n} words · aim for ${lo}–${hi}` + (n > hi ? ' (too much text; trim it)' : n < lo ? ' (keep going)' : ' ✓');
+        // Overflow warning (content taller than one page)
+        requestAnimationFrame(() => {
+            const p = wrap.firstElementChild, ratio = t.orient === 'landscape' ? 11 / 8.5 : 8.5 / 11;
+            $('poster-overflow').hidden = !(p && p.offsetHeight > wrap.clientWidth / ratio * 1.02);
+        });
+    }
+
+    // Print page size follows the template's orientation
+    function syncPageStyle() {
+        let st = $('poster-page-style');
+        if (!st) { st = document.createElement('style'); st.id = 'poster-page-style'; document.head.appendChild(st); }
+        st.textContent = isPosterView() ? `@page { size: letter ${tpl().orient}; margin: 0.25in; }` : '';
+    }
+    const isPosterView = () => !$('create-poster').hidden;
+
+    /* ---------------------------------------------------------------
+       ACTIONS
+       --------------------------------------------------------------- */
+    function setValue(id, val) {
+        const k = state.template;
+        state.values[k] = Object.assign({}, state.values[k], { [id]: val });
+        state.sample[k] = false;      // user touched it, so it is no longer the untouched example
+        save(); render();
+    }
+
+    function selectTemplate(k) {
+        if (!TEMPLATES[k]) return;
+        state.template = k; save();
+        buildTemplateCards(); buildForm(); render();
+    }
+
+    function loadExample() {
+        const k = state.template, hasContent = Object.values(state.values[k] || {}).some(has);
+        if (hasContent && !confirm('Replace what you have written with the example poster?')) return;
+        state.values[k] = Object.assign({}, tpl().sample); state.sample[k] = true;
+        save(); buildForm(); render();
+    }
+
+    function clearPoster() {
+        const k = state.template;
+        if (Object.values(state.values[k] || {}).some(has) && !confirm('Clear everything on this poster?')) return;
+        state.values[k] = {}; state.sample[k] = false;
+        save(); buildForm(); render();
+    }
+
+    function printPoster() {
+        if (state.sample[state.template] && !confirm('This poster still has the example text and sample data. Print anyway?')) return;
+        render(); window.print();
+    }
+
+    function copyText() {
+        const v = vals(), out = [`${tpl().label.toUpperCase()}`, ''];
+        tpl().fields.forEach(f => { if ((f.type === 'text' || f.type === 'area') && has(v[f.id])) out.push(`${f.label}:\n${v[f.id]}\n`); });
+        const text = out.join('\n'), btn = $('poster-copy-btn');
+        const done = () => { const old = btn.textContent; btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = old, 1400); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => prompt('Copy your poster text:', text));
+        else prompt('Copy your poster text:', text);
+    }
+
+    /* ---------------------------------------------------------------
+       VIEW ROUTING (hub / resume / poster) via #hash
+       --------------------------------------------------------------- */
+    function showView(view) {
+        ['hub', 'resume', 'poster'].forEach(v => { const el = $('create-' + v); if (el) el.hidden = v !== view; });
+        document.title = ({ hub: 'Create', resume: 'Resume Builder', poster: 'Poster Lab' })[view] + ' - BIOSTART';
+        if (view === 'poster') { initPoster(); buildTemplateCards(); render(); }
+        else syncPageStyle();
+    }
+    function route() {
+        const h = location.hash.replace('#', '');
+        showView(h === 'resume' || h === 'poster' ? h : 'hub');
+        window.scrollTo(0, 0);
+    }
+
+    function initPoster() {
+        if (ready) return;
+        ready = true;
+        load(); buildTemplateCards(); buildForm();
+
+        $('poster-template-grid').addEventListener('click', e => { const c = e.target.closest('[data-tpl]'); if (c) selectTemplate(c.dataset.tpl); });
+        $('poster-template-grid').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const c = e.target.closest('[data-tpl]'); if (c) { e.preventDefault(); selectTemplate(c.dataset.tpl); } } });
+
+        const fields = $('poster-fields');
+        fields.addEventListener('input', e => { const el = e.target.closest('[data-f]'); if (el && !el.classList.contains('icon-picker')) setValue(el.dataset.f, el.value); });
+        fields.addEventListener('click', e => {
+            const ib = e.target.closest('.icon-btn');
+            if (ib) {
+                const picker = ib.parentNode;
+                picker.querySelectorAll('.icon-btn').forEach(b => { b.classList.toggle('on', b === ib); b.setAttribute('aria-pressed', b === ib); });
+                picker.nextElementSibling.textContent = ICONS[ib.dataset.icon][0];
+                setValue(picker.dataset.f, ib.dataset.icon);
+            }
+            const tb = e.target.closest('.theme-btn');
+            if (tb) {
+                state.theme = tb.dataset.theme; save();
+                $('theme-picker').querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('on', b === tb));
+                render();
+            }
+        });
+        $('poster-checklist').addEventListener('change', () => {
+            $('pc-count').textContent = `${$('poster-checklist').querySelectorAll('input:checked').length}/${CHECKLIST.length}`;
+        });
+        $('poster-example-btn').addEventListener('click', loadExample);
+        $('poster-clear-btn').addEventListener('click', clearPoster);
+        $('poster-print-btn').addEventListener('click', printPoster);
+        $('poster-copy-btn').addEventListener('click', copyText);
+    }
+
+    window.addEventListener('hashchange', route);
+    document.addEventListener('DOMContentLoaded', route);
+})();
