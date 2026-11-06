@@ -3013,3 +3013,524 @@ window.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('storage', soon);
     window.addEventListener('DOMContentLoaded', build);
 })();
+
+/* ==========================================================================
+   BIOSTART TUTORIAL
+   A skippable walkthrough that teaches a new student the first steps and shows
+   every feature and the useful materials. It opens by itself the first time
+   someone visits (after the splash screen), can be skipped at any step, and
+   can be reopened any time with the round "?" button in the corner.
+
+   HOW TO ADD: paste this whole file at the very end of script.js
+   (or save it as tutorial.js and load it after script.js).
+   It injects its own styles, so style.css does not need to change.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const KEY = 'biostart_tour';
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const here = () => (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    const getState = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
+    const putState = o => { try { localStorage.setItem(KEY, JSON.stringify(Object.assign(getState(), o))); } catch (e) { /* ignore */ } };
+    const profile = () => (typeof userProfile !== 'undefined' && userProfile) ? userProfile : {};
+    const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---------- small illustrations (built from HTML so they match the site) ---------- */
+    const V = {
+        welcome: `<div class="bt-vis bt-vis-welcome"><div class="bt-big">🔬</div><div class="bt-wl"><b>BIOSTART</b><span>Explore · Apply · Succeed</span></div></div>`,
+        survey: `<div class="bt-vis"><div class="bt-form">
+            <div><i>County</i><b>Morris</b></div><div><i>Town</i><b>Denville</b></div><div><i>Age</i><b>16</b></div>
+            <div><i>Location</i><b>In-state</b></div><div><i>Season</i><b>Summer</b></div><div><i>Level</i><b>High school</b></div>
+            <u>Submit &amp; generate my matches ►</u></div></div>`,
+        account: `<div class="bt-vis"><div class="bt-pill"><span class="bt-avatar">🧬</span> ALEX (DENVILLE) <em>♥ 5</em></div><p class="bt-cap">Your avatar, name and saved-item count</p></div>`,
+        timeline: `<div class="bt-vis"><div class="bt-track">
+            <i class="d"></i><s class="on"></s><i class="d"></i><s class="on"></s><i class="n"><span class="bt-avatar">🧬</span><em>Alex</em></i><s></s><i></i><s></s><i></i></div>
+            <div class="bt-tl-names"><span>Explore</span><span>Choose</span><span>Build</span><span>Prove it</span><span>Apply</span><span>Join a lab</span><span>Launch</span></div></div>`,
+        search: `<div class="bt-vis"><div class="bt-search">🔍 <span>rutgrs</span><kbd>/</kbd></div>
+            <div class="bt-sr"><div class="bt-did">Did you mean <b>Rutgers</b>?</div>
+            <div class="bt-hit"><i>🎓 College</i><b>Rutgers Biotechnology Program</b></div>
+            <div class="bt-hit"><i>🏆 Opportunity</i><b>Rutgers Aresty Research Program</b></div></div></div>`,
+        schools: `<div class="bt-vis">${card('MORRIS COUNTY ★ YOUR COUNTY', 'MCST Biotech Academy', 'Academy for Biotechnology at Morris County School of Technology in Denville.', 'View Details')}</div>`,
+        colleges: `<div class="bt-vis bt-two"><div class="bt-choice sel">🎓<b>FOR YOU</b><span>Matched to your survey</span></div><div class="bt-choice">🏛️<b>ALL COLLEGES</b><span>Browse everything</span></div></div>`,
+        jobs: `<div class="bt-vis">${card('IN-STATE (NJ) ★ NEAR YOU | INTERNSHIP', 'Bayer Student Internship Program', 'Minimum age: 18+ · Contact email listed on the card.', 'Apply Now')}</div>`,
+        opps: `<div class="bt-vis bt-four"><span>🔍 NSF REU</span><span>🧬 Pathways</span><span>📜 BACE</span><span>🛡️ CITI</span><span>🏆 Contests</span><span>🎓 Scholarships</span></div>`,
+        tracker: `<div class="bt-vis"><div class="bt-heart">♥</div><div class="bt-steps"><span>Interested</span><span>Applying</span><span class="on">Applied</span><span>Accepted 🎉</span></div><p class="bt-cap">Update the status on your account page</p></div>`,
+        resume: `<div class="bt-vis bt-doc"><div class="bt-docl"><div class="h"></div><div class="l w80"></div><div class="l w60"></div><div class="s"></div><div class="l"></div><div class="l w70"></div><div class="s"></div><div class="l w50"></div></div><div class="bt-tpls"><span class="on">Modern</span><span>Academic</span><span>Corporate</span><span>Compact</span></div></div>`,
+        poster: `<div class="bt-vis"><div class="bt-poster"><div class="ph"><b></b><i></i></div><div class="pc"><div></div><div class="mid"><em></em><em class="r"></em></div><div></div></div></div><div class="bt-tpls"><span class="on">Research</span><span>Explainer</span><span>Career</span><span>Safety</span></div></div>`,
+        kit: `<div class="bt-vis bt-four"><span>NSF REU</span><span>Pathways</span><span>BACE</span><span>CITI</span><span>Aresty</span><span>HOSA</span></div>`,
+        plan: `<div class="bt-vis bt-plan"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>`,
+        done: `<div class="bt-vis bt-vis-welcome"><div class="bt-big">🎉</div><div class="bt-wl"><b>You’re ready</b><span>Reopen this any time with the ? button</span></div></div>`
+    };
+    function card(tag, title, body, btn) {
+        return `<div class="bt-mcard"><span class="bt-mtag">${esc(tag)}</span><b>${esc(title)}</b><p>${esc(body)}</p><div><u>${esc(btn)}</u><i>♥</i></div></div>`;
+    }
+
+    /* ---------- the steps ---------- */
+    const KIT = [
+        ['NSF REU Directory', 'Funded summer research for undergraduates across the US.', 'https://www.nsf.gov/crssprgm/reu/reu_search.jsp'],
+        ['Pathways to Science', 'Paid STEM summer research, internships and scholarships.', 'https://www.pathwaystoscience.org/'],
+        ['Biotility BACE credential', 'Industry-recognized exam for entry-level lab roles (from age 14).', 'https://biotility.research.ufl.edu/bace/'],
+        ['CITI Responsible Conduct of Research', 'Lab-integrity course many university labs require (age 16+).', 'https://about.citiprogram.org/'],
+        ['Rutgers Aresty research program', 'Summer lab research for high schoolers at Rutgers (age 15+).', 'https://aresty.rutgers.edu/resources/research-opportunities-high-school-students'],
+        ['HOSA and TSA competitions', 'State and national biotech and health events.', 'https://hosa.org/competition/']
+    ];
+
+    const PLANS = {
+        'Middle School': ['Take the survey so BIOSTART knows your county and age.', 'On Vocational High Schools, heart three programs near you.', 'Write down any open-house dates and application deadlines.', 'Start a one-page activity list in the Resume Builder.', 'Open My timeline and read what “Explore” and “Choose” ask of you.'],
+        'High School': ['Take the survey so every page matches you.', 'Open My timeline and read the “Do next” list for your year.', 'In the Resume Builder, add your graduation date so the timeline places you exactly.', 'Heart two summer programs and a few colleges you could picture yourself at.', 'Look into BACE and CITI, and note which ones you can earn this year.'],
+        'College Undergrad': ['Take the survey and set your location and season preferences.', 'Fill in the Resume Builder with your research and lab skills.', 'Save internships on Internships & Jobs and set their status as you apply.', 'Browse the NSF REU Directory for summer research.', 'Open My timeline to see the “Join a lab” and “Launch” steps.']
+    };
+
+    const STEPS = [
+        { id: 'welcome', kicker: 'Welcome', title: 'Welcome to BIOSTART', vis: V.welcome,
+          body: () => `<p>BIOSTART brings New Jersey’s biotech school, college, job and competition options into one place, and shows you what to do next for where you are right now.</p>
+                <p>This quick tour (about three minutes) covers your <b>first steps</b>, every <b>feature</b>, and the <b>most useful materials</b>. You can skip at any time and reopen it later from the <b>?</b> button in the corner.</p>` },
+
+        { id: 'survey', kicker: 'First step', title: 'Take the survey first', vis: V.survey, target: 'nav a.nav-btn[href="survey.html"]',
+          body: () => `<p>The survey is the one thing that makes everything else personal. Tell us your <b>county, town, age, location preference, season</b> and <b>school level</b>.</p>
+                <ul><li>Schools, colleges, jobs and scholarships are sorted and filtered for you.</li>
+                <li>“For You” tabs unlock, and results marked <b>★ Your county</b> or <b>★ Near you</b> float to the top.</li>
+                <li>After you submit, we send you to the page that matters most for your level.</li></ul>
+                <p class="bt-note">You can retake it whenever something changes, like moving up a grade.</p>`,
+          cta: [{ href: 'survey.html', label: 'Take the survey now', primary: true }] },
+
+        { id: 'account', kicker: 'Your account', title: 'Your avatar and name', vis: V.account, target: 'header a.user-pill',
+          body: () => `<p>This is your account. Click it to <b>create your profile</b>, pick an <b>avatar</b>, and edit your age, town and preferences.</p>
+                <ul><li>The <b>♥ number</b> counts everything you’ve saved.</li>
+                <li>Your saved items and their application status live on the account page, under <b>My Saved Opportunities</b>.</li>
+                <li>Everything is stored in your own browser. Nothing is sent anywhere.</li></ul>`,
+          cta: [{ href: 'profile.html', label: 'Open my account' }] },
+
+        { id: 'timeline', kicker: 'Where am I?', title: 'My timeline: your path, with you on it', vis: V.timeline, target: '#tl-tab',
+          body: () => `<p><b>My timeline</b> shows seven stages from <i>Explore</i> in middle school to <i>Launch</i> in college, with your avatar and name sitting on the stage you’re in.</p>
+                <ul><li><b>How it knows:</b> from the graduation date on your resume (or your profile).</li>
+                <li><b>What it lists:</b> what you’re already doing, what to do next, and what’s finished, each with timing and a link.</li>
+                <li><b>It updates itself</b> from your resume and saved items, and you tick off the rest.</li>
+                <li>Click any stage to preview it, and see “Worth catching up on” for things you may have skipped.</li></ul>`,
+          fallbackBody: true },
+
+        { id: 'search', kicker: 'Find anything', title: 'Search the whole site', vis: V.search, target: '#site-search',
+          body: () => `<p>The search box finds <b>schools, colleges, internships, scholarships and tools</b> in one go.</p>
+                <ul><li>Press <kbd>/</kbd> (or <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd>) from anywhere to jump into it.</li>
+                <li>Typos are fixed for you: “rutgrs” suggests <b>Rutgers</b>.</li>
+                <li>Pick a result and the page scrolls to that exact card and highlights it.</li></ul>` },
+
+        { id: 'schools', kicker: 'For middle school students and parents', title: 'Vocational high schools', vis: V.schools, target: 'nav a.nav-btn[href="highschools.html"]',
+          body: () => `<p>Public CTE high schools across New Jersey with biotechnology programs, so students can start lab training years before college.</p>
+                <ul><li>Filter by <b>county</b> in the sidebar.</li>
+                <li>Your own county is marked <b>★ Your county</b>.</li>
+                <li>Each card links to the school’s own program page, so you can check eligibility and dates there.</li></ul>`,
+          cta: [{ href: 'highschools.html', label: 'See the schools' }] },
+
+        { id: 'colleges', kicker: 'For high school students', title: 'Colleges and universities', vis: V.colleges, target: 'nav a.nav-btn[href="colleges.html"]',
+          body: () => `<p>Biotech degree tracks from community college A.S. programs to research universities.</p>
+                <ul><li><b>For You</b> matches your survey (in-state, out-of-state, or both). <b>All colleges</b> shows everything.</li>
+                <li>Cards show <b>cost, acceptance and typical applicant age</b>, so you can compare quickly.</li>
+                <li>The banner at the top links to the NSF REU Directory and Pathways to Science for research beyond New Jersey.</li></ul>`,
+          cta: [{ href: 'colleges.html', label: 'Browse colleges' }] },
+
+        { id: 'jobs', kicker: 'Get experience', title: 'Internships and paid jobs', vis: V.jobs, target: 'nav a.nav-btn[href="jobs.html"]',
+          body: () => `<p>Labs, pharmacies, hospitals and companies that take students. Each card shows the <b>minimum age</b>, a <b>contact email</b> and an Apply button.</p>
+                <ul><li><b>For You</b> uses your age, location and the season you’re free.</li>
+                <li>Several roles start at 16; most company internships want 18.</li>
+                <li>If nothing matches your season exactly, we tell you and show the closest options.</li></ul>`,
+          cta: [{ href: 'jobs.html', label: 'See internships and jobs' }] },
+
+        { id: 'opps', kicker: 'Stand out', title: 'Scholarships, competitions and programs', vis: V.opps, target: 'nav a.nav-btn[href="opportunities.html"]',
+          body: () => `<p>Contests like <b>ISEF, BioGENEius, HOSA and TSA</b>, summer research such as <b>Rutgers Aresty</b>, scholarships like <b>Davidson Fellows</b>, plus credentials like <b>BACE</b> and <b>CITI</b>.</p>
+                <ul><li>The box at the top gathers the national research databases and industry credentials in one place.</li>
+                <li>Cards are filtered by your age after you take the survey.</li></ul>`,
+          cta: [{ href: 'opportunities.html', label: 'See opportunities' }] },
+
+        { id: 'tracker', kicker: 'Stay organized', title: 'Save with ♥ and track your applications', vis: V.tracker,
+          body: () => `<p>Tap the <b>♥</b> on any card to save it. Saved items collect on your account page.</p>
+                <ul><li>For each one, set a status: <b>Interested → Applying → Applied → Accepted</b>.</li>
+                <li>Your timeline reads those statuses, so steps like “Submit your applications” turn green on their own.</li>
+                <li>Un-save with the same heart any time.</li></ul>`,
+          cta: [{ href: 'profile.html', label: 'See my saved items' }] },
+
+        { id: 'resume', kicker: 'Create', title: 'The Resume Builder', vis: V.resume, target: 'nav a.nav-btn[href="resume.html"]',
+          body: () => `<p>Under <b>Create</b>, build a professional resume with a <b>live preview</b> that updates as you type.</p>
+                <ul><li>Four templates: <b>Modern Biotech, Academic &amp; Research, Industry Corporate, Compact Lab Specialist</b>.</li>
+                <li>Sections made for biotech: lab techniques, software and data skills, certifications, research experience, presentations.</li>
+                <li><b>Load sample data</b> to see a finished example, then clear it and write your own.</li>
+                <li>It <b>saves itself</b> in your browser. Print or save as PDF, or copy plain text for application forms.</li>
+                <li>Tip: add your <b>graduation date</b>, and My timeline will place you precisely.</li></ul>`,
+          cta: [{ href: 'resume.html#resume', label: 'Open the Resume Builder' }] },
+
+        { id: 'poster', kicker: 'Create', title: 'Poster Lab', vis: V.poster,
+          body: () => `<p>Design a clean one-page poster for a science fair, class presentation or club event.</p>
+                <ul><li>Four types: <b>Science Fair Research, Concept Explainer, Career Spotlight, Lab Safety Guide</b>.</li>
+                <li>A short <b>guide</b> for each, a library of lab graphics, four color themes and a <b>checklist</b> before you print.</li>
+                <li>A word meter warns you when there’s too much text.</li>
+                <li>Enter results as “Label: value” and it draws the bar chart for you.</li></ul>`,
+          cta: [{ href: 'resume.html#poster', label: 'Open Poster Lab' }] },
+
+        { id: 'kit', kicker: 'Useful materials', title: 'Your starter kit', vis: V.kit,
+          body: () => `<p>Free, trusted places to start. Each opens in a new tab:</p>
+                <ul class="bt-kit">${KIT.map(k => `<li><a href="${k[2]}" target="_blank" rel="noopener">${esc(k[0])}</a><span>${esc(k[1])}</span></li>`).join('')}</ul>` },
+
+        { id: 'plan', kicker: 'Your first week', title: 'Five things to do this week', vis: V.plan, plan: true,
+          body: () => '' },
+
+        { id: 'done', kicker: 'All set', title: 'You’re ready to go', vis: V.done,
+          body: () => `<p>That’s everything. A few reminders:</p>
+                <ul><li>Reopen this tutorial any time with the round <b>?</b> button in the corner.</li>
+                <li>Press <kbd>/</kbd> to search from any page.</li>
+                <li>Your timeline gets smarter the more you fill in your resume and save items.</li></ul>`,
+          cta: [{ href: 'survey.html', label: 'Take the survey', primary: true }] }
+    ];
+
+    /* ---------- styles (injected so style.css is untouched) ---------- */
+    const CSS = `
+.bt-launch{position:fixed;left:18px;bottom:18px;z-index:9000;display:flex;align-items:center;gap:8px;padding:9px 16px 9px 10px;background:var(--biostart-black,#0d0d0d);color:#fff;border:3px solid var(--biostart-red,#D93829);border-radius:30px;box-shadow:0 4px 0 rgba(0,0,0,.35);font:700 13px/1 var(--font-display,inherit);letter-spacing:.04em;cursor:pointer;transition:transform .15s,background .2s}
+.bt-launch:hover{background:var(--biostart-red,#D93829);transform:translateY(-2px)}
+.bt-launch:active{transform:translateY(1px)}
+.bt-launch i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;color:var(--biostart-red,#D93829);font:900 15px/1 var(--font-display,inherit);font-style:normal}
+.bt-launch.hide{display:none}
+.bt-root{position:fixed;inset:0;z-index:10050}
+.bt-block{position:absolute;inset:0;background:rgba(13,13,13,.72);animation:btFade .25s ease}
+.bt-root.spot .bt-block{background:transparent}
+.bt-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(13,13,13,.74),0 0 0 4px var(--biostart-red,#D93829);pointer-events:none;transition:top .3s,left .3s,width .3s,height .3s}
+.bt-card{position:fixed;width:min(640px,94vw);max-height:92vh;overflow:auto;background:#fff;color:var(--biostart-black,#0d0d0d);border:3px solid var(--biostart-black,#0d0d0d);border-radius:16px;box-shadow:0 7px 0 var(--biostart-black,#0d0d0d);animation:btPop .3s cubic-bezier(.2,1.2,.4,1)}
+.bt-card.center{top:50%;left:50%;transform:translate(-50%,-50%)}
+.bt-card.spot{width:min(430px,94vw)}
+.bt-card.sheet{left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;max-height:86vh;transform:none}
+@keyframes btPop{from{opacity:0;margin-top:12px}}
+@keyframes btFade{from{opacity:0}}
+.bt-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 18px;background:var(--biostart-black,#0d0d0d);color:#fff}
+.bt-kicker{font:700 12px/1.2 var(--font-display,inherit);letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.bt-kicker b{color:var(--biostart-red,#D93829);margin-right:8px}
+.bt-x{background:none;border:2px solid #555;color:#fff;border-radius:20px;padding:3px 12px;font:700 11px/1.4 var(--font-display,inherit);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.bt-x:hover{background:var(--biostart-red,#D93829);border-color:var(--biostart-red,#D93829)}
+.bt-bar{height:6px;background:#eee}
+.bt-bar i{display:block;height:100%;background:var(--biostart-red,#D93829);transition:width .35s}
+.bt-body{padding:20px 22px 6px}
+.bt-body h3{font:800 25px/1.1 var(--font-display,inherit);text-transform:uppercase;letter-spacing:.01em;margin:0 0 10px}
+.bt-card.spot .bt-body h3{font-size:21px}
+.bt-body p{font-size:14.5px;line-height:1.55;margin:0 0 10px;color:#222}
+.bt-body ul{margin:0 0 10px 18px;padding:0;font-size:14px;line-height:1.5;color:#222}
+.bt-body li{margin-bottom:5px}
+.bt-note{font-size:13px!important;color:#555!important;font-style:italic}
+.bt-body kbd,.bt-search kbd{display:inline-block;min-width:20px;padding:0 6px;text-align:center;font:700 12px/1.5 inherit;border:1.5px solid #555;border-bottom-width:3px;border-radius:5px;background:#f6f6f6;color:#222}
+.bt-cta{display:flex;flex-wrap:wrap;gap:8px;padding:2px 22px 4px}
+.bt-btn{display:inline-block;padding:10px 18px;background:var(--biostart-black,#0d0d0d);color:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:6px;font:700 13px/1 var(--font-display,inherit);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background .15s,transform .1s}
+.bt-btn:hover{background:var(--biostart-red,#D93829);border-color:var(--biostart-red,#D93829)}
+.bt-btn:active{transform:translateY(1px)}
+.bt-btn.primary{background:var(--biostart-red,#D93829);border-color:var(--biostart-black,#0d0d0d);box-shadow:0 3px 0 var(--biostart-black,#0d0d0d)}
+.bt-btn.ghost{background:#fff;color:var(--biostart-black,#0d0d0d)}
+.bt-btn.ghost:hover{background:var(--biostart-bg,#ffe9ec);color:var(--biostart-black,#0d0d0d);border-color:var(--biostart-black,#0d0d0d)}
+.bt-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 22px 18px;flex-wrap:wrap}
+.bt-dots{display:flex;gap:5px;flex-wrap:wrap}
+.bt-dots i{width:9px;height:9px;border-radius:50%;border:2px solid var(--biostart-black,#0d0d0d);background:#fff}
+.bt-dots i.on{background:var(--biostart-red,#D93829)}
+.bt-dots i.now{background:var(--biostart-black,#0d0d0d);transform:scale(1.25)}
+.bt-nav{display:flex;gap:8px;align-items:center}
+.bt-count{font:700 12px/1 var(--font-display,inherit);letter-spacing:.06em;color:#555;margin-right:4px}
+.bt-lvl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.bt-lvl button{padding:5px 12px;border:2px solid var(--biostart-black,#0d0d0d);border-radius:16px;background:#fff;font:700 12px/1.3 var(--font-display,inherit);letter-spacing:.04em;cursor:pointer}
+.bt-lvl button.on{background:var(--biostart-red,#D93829);color:#fff}
+.bt-plan-list{list-style:none;margin:0 0 10px!important;padding:0;counter-reset:p}
+.bt-plan-list li{counter-increment:p;position:relative;margin:0 0 8px;padding:8px 10px 8px 42px;border:2px solid var(--biostart-black,#0d0d0d);border-radius:10px;background:#fff}
+.bt-plan-list li::before{content:counter(p);position:absolute;left:9px;top:50%;margin-top:-12px;width:24px;height:24px;border-radius:50%;background:var(--biostart-red,#D93829);color:#fff;font:800 13px/24px var(--font-display,inherit);text-align:center}
+.bt-kit{list-style:none;margin-left:0!important}
+.bt-kit li{padding:7px 0;border-bottom:1px solid #e5e5e5;display:flex;flex-direction:column}
+.bt-kit a{font-weight:800;color:var(--biostart-red,#D93829);text-decoration:none}
+.bt-kit a:hover{text-decoration:underline}
+.bt-kit span{font-size:12.5px;color:#555}
+/* illustrations */
+.bt-vis{margin:0;padding:18px 22px;background:var(--biostart-bg,#ffe9ec);border-bottom:3px solid var(--biostart-black,#0d0d0d);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:12px}
+.bt-card.spot .bt-vis{padding:12px 16px}
+.bt-vis-welcome{flex-direction:row;justify-content:center;gap:18px}
+.bt-big{font-size:54px;line-height:1;width:92px;height:92px;display:grid;place-items:center;background:#EEB0A5;border:3px solid var(--biostart-black,#0d0d0d);border-radius:50%;box-shadow:0 4px 0 var(--biostart-black,#0d0d0d)}
+.bt-wl b{display:block;font:900 30px/1 var(--font-display,inherit);letter-spacing:.1em;text-transform:uppercase}
+.bt-wl span{font:700 12px/1.4 var(--font-display,inherit);letter-spacing:.1em;text-transform:uppercase;color:var(--biostart-red,#D93829)}
+.bt-form{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:420px}
+.bt-form div{background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:6px;padding:5px 8px}
+.bt-form i{display:block;font-style:normal;font-weight:700;font-size:9.5px;text-transform:uppercase;color:#666}
+.bt-form b{font-size:12.5px}
+.bt-form u{grid-column:1/-1;text-decoration:none;text-align:center;background:var(--biostart-red,#D93829);color:#fff;font-weight:800;padding:7px;border-radius:6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.bt-pill{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:20px;font-weight:700;font-size:12px}
+.bt-pill em{font-style:normal;background:var(--biostart-red,#D93829);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:900}
+.bt-avatar{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#eee;border:2px solid var(--biostart-red,#D93829);font-size:13px}
+.bt-cap{margin:0!important;font-size:12px!important;color:#555!important;font-weight:600}
+.bt-track{display:flex;align-items:center;width:100%;max-width:440px;padding-top:34px}
+.bt-track i{position:relative;flex:0 0 18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--biostart-black,#0d0d0d)}
+.bt-track i.d{background:var(--biostart-red,#D93829)}
+.bt-track i.n{background:var(--biostart-red,#D93829);box-shadow:0 0 0 5px #EEB0A5}
+.bt-track i.n .bt-avatar{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);box-shadow:0 2px 0 var(--biostart-black,#0d0d0d)}
+.bt-track i.n em{position:absolute;left:50%;bottom:55px;transform:translateX(-50%);background:var(--biostart-black,#0d0d0d);color:#fff;font-style:normal;font-weight:800;font-size:10px;padding:1px 8px;border-radius:9px}
+.bt-track s{flex:1;height:4px;background:repeating-linear-gradient(90deg,#0d0d0d 0 5px,transparent 5px 9px)}
+.bt-track s.on{background:var(--biostart-red,#D93829)}
+.bt-tl-names{display:flex;justify-content:space-between;width:100%;max-width:470px;font-size:9.5px;font-weight:700;color:#444}
+.bt-search{display:flex;align-items:center;gap:8px;width:100%;max-width:360px;background:#000;color:#fff;border:2px solid var(--biostart-red,#D93829);border-radius:10px;padding:7px 12px;font-weight:700}
+.bt-search span{flex:1}
+.bt-sr{width:100%;max-width:360px;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:8px;overflow:hidden}
+.bt-did{padding:6px 10px;background:var(--biostart-bg,#ffe9ec);border-bottom:2px solid var(--biostart-black,#0d0d0d);font-weight:700}
+.bt-hit{display:flex;gap:10px;padding:6px 10px;border-bottom:1px solid #eee}
+.bt-hit i{min-width:92px;font-style:normal;font-size:9.5px;font-weight:800;text-transform:uppercase;color:#555;padding-top:2px}
+.bt-hit b{font-size:11.5px}
+.bt-mcard{width:100%;max-width:360px;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:8px;box-shadow:0 4px 0 var(--biostart-black,#0d0d0d);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.bt-mtag{align-self:flex-start;background:var(--biostart-black,#0d0d0d);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px}
+.bt-mcard b{font-size:13.5px;text-transform:uppercase}
+.bt-mcard p{margin:0!important;font-size:11.5px!important;color:#444!important}
+.bt-mcard div{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.bt-mcard u{text-decoration:none;background:var(--biostart-black,#0d0d0d);color:#fff;font-size:10px;font-weight:800;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.bt-mcard i{font-style:normal;color:var(--biostart-red,#D93829);font-size:20px}
+.bt-two{flex-direction:row;gap:10px}
+.bt-choice{flex:1;max-width:190px;display:flex;flex-direction:column;gap:2px;background:#fff;border:3px solid var(--biostart-black,#0d0d0d);border-radius:10px;padding:10px;font-size:20px;box-shadow:0 4px 0 var(--biostart-black,#0d0d0d)}
+.bt-choice b{font-size:12px;font-weight:900}
+.bt-choice span{font-size:10.5px;color:#555}
+.bt-choice.sel{border-color:var(--biostart-red,#D93829);box-shadow:0 4px 0 var(--biostart-red,#D93829)}
+.bt-four{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
+.bt-four span{background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:20px;padding:6px 14px;font-weight:800;font-size:12px}
+.bt-heart{font-size:34px;color:var(--biostart-red,#D93829);line-height:1}
+.bt-steps{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.bt-steps span{background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:16px;padding:4px 12px;font-weight:800;font-size:11.5px}
+.bt-steps span.on{background:var(--biostart-red,#D93829);color:#fff}
+.bt-doc{flex-direction:row;align-items:center;gap:18px;justify-content:center}
+.bt-docl{width:130px;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);padding:10px;display:flex;flex-direction:column;gap:5px;box-shadow:0 3px 0 var(--biostart-black,#0d0d0d)}
+.bt-docl .h{height:9px;width:60%;background:var(--biostart-red,#D93829)}
+.bt-docl .l{height:4px;background:#bbb}.bt-docl .s{height:5px;width:35%;background:var(--biostart-black,#0d0d0d);margin-top:3px}
+.w80{width:80%}.w70{width:70%}.w60{width:60%}.w50{width:50%}
+.bt-tpls{display:flex;flex-direction:column;gap:5px}
+.bt-doc .bt-tpls{flex-direction:column}
+.bt-vis:not(.bt-doc) .bt-tpls{flex-direction:row;flex-wrap:wrap;justify-content:center}
+.bt-tpls span{background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:14px;padding:3px 12px;font-weight:800;font-size:11px}
+.bt-tpls span.on{background:var(--biostart-black,#0d0d0d);color:#fff}
+.bt-poster{width:230px;background:#fff;border:3px solid var(--biostart-black,#0d0d0d);box-shadow:0 4px 0 var(--biostart-black,#0d0d0d)}
+.bt-poster .ph{display:flex;justify-content:space-between;align-items:center;background:var(--biostart-red,#D93829);padding:8px;border-bottom:3px solid var(--biostart-black,#0d0d0d)}
+.bt-poster .ph b{width:90px;height:8px;background:#fff;display:block}.bt-poster .ph i{width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);display:block}
+.bt-poster .pc{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:5px;padding:6px;height:78px}
+.bt-poster .pc>div{border:2px solid var(--biostart-black,#0d0d0d);background:#fafafa}
+.bt-poster .mid{display:flex;align-items:flex-end;justify-content:space-around;padding:4px}
+.bt-poster em{display:block;width:12px;height:26px;background:var(--biostart-red,#D93829);border:1.5px solid var(--biostart-black,#0d0d0d)}.bt-poster em.r{height:42px;background:#EEB0A5}
+.bt-plan{flex-direction:row;gap:10px}
+.bt-plan span{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--biostart-red,#D93829);color:#fff;font:900 16px/1 var(--font-display,inherit);border:3px solid var(--biostart-black,#0d0d0d)}
+@media (max-width:640px){.bt-body h3{font-size:21px}.bt-vis-welcome{flex-direction:column}.bt-doc{flex-direction:column}.bt-foot{flex-direction:column-reverse;align-items:stretch}.bt-nav{justify-content:space-between}.bt-launch span{display:none}.bt-launch{padding:8px}}
+@media (prefers-reduced-motion:reduce){.bt-card,.bt-block{animation:none}.bt-hole,.bt-bar i{transition:none}}
+@media print{.bt-launch,.bt-root{display:none!important}}
+`;
+
+    /* ---------- the tour itself ---------- */
+    let root = null, launcher = null, idx = 0, planLevel = null, lastFocus = null;
+
+    function ensureLauncher() {
+        if (launcher) return;
+        launcher = document.createElement('button');
+        launcher.type = 'button';
+        launcher.className = 'bt-launch';
+        launcher.addEventListener('click', () => {
+            const st = getState();
+            start(st.status === 'paused' && typeof st.step === 'number' ? st.step : 0);
+        });
+        document.body.appendChild(launcher);
+        refreshLauncher();
+    }
+
+    function refreshLauncher() {
+        if (!launcher) return;
+        const st = getState();
+        const resume = st.status === 'paused' && typeof st.step === 'number' && st.step > 0 && st.step < STEPS.length;
+        launcher.innerHTML = '<i>?</i><span>' + (resume ? `Continue tutorial (${st.step + 1}/${STEPS.length})` : 'Tutorial') + '</span>';
+        launcher.setAttribute('aria-label', resume ? 'Continue the BIOSTART tutorial' : 'Open the BIOSTART tutorial');
+        launcher.classList.toggle('hide', !!root);
+    }
+
+    function visible(el) {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        const cs = getComputedStyle(el);
+        return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none';
+    }
+
+    function start(from) {
+        close(true);
+        lastFocus = document.activeElement;
+        idx = Math.max(0, Math.min(from || 0, STEPS.length - 1));
+        planLevel = null;
+        root = document.createElement('div');
+        root.className = 'bt-root';
+        root.setAttribute('role', 'dialog');
+        root.setAttribute('aria-modal', 'true');
+        root.setAttribute('aria-label', 'BIOSTART tutorial');
+        root.innerHTML = '<div class="bt-block"></div><div class="bt-hole" hidden></div><div class="bt-card center"></div>';
+        document.body.appendChild(root);
+        root.addEventListener('click', onClick);
+        document.addEventListener('keydown', onKey, true);
+        window.addEventListener('resize', reposition);
+        window.addEventListener('scroll', reposition, { passive: true });
+        refreshLauncher();
+        show(idx);
+    }
+
+    function close(silent) {
+        if (!root) return;
+        document.removeEventListener('keydown', onKey, true);
+        window.removeEventListener('resize', reposition);
+        window.removeEventListener('scroll', reposition);
+        root.remove();
+        root = null;
+        refreshLauncher();
+        if (!silent && lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) { /* ignore */ } }
+    }
+
+    function skip() {
+        putState({ status: 'skipped', step: idx });
+        close();
+        toast('Tutorial skipped. Reopen it any time with the ? button.');
+    }
+    function finish() {
+        putState({ status: 'done', step: STEPS.length - 1 });
+        close();
+        toast('Tutorial complete. Reopen it any time with the ? button.');
+    }
+    function toast(msg) {
+        if (typeof showSaveToast === 'function') {
+            showSaveToast(msg, false);
+            const icon = document.querySelector('#save-toast .toast-heart');
+            if (icon) icon.textContent = '✔';
+        }
+    }
+
+    function targetFor(step) {
+        if (!step.target) return null;
+        const el = document.querySelector(step.target);
+        return visible(el) ? el : null;
+    }
+
+    function show(i) {
+        idx = i;
+        putState({ status: 'paused', step: i });
+        const step = STEPS[i];
+        const card = root.querySelector('.bt-card');
+        const hole = root.querySelector('.bt-hole');
+        const target = targetFor(step);
+        const total = STEPS.length;
+        const pct = Math.round((i + 1) / total * 100);
+
+        // body (the plan step is personalised)
+        let bodyHTML = step.body();
+        if (step.plan) {
+            const lv = planLevel || (PLANS[profile().level] ? profile().level : 'High School');
+            planLevel = lv;
+            const names = { 'Middle School': 'Middle school', 'High School': 'High school', 'College Undergrad': 'College' };
+            bodyHTML = `<p>Pick where you are. These five steps get you moving fast:</p>
+                <div class="bt-lvl">${Object.keys(PLANS).map(k => `<button type="button" data-lvl="${k}" class="${k === lv ? 'on' : ''}">${names[k]}</button>`).join('')}</div>
+                <ol class="bt-plan-list">${PLANS[lv].map(t => `<li>${esc(t)}</li>`).join('')}</ol>`;
+        }
+
+        const onPage = c => here() === c.href.split('#')[0].toLowerCase() && (!c.href.includes('#') || location.hash === '#' + c.href.split('#')[1]);
+        const ctas = (step.cta || []).filter(c => !onPage(c)).map(c =>
+            `<a class="bt-btn${c.primary ? ' primary' : ' ghost'}" href="${c.href}" data-go="${c.href}">${esc(c.label)}</a>`).join('');
+        const dots = STEPS.map((s, n) => `<i class="${n === i ? 'now' : n < i ? 'on' : ''}"></i>`).join('');
+        const last = i === total - 1;
+
+        card.innerHTML = `
+            <div class="bt-top"><span class="bt-kicker"><b>${i === 0 ? '' : i + ' / ' + (total - 1)}</b>${esc(step.kicker)}</span><button type="button" class="bt-x" data-act="skip">Skip tutorial</button></div>
+            <div class="bt-bar" aria-hidden="true"><i style="width:${pct}%"></i></div>
+            ${step.vis}
+            <div class="bt-body"><h3>${esc(step.title)}</h3>${bodyHTML}</div>
+            ${ctas ? `<div class="bt-cta">${ctas}</div>` : ''}
+            <div class="bt-foot"><div class="bt-dots" aria-hidden="true">${dots}</div>
+                <div class="bt-nav">${i > 0 ? '<button type="button" class="bt-btn ghost" data-act="back">Back</button>' : ''}
+                <button type="button" class="bt-btn primary" data-act="${last ? 'finish' : 'next'}">${i === 0 ? 'Start the tour' : last ? 'Finish' : 'Next'}</button></div></div>`;
+
+        const spot = !!target;
+        root.classList.toggle('spot', spot);
+        card.classList.toggle('spot', spot);
+        card.classList.toggle('center', !spot);
+        card.classList.remove('sheet');
+        card.style.top = card.style.left = '';
+        card.scrollTop = 0;
+
+        if (spot) {
+            target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'auto' });
+            hole.hidden = false;
+        } else {
+            hole.hidden = true;
+        }
+        reposition();
+        const btn = card.querySelector('[data-act="next"], [data-act="finish"]');
+        if (btn) btn.focus({ preventScroll: true });
+        refreshLauncher();
+    }
+
+    function reposition() {
+        if (!root) return;
+        const step = STEPS[idx], card = root.querySelector('.bt-card'), hole = root.querySelector('.bt-hole');
+        const target = targetFor(step);
+        if (!target) { hole.hidden = true; card.classList.add('center'); card.classList.remove('spot', 'sheet'); root.classList.remove('spot'); return; }
+        const r = target.getBoundingClientRect(), pad = 6;
+        hole.hidden = false;
+        hole.style.top = (r.top - pad) + 'px';
+        hole.style.left = (r.left - pad) + 'px';
+        hole.style.width = (r.width + pad * 2) + 'px';
+        hole.style.height = (r.height + pad * 2) + 'px';
+        if (window.innerWidth < 640) { card.classList.remove('center'); card.classList.add('sheet'); card.style.top = card.style.left = ''; return; }
+        card.classList.remove('center', 'sheet');
+        const cw = card.offsetWidth, ch = card.offsetHeight, vw = window.innerWidth, vh = window.innerHeight, gap = 18;
+        let top = r.bottom + pad + gap;
+        if (top + ch > vh - 12) top = r.top - pad - gap - ch;
+        if (top < 12) top = Math.max(12, (vh - ch) / 2);
+        let left = r.left + r.width / 2 - cw / 2;
+        left = Math.max(12, Math.min(left, vw - cw - 12));
+        card.style.top = top + 'px';
+        card.style.left = left + 'px';
+    }
+
+    function onClick(e) {
+        const lv = e.target.closest('[data-lvl]');
+        if (lv) { planLevel = lv.dataset.lvl; show(idx); return; }
+        const go = e.target.closest('[data-go]');
+        if (go) {                                    // leaving for another page: remember where to pick up
+            putState({ status: 'paused', step: Math.min(idx + 1, STEPS.length - 1) });
+            return;                                  // let the link navigate
+        }
+        const act = e.target.closest('[data-act]');
+        if (!act) return;
+        const a = act.dataset.act;
+        if (a === 'next') show(Math.min(idx + 1, STEPS.length - 1));
+        else if (a === 'back') show(Math.max(idx - 1, 0));
+        else if (a === 'skip') skip();
+        else if (a === 'finish') finish();
+    }
+
+    function onKey(e) {
+        if (!root) return;
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); skip(); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); if (idx < STEPS.length - 1) show(idx + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); if (idx > 0) show(idx - 1); }
+        else if (e.key === 'Tab') {                  // keep keyboard focus inside the tutorial
+            const f = [...root.querySelectorAll('button, a[href]')].filter(el => el.offsetParent !== null);
+            if (!f.length) return;
+            const first = f[0], last = f[f.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    }
+
+    /* ---------- boot ---------- */
+    function whenReady(fn) {
+        const splash = document.getElementById('splash-overlay');
+        if (!splash || getComputedStyle(splash).display === 'none') { setTimeout(fn, 700); return; }
+        const t = setInterval(() => {                // wait until the splash screen is dismissed
+            if (getComputedStyle(splash).display === 'none') { clearInterval(t); setTimeout(fn, 500); }
+        }, 300);
+    }
+
+    function init() {
+        const style = document.createElement('style');
+        style.id = 'biostart-tour-css';
+        style.textContent = CSS;
+        document.head.appendChild(style);
+        ensureLauncher();
+        window.startBiostartTour = start;
+        const st = getState();
+        if (!st.status) whenReady(() => { if (!getState().status && !root) start(0); });   // first visit: offer it
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
