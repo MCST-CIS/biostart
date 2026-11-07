@@ -1220,6 +1220,7 @@ function renderSaved() {
     const allItems = [...HIGH_SCHOOLS, ...COLLEGES, ...JOBS, ...OPPORTUNITIES];
     const savedItems = allItems.filter(item => userProfile.savedIds.includes(item.id));
 
+    pruneCompare(savedItems);
     const firstPaint = savedShownIds === null;
     const prevIds = savedShownIds || [];
     savedShownIds = savedItems.map(i => i.id);
@@ -1234,7 +1235,7 @@ function renderSaved() {
         return;
     }
 
-    let html = '';
+    let html = compareBarHTML(savedItems);
     savedItems.forEach((item, i) => {
         const isNew = firstPaint || !prevIds.includes(item.id);
         const cls = isNew ? (firstPaint ? 'saved-in' : 'saved-in saved-new') : '';
@@ -1254,6 +1255,7 @@ function renderSaved() {
                 </div>
                 <div style="margin-top:10px;">
                     <div class="saved-open">View full details &rarr;</div>
+                    ${comparePickHTML(item, savedItems)}
                     <label style="font-size:10px; font-weight:800; text-transform:uppercase;">Application Tracker Status:</label><br>
                     <select class="resume-field" style="padding:6px; font-weight:bold; border:2px solid #000; width:100%; margin-top:4px;" onchange="updateSavedStatus('${item.id}', this.value)">
                         <option value="Interested" ${currentStatus === 'Interested' ? 'selected' : ''}>Interested</option>
@@ -1277,11 +1279,11 @@ function savedItemPageName(id) { return savedPageFor(id)[1]; }
 // Clicking anywhere on a saved card (except its heart, status dropdown or links) opens that item on its page
 document.addEventListener('click', e => {
     const card = e.target.closest && e.target.closest('.saved-card[data-href]');
-    if (!card || e.target.closest('.like-heart, select, label, a, button')) return;
+    if (!card || e.target.closest('.like-heart, select, label, input, a, button')) return;
     window.location.href = card.dataset.href;
 });
 document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter' || e.target.closest('select, a, button')) return;
+    if (e.key !== 'Enter' || e.target.closest('select, input, a, button')) return;
     const card = e.target.closest && e.target.closest('.saved-card[data-href]');
     if (card) window.location.href = card.dataset.href;
 });
@@ -1307,6 +1309,109 @@ function revealItemFromHash() {
     }, 250);
 }
 window.addEventListener('hashchange', revealItemFromHash);
+
+/* --- COMPARE SAVED SCHOOLS (2-3 colleges, or 2-3 high schools) --- */
+let compareIds = [];
+const COMPARE_MAX = 3;
+function compareType(id) { return String(id).startsWith('col') ? 'col' : (String(id).startsWith('hs') ? 'hs' : null); }
+function compareTypeLabel(t, plural) { return t === 'col' ? (plural ? 'colleges' : 'college') : (plural ? 'high schools' : 'high school'); }
+function savedCountOf(type, savedItems) { return savedItems.filter(i => compareType(i.id) === type).length; }
+
+function pruneCompare(savedItems) {
+    const ids = savedItems.map(i => i.id);
+    compareIds = compareIds.filter(id => ids.includes(id));
+    if (savedCountOf('col', savedItems) < 2) compareIds = compareIds.filter(id => compareType(id) !== 'col');
+    if (savedCountOf('hs', savedItems) < 2) compareIds = compareIds.filter(id => compareType(id) !== 'hs');
+}
+
+function compareCanPick(item, picked) {
+    if (picked) return true;
+    if (compareIds.length >= COMPARE_MAX) return false;
+    return !compareIds.length || compareType(compareIds[0]) === compareType(item.id);
+}
+
+function comparePickHTML(item, savedItems) {
+    const t = compareType(item.id);
+    if (!t || savedCountOf(t, savedItems) < 2) return '';
+    const picked = compareIds.includes(item.id);
+    return `<label class="compare-pick"><input type="checkbox" data-id="${item.id}" ${picked ? 'checked' : ''} ${compareCanPick(item, picked) ? '' : 'disabled'} onchange="toggleCompare('${item.id}', this.checked)"> ⚖️ Add to compare</label>`;
+}
+
+function compareBarHTML(savedItems) {
+    if (savedCountOf('col', savedItems) < 2 && savedCountOf('hs', savedItems) < 2) return '';
+    const n = compareIds.length;
+    const t = n ? compareType(compareIds[0]) : null;
+    let hint = 'Tick “Add to compare” on 2–3 saved colleges (or 2–3 saved high schools).';
+    if (n === 1) hint = `Pick at least one more ${compareTypeLabel(t)} (colleges and high schools are compared separately).`;
+    if (n >= 2) hint = `${n} ${compareTypeLabel(t, true)} selected${n < COMPARE_MAX ? ' – you can add one more' : ''}.`;
+    return `<div id="compare-bar" class="compare-bar"><div><strong>⚖️ Compare schools</strong><span>${hint}</span></div>` +
+           `<button type="button" class="btn-action" ${n < 2 ? 'disabled' : ''} onclick="openCompare()">Compare ${n >= 2 ? n + ' ' : ''}&#9658;</button></div>`;
+}
+
+function toggleCompare(id, on) {
+    const at = compareIds.indexOf(id);
+    if (on && at === -1) {
+        const item = findSavedItem(id);
+        if (item && compareCanPick(item, false)) compareIds.push(id);
+    } else if (!on && at !== -1) {
+        compareIds.splice(at, 1);
+    }
+    refreshCompareUI();
+}
+
+function refreshCompareUI() {
+    const all = [...HIGH_SCHOOLS, ...COLLEGES].filter(i => userProfile.savedIds.includes(i.id));
+    const bar = document.getElementById('compare-bar');
+    if (bar) bar.outerHTML = compareBarHTML(all);
+    document.querySelectorAll('.compare-pick input').forEach(box => {
+        const item = findSavedItem(box.dataset.id);
+        const picked = compareIds.includes(box.dataset.id);
+        box.checked = picked;
+        box.disabled = !(item && compareCanPick(item, picked));
+    });
+}
+
+function compareCell(v) { return v ? v : '<span class="compare-na">Not listed</span>'; }
+
+function openCompare() {
+    const items = compareIds.map(findSavedItem).filter(Boolean);
+    if (items.length < 2) return;
+    const isCol = compareType(items[0].id) === 'col';
+    const rows = isCol ? [
+        ['Location', c => c.location],
+        ['In-state / out-of-state', c => c.isNJ ? 'In-state (NJ)' : 'Out-of-state'],
+        ['Cost', c => c.cost],
+        ['Acceptance', c => c.acceptance],
+        ['Typical applicant age', c => c.ageMin ? c.ageMin + '+' : ''],
+        ['About', c => c.notes],
+    ] : [
+        ['County', h => h.county ? h.county + ' County' : ''],
+        ['Town', h => h.town],
+        ['Minimum age', h => h.ageMin ? h.ageMin + '+' : ''],
+        ['About', h => h.notes],
+    ];
+    const head = items.map(i => `<th scope="col"><div class="compare-school">${logoHTML(i, true)}<span>${i.name}</span></div></th>`).join('');
+    const body = rows.map(([label, fn]) => `<tr><th scope="row">${label}</th>${items.map(i => `<td>${compareCell(fn(i))}</td>`).join('')}</tr>`).join('');
+    const links = `<tr><th scope="row">Links</th>${items.map(i => `<td><a href="${i.url}" target="_blank" rel="noopener" class="btn-action-sm">Official site 🔗</a><br><a href="${savedItemHref(i.id)}" class="compare-link">Open in BIOSTART</a></td>`).join('')}</tr>`;
+    const note = isCol ? '<p class="compare-note">Costs and acceptance rates are shown as listed on each card. “Before aid” means the sticker price before scholarships and financial aid; check each school’s own net price calculator for your real cost.</p>' : '';
+
+    let ov = document.getElementById('compare-overlay');
+    if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'compare-overlay';
+        ov.className = 'modal-overlay';
+        ov.addEventListener('click', e => { if (e.target === ov) closeCompare(); });
+        document.body.appendChild(ov);
+    }
+    ov.innerHTML = `<div class="modal-card compare-card" role="dialog" aria-modal="true" aria-label="Compare schools">
+        <span class="modal-close" onclick="closeCompare()" aria-label="Close">&times;</span>
+        <h3 class="compare-title">Compare ${compareTypeLabel(compareType(items[0].id), true)}</h3>
+        <div class="compare-scroll"><table class="compare-table"><thead><tr><th></th>${head}</tr></thead><tbody>${body}${links}</tbody></table></div>
+        ${note}</div>`;
+    ov.style.display = 'flex';
+}
+function closeCompare() { const ov = document.getElementById('compare-overlay'); if (ov) ov.style.display = 'none'; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompare(); });
 
 /* --- MODAL DIALOG --- */
 function openModal(title, text, url) {
@@ -3097,6 +3202,7 @@ window.addEventListener('DOMContentLoaded', () => {
         jobs: `<div class="bt-vis">${card('IN-STATE (NJ) ★ NEAR YOU | INTERNSHIP', 'Bayer Student Internship Program', 'Minimum age: 18+ · Contact email listed on the card.', 'Apply Now')}</div>`,
         opps: `<div class="bt-vis bt-four"><span>🔍 NSF REU</span><span>🧬 Pathways</span><span>📜 BACE</span><span>🛡️ CITI</span><span>🏆 Contests</span><span>🎓 Scholarships</span></div>`,
         tracker: `<div class="bt-vis"><div class="bt-heart">♥</div><div class="bt-steps"><span>Interested</span><span>Applying</span><span class="on">Applied</span><span>Accepted 🎉</span></div><p class="bt-cap">Update the status on your account page</p></div>`,
+        badges: `<div class="bt-vis"><div class="bt-medals"><span><i>♥</i>First save</span><span><i>📑</i>Resume 50%</span><span><i>🧪</i>Lab ready</span><span class="off"><i>🔒</i>Accepted!</span></div><p class="bt-cap">Confetti for big moments, badges for steady progress</p></div>`,
         resume: `<div class="bt-vis bt-doc"><div class="bt-docl"><div class="h"></div><div class="l w80"></div><div class="l w60"></div><div class="s"></div><div class="l"></div><div class="l w70"></div><div class="s"></div><div class="l w50"></div></div><div class="bt-tpls"><span class="on">Modern</span><span>Academic</span><span>Corporate</span><span>Compact</span></div></div>`,
         poster: `<div class="bt-vis"><div class="bt-poster"><div class="ph"><b></b><i></i></div><div class="pc"><div></div><div class="mid"><em></em><em class="r"></em></div><div></div></div></div><div class="bt-tpls"><span class="on">Research</span><span>Explainer</span><span>Career</span><span>Safety</span></div></div>`,
         kit: `<div class="bt-vis bt-four"><span>NSF REU</span><span>Pathways</span><span>BACE</span><span>CITI</span><span>Aresty</span><span>HOSA</span></div>`,
@@ -3191,6 +3297,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 <li>Un-save with the same heart any time.</li></ul>`,
           cta: [{ href: 'profile.html', label: 'See my saved items' }] },
 
+        { id: 'badges', kicker: 'Little wins', title: 'Badges and celebrations', vis: V.badges,
+          body: () => `<p>BIOSTART quietly cheers you on. You’ll earn <b>badges</b> as you make progress, like <b>First save</b>, <b>Resume 50% complete</b>, <b>Lab ready</b> and <b>Accepted!</b></p>
+                <ul><li>A small toast appears the moment you earn one.</li>
+                <li><b>Confetti</b> fires when you mark an item <b>Accepted</b> and when you finish every step of a timeline stage.</li>
+                <li>Your whole collection, with hints for the locked ones, sits at the bottom of your account page.</li>
+                <li>Finishing this tutorial earns you your first badge.</li></ul>`,
+          cta: [{ href: 'profile.html', label: 'See my badges' }] },
+
         { id: 'resume', kicker: 'Create', title: 'The Resume Builder', vis: V.resume, target: 'nav a.nav-btn[href="resume.html"]',
           body: () => `<p>Under <b>Create</b>, build a professional resume with a <b>live preview</b> that updates as you type.</p>
                 <ul><li>Four templates: <b>Modern Biotech, Academic &amp; Research, Industry Corporate, Compact Lab Specialist</b>.</li>
@@ -3219,7 +3333,8 @@ window.addEventListener('DOMContentLoaded', () => {
           body: () => `<p>That’s everything. A few reminders:</p>
                 <ul><li>Reopen this tutorial any time with the round <b>?</b> button in the corner.</li>
                 <li>Press <kbd>/</kbd> to search from any page.</li>
-                <li>Your timeline gets smarter the more you fill in your resume and save items.</li></ul>`,
+                <li>Your timeline gets smarter the more you fill in your resume and save items.</li>
+                <li>Check your account page now and then to see which badges you’ve earned.</li></ul>`,
           cta: [{ href: 'survey.html', label: 'Take the survey', primary: true }] }
     ];
 
@@ -3347,6 +3462,11 @@ window.addEventListener('DOMContentLoaded', () => {
 .bt-poster .pc>div{border:2px solid var(--biostart-black,#0d0d0d);background:#fafafa}
 .bt-poster .mid{display:flex;align-items:flex-end;justify-content:space-around;padding:4px}
 .bt-poster em{display:block;width:12px;height:26px;background:var(--biostart-red,#D93829);border:1.5px solid var(--biostart-black,#0d0d0d)}.bt-poster em.r{height:42px;background:#EEB0A5}
+.bt-medals{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.bt-medals span{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:84px;padding:8px 8px 6px;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:10px;box-shadow:0 3px 0 var(--biostart-black,#0d0d0d);font-weight:800;font-size:11px}
+.bt-medals i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#EEB0A5;border:3px solid var(--biostart-red,#D93829);color:var(--biostart-red,#D93829);font-style:normal;font-size:16px}
+.bt-medals span.off{border-style:dashed;border-color:#aaa;box-shadow:none;color:#777}
+.bt-medals span.off i{background:#eee;border-color:#bbb;filter:grayscale(1)}
 .bt-plan{flex-direction:row;gap:10px}
 .bt-plan span{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--biostart-red,#D93829);color:#fff;font:900 16px/1 var(--font-display,inherit);border:3px solid var(--biostart-black,#0d0d0d)}
 @media (max-width:640px){.bt-body h3{font-size:21px}.bt-vis-welcome{flex-direction:column}.bt-doc{flex-direction:column}.bt-foot{flex-direction:column-reverse;align-items:stretch}.bt-nav{justify-content:space-between}.bt-launch span{display:none}.bt-launch{padding:8px}}
@@ -3424,6 +3544,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     function finish() {
         putState({ status: 'done', step: STEPS.length - 1 });
+        try { window.dispatchEvent(new CustomEvent('biostart:progress')); } catch (e) { /* ignore */ }   // lets the badge system notice
         close();
         toast('Tutorial complete. Reopen it any time with the ? button.');
     }
@@ -3572,6 +3693,338 @@ window.addEventListener('DOMContentLoaded', () => {
         if (!st.status) whenReady(() => { if (!getState().status && !root) start(0); });   // first visit: offer it
     }
 
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
+
+/* ==========================================================================
+   BIOSTART MILESTONE MOMENTS
+   - Confetti when you mark an item "Accepted" and when you finish every step
+     of a timeline stage.
+   - Gentle badge toasts ("First save", "Resume 50% complete", ...) the moment
+     you earn one, and a "My badges" shelf on the account page.
+
+   HOW TO ADD: paste this whole file at the very end of script.js (after the
+   tutorial). It injects its own styles, so style.css does not change.
+   Everything is stored in this browser only.
+   ========================================================================== */
+(function () {
+    'use strict';
+
+    const KEY = 'biostart_milestones';
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const profile = () => (typeof userProfile !== 'undefined' && userProfile) ? userProfile : {};
+
+    /* ---------- stored state: which badges are earned, which stages were celebrated ---------- */
+    function load() {
+        try { const o = JSON.parse(localStorage.getItem(KEY)); if (o && typeof o === 'object') return Object.assign({ badges: {}, stages: {}, base: false }, o); } catch (e) { /* ignore */ }
+        return { badges: {}, stages: {}, base: false };
+    }
+    function save(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* ignore */ } }
+
+    /* ---------- reading the student's data ---------- */
+    function resumeFields() {
+        const out = {};
+        try {
+            if (document.getElementById('printable-resume')) {
+                if (typeof resumeIsSample === 'undefined' || !resumeIsSample) {
+                    RESUME_FIELD_IDS.forEach(id => { const el = document.getElementById(id); out[id] = el ? (el.value || '').trim() : ''; });
+                }
+            } else {
+                const d = JSON.parse(localStorage.getItem('biostart_resumeDraft'));
+                if (d && d.fields && !d.sample) Object.keys(d.fields).forEach(k => { out[k] = String(d.fields[k] || '').trim(); });
+            }
+        } catch (e) { /* treat as empty */ }
+        return out;
+    }
+
+    function context() {
+        const p = profile(), r = resumeFields(), g = id => r[id] || '';
+        const ids = Array.isArray(p.savedIds) ? p.savedIds : [];
+        const prog = p.progress || {};
+        const inList = (list, id) => (typeof list !== 'undefined') && list.some(i => i.id === id);
+        const cats = new Set();
+        ids.forEach(id => {
+            if (inList(typeof HIGH_SCHOOLS !== 'undefined' ? HIGH_SCHOOLS : [], id)) cats.add('hs');
+            if (inList(typeof COLLEGES !== 'undefined' ? COLLEGES : [], id)) cats.add('col');
+            if (inList(typeof JOBS !== 'undefined' ? JOBS : [], id)) cats.add('job');
+            if (inList(typeof OPPORTUNITIES !== 'undefined' ? OPPORTUNITIES : [], id)) cats.add('opp');
+        });
+        const sections = [
+            !!(g('res-name') && g('res-email')), !!g('res-summary'), !!g('res-school'), !!g('res-courses'),
+            !!g('res-labskills'), !!g('res-softskills'), !!g('res-certs'), !!(g('res-job-title') || g('res-job-org')),
+            !!g('res-proj-title'), !!g('res-honors'), !!g('res-pub-title')
+        ];
+        const certs = g('res-certs').toLowerCase();
+        let tour = {};
+        try { tour = JSON.parse(localStorage.getItem('biostart_tour')) || {}; } catch (e) { /* ignore */ }
+        const st = load();
+        return {
+            saved: ids.length, cats,
+            survey: !!p.surveyCompleted, named: !!p.name,
+            sec: sections.filter(Boolean).length,
+            labN: g('res-labskills').split(/[,;\n•|]+/).map(x => x.trim()).filter(x => x.length > 1).length,
+            cred: /bace|biotility|citi|responsible conduct|rcr/.test(certs),
+            applied: ids.filter(i => prog[i] === 'Applied' || prog[i] === 'Accepted').length,
+            accepted: ids.filter(i => prog[i] === 'Accepted').length,
+            stages: Object.keys(st.stages).filter(k => st.stages[k] === 'celebrated').length,
+            tourDone: tour.status === 'done'
+        };
+    }
+
+    /* ---------- the badges ---------- */
+    const BADGES = [
+        { id: 'survey', icon: '📝', name: 'On the map', desc: 'Took the survey', hint: 'Take the survey', test: c => c.survey },
+        { id: 'profile', icon: '🧬', name: 'Made it personal', desc: 'Created your profile', hint: 'Create your account profile', test: c => c.named },
+        { id: 'tour', icon: '🧭', name: 'Know your way around', desc: 'Finished the tutorial', hint: 'Finish the tutorial', test: c => c.tourDone },
+        { id: 'save1', icon: '♥', name: 'First save', desc: 'Saved your first item', hint: 'Tap a ♥ on any card', test: c => c.saved >= 1 },
+        { id: 'save5', icon: '📌', name: 'Collector', desc: 'Saved 5 items', hint: 'Save 5 items', test: c => c.saved >= 5 },
+        { id: 'round', icon: '🧩', name: 'Well rounded', desc: 'Saved a school, college, job and opportunity', hint: 'Save one of each kind', test: c => c.cats.size >= 4 },
+        { id: 'res1', icon: '📄', name: 'Resume started', desc: 'Filled in 3 resume sections', hint: 'Fill in 3 resume sections', test: c => c.sec >= 3 },
+        { id: 'res50', icon: '📑', name: 'Resume 50% complete', desc: 'Half your resume sections are filled', hint: 'Fill in 6 of 11 resume sections', test: c => c.sec >= 6 },
+        { id: 'res100', icon: '🏅', name: 'Resume complete', desc: 'Every resume section has content', hint: 'Fill in all 11 resume sections', test: c => c.sec >= 11 },
+        { id: 'lab5', icon: '🧪', name: 'Lab ready', desc: 'Listed 5 lab techniques', hint: 'List 5 lab techniques on your resume', test: c => c.labN >= 5 },
+        { id: 'cred', icon: '📜', name: 'Credentialed', desc: 'Added BACE or CITI to your resume', hint: 'Earn BACE or CITI and list it', test: c => c.cred },
+        { id: 'applied', icon: '✉️', name: 'Application sent', desc: 'Marked something as Applied', hint: 'Set a saved item to Applied', test: c => c.applied >= 1 },
+        { id: 'accepted', icon: '🎉', name: 'Accepted!', desc: 'Marked something as Accepted', hint: 'Set a saved item to Accepted', test: c => c.accepted >= 1 },
+        { id: 'stage', icon: '🚩', name: 'Stage cleared', desc: 'Finished every step of a timeline stage', hint: 'Complete a whole timeline stage', test: c => c.stages >= 1 }
+    ];
+
+    /* ---------- confetti ---------- */
+    const COLORS = ['#D93829', '#0d0d0d', '#EEB0A5', '#F6D5CE', '#f5b700', '#ffffff'];
+    let confettiCanvas = null, confettiRaf = 0, parts = [];
+
+    function confetti(kind, origin) {
+        if (reduced()) return;
+        if (!confettiCanvas) {
+            confettiCanvas = document.createElement('canvas');
+            confettiCanvas.className = 'bm-confetti';
+            confettiCanvas.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(confettiCanvas);
+        }
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const W = window.innerWidth, H = window.innerHeight;
+        confettiCanvas.width = W * dpr; confettiCanvas.height = H * dpr;
+        confettiCanvas.style.width = W + 'px'; confettiCanvas.style.height = H + 'px';
+        const ctx = confettiCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const add = (x, y, n, angle, spread, speed) => {
+            for (let i = 0; i < n; i++) {
+                const a = angle + rnd(-spread, spread), s = rnd(speed * 0.5, speed);
+                parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, w: rnd(6, 11), h: rnd(4, 7), rot: rnd(0, 6.28), vr: rnd(-0.3, 0.3), tilt: rnd(0, 6.28), vt: rnd(0.08, 0.25), c: COLORS[Math.floor(Math.random() * COLORS.length)], life: 0, max: rnd(110, 190), round: Math.random() < 0.2 });
+            }
+        };
+        const o = origin || { x: W / 2, y: H * 0.55 };
+        if (kind === 'stage') {                       // two cannons from the bottom corners
+            add(0, H, 90, -Math.PI / 3, 0.35, 22);
+            add(W, H, 90, -2 * Math.PI / 3, 0.35, 22);
+            setTimeout(() => { add(W * 0.25, H, 40, -Math.PI / 2, 0.5, 20); add(W * 0.75, H, 40, -Math.PI / 2, 0.5, 20); }, 260);
+        } else if (kind === 'small') {
+            add(o.x, o.y, 26, -Math.PI / 2, 0.9, 9);
+        } else {                                      // 'burst' from the element that was clicked
+            add(o.x, o.y, 120, -Math.PI / 2, Math.PI * 0.8, 16);
+        }
+        if (!confettiRaf) confettiRaf = requestAnimationFrame(function tick() {
+            ctx.clearRect(0, 0, W, H);
+            parts = parts.filter(p => p.life < p.max && p.y < H + 40);
+            parts.forEach(p => {
+                p.life++; p.vy += 0.42; p.vx *= 0.985; p.vy *= 0.985;
+                p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.tilt += p.vt;
+                ctx.save();
+                ctx.globalAlpha = Math.min(1, (p.max - p.life) / 40);
+                ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.scale(1, Math.cos(p.tilt));
+                ctx.fillStyle = p.c;
+                if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.h / 1.3, 0, 6.28); ctx.fill(); }
+                else { ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); if (p.c === '#ffffff') { ctx.strokeStyle = '#0d0d0d'; ctx.lineWidth = 0.8; ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h); } }
+                ctx.restore();
+            });
+            if (parts.length) confettiRaf = requestAnimationFrame(tick);
+            else { confettiRaf = 0; ctx.clearRect(0, 0, W, H); if (confettiCanvas) { confettiCanvas.remove(); confettiCanvas = null; } }
+        });
+    }
+
+    /* ---------- toasts ---------- */
+    let toastBox = null;
+    function toast(icon, title, text, ms) {
+        if (!toastBox) {
+            toastBox = document.createElement('div');
+            toastBox.className = 'bm-toasts';
+            toastBox.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toastBox);
+        }
+        const t = document.createElement('div');
+        t.className = 'bm-toast';
+        t.innerHTML = `<span class="bm-ico">${esc(icon)}</span><span class="bm-txt"><b>${esc(title)}</b>${text ? `<span>${esc(text)}</span>` : ''}</span>`;
+        while (toastBox.children.length >= 3) toastBox.firstChild.remove();
+        toastBox.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('in'));
+        setTimeout(() => { t.classList.remove('in'); setTimeout(() => t.remove(), 400); }, ms || 4200);
+        return t;
+    }
+
+    function itemName(id) {
+        try { const it = (typeof findSavedItem === 'function') ? findSavedItem(id) : null; return it ? it.name : 'your application'; } catch (e) { return 'your application'; }
+    }
+
+    /* ---------- badges: evaluate, announce, shelf ---------- */
+    function evaluate(announce) {
+        const st = load(), c = context(), fresh = [];
+        BADGES.forEach(b => { if (!st.badges[b.id] && b.test(c)) { st.badges[b.id] = Date.now(); fresh.push(b); } });
+        const firstRun = !st.base;
+        st.base = true;
+        save(st);
+        if (fresh.length) {
+            if (announce && !firstRun) announceBadges(fresh);   // a first run only records what you had already earned
+            renderShelf();
+        }
+        return fresh;
+    }
+
+    let acceptedAt = 0;
+    function announceBadges(list) {
+        if (Date.now() - acceptedAt < 2500) list = list.filter(b => b.id !== 'accepted' && b.id !== 'applied');
+        if (!list.length) return;
+        if (list.length === 1) {
+            const b = list[0];
+            const t = toast(b.icon, 'New badge: ' + b.name, b.desc);
+            const r = t.getBoundingClientRect();
+            confetti('small', { x: window.innerWidth / 2, y: Math.max(80, window.innerHeight - 110) });
+        } else {
+            toast('🏅', list.length + ' new badges', list.map(b => b.name).join(', '), 5600);
+            confetti('small', { x: window.innerWidth / 2, y: Math.max(80, window.innerHeight - 110) });
+        }
+    }
+
+    function renderShelf() {
+        const grid = document.getElementById('saved-grid');   // the saved-items list on the account page
+        if (!grid) return;                                      // the shelf lives on the account page only
+        let shelf = document.getElementById('bm-shelf');
+        if (!shelf) {
+            shelf = document.createElement('section');
+            shelf.id = 'bm-shelf';
+            shelf.className = 'bm-shelf';
+            grid.insertAdjacentElement('afterend', shelf);      // below My Saved Opportunities
+        }
+        const st = load();
+        const earned = BADGES.filter(b => st.badges[b.id]);
+        const fmt = ts => { try { return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return ''; } };
+        shelf.innerHTML = `<h3>My badges <span class="bm-count">${earned.length} of ${BADGES.length}</span></h3>
+            <ul class="bm-grid">${BADGES.map(b => {
+                const on = !!st.badges[b.id];
+                return `<li class="${on ? 'on' : 'off'}" title="${esc(on ? b.desc : b.hint)}"><span class="bm-medal">${on ? esc(b.icon) : '🔒'}</span><b>${esc(b.name)}</b><span>${on ? 'Earned ' + esc(fmt(st.badges[b.id])) : esc(b.hint)}</span></li>`;
+            }).join('')}</ul>`;
+    }
+
+    /* ---------- "Accepted!" ---------- */
+    function celebrateAccepted(id) {
+        acceptedAt = Date.now();
+        const ae = document.activeElement;
+        let origin = null;
+        if (ae && ae.getBoundingClientRect && ae !== document.body) { const r = ae.getBoundingClientRect(); origin = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+        confetti('burst', origin);
+        toast('🎉', 'Accepted!', itemName(id) + '. Congratulations!', 5200);
+    }
+
+    /* ---------- "Stage complete" (watches the My timeline tab) ---------- */
+    let prev = null;
+    function readTab() {
+        const el = document.querySelector('#tl-tab .tl-tab-sub');
+        if (!el) return null;
+        const m = /^(.*?)\s*·\s*(\d+)\s*(?:of|\/)\s*(\d+)/.exec(el.textContent.trim());
+        return m ? { label: m[1].trim(), done: +m[2], total: +m[3] } : null;
+    }
+    function checkStage() {
+        const now = readTab();
+        if (!now || !now.total) return;
+        const st = load();
+        const complete = now.done === now.total;
+        if (prev && prev.label === now.label && prev.done < prev.total && complete && !st.stages[now.label]) {
+            st.stages[now.label] = 'celebrated';
+            save(st);
+            confetti('stage');
+            toast('🚩', 'Stage complete!', `You finished every step of ${now.label}.`, 6000);
+            evaluate(true);
+        } else if (complete && !st.stages[now.label]) {
+            st.stages[now.label] = 'seen';                    // already complete when we first looked: no fanfare
+            save(st);
+        }
+        prev = now;
+    }
+    function watchTimeline() {
+        let tries = 0;
+        const t = setInterval(() => {
+            const el = document.querySelector('#tl-tab .tl-tab-sub');
+            if (el) {
+                clearInterval(t);
+                new MutationObserver(checkStage).observe(el, { childList: true, characterData: true, subtree: true });
+                setTimeout(checkStage, 400);
+            } else if (++tries > 25) clearInterval(t);
+        }, 250);
+    }
+
+    /* ---------- hooks into the existing functions ---------- */
+    let timer = null;
+    const later = () => { clearTimeout(timer); timer = setTimeout(() => evaluate(true), 350); };
+
+    function hook(name, wrap) {
+        const fn = window[name];
+        if (typeof fn !== 'function') return;
+        window[name] = function () { return wrap(fn, this, arguments); };
+    }
+
+    hook('updateSavedStatus', (fn, self, args) => {
+        const before = (profile().progress || {})[args[0]];
+        const out = fn.apply(self, args);
+        if (args[1] === 'Accepted' && before !== 'Accepted') celebrateAccepted(args[0]);
+        later();
+        return out;
+    });
+    ['toggleLike', 'saveAccountProfile', 'handleSurveySubmit', 'loadSampleResumeData', 'clearResumeForm'].forEach(n => hook(n, (fn, self, args) => { const out = fn.apply(self, args); later(); return out; }));
+
+    document.addEventListener('input', e => { if (e.target && e.target.classList && e.target.classList.contains('resume-field')) later(); });
+    window.addEventListener('storage', later);
+    window.addEventListener('biostart:progress', later);
+
+    /* ---------- styles ---------- */
+    const CSS = `
+.bm-confetti{position:fixed;inset:0;z-index:10040;pointer-events:none}
+.bm-toasts{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:10030;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(440px,calc(100vw - 24px))}
+.bm-toast{display:flex;align-items:center;gap:12px;width:100%;background:#fff;color:var(--biostart-black,#0d0d0d);border:3px solid var(--biostart-black,#0d0d0d);border-radius:14px;box-shadow:0 4px 0 var(--biostart-black,#0d0d0d);padding:9px 14px 9px 10px;opacity:0;transform:translateY(14px) scale(.97);transition:opacity .3s,transform .35s cubic-bezier(.2,1.3,.4,1)}
+.bm-toast.in{opacity:1;transform:none}
+.bm-ico{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#EEB0A5;border:3px solid var(--biostart-red,#D93829);font-size:19px;line-height:1;color:var(--biostart-red,#D93829)}
+.bm-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.bm-txt b{font:800 15px/1.2 var(--font-display,inherit);letter-spacing:.02em}
+.bm-txt span{font-size:12.5px;color:#444}
+.bm-shelf{margin:28px 0 8px}
+.bm-shelf h3{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:18px;text-transform:uppercase;font-weight:900}
+.bm-count{padding:1px 10px;border-radius:12px;background:var(--biostart-black,#0d0d0d);color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em}
+.bm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;list-style:none;margin:0;padding:0}
+.bm-grid li{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px 10px;text-align:center;background:#fff;border:2px solid var(--biostart-black,#0d0d0d);border-radius:12px}
+.bm-grid li.on{box-shadow:0 3px 0 var(--biostart-black,#0d0d0d)}
+.bm-grid li.off{background:#f7f7f7;border-style:dashed;border-color:#aaa}
+.bm-grid li b{font-size:13px;line-height:1.2}
+.bm-grid li span:last-child{font-size:11px;color:#666;line-height:1.3}
+.bm-grid li.off b{color:#777}
+.bm-medal{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;font-size:22px;line-height:1;background:#EEB0A5;border:3px solid var(--biostart-red,#D93829);color:var(--biostart-red,#D93829)}
+.bm-grid li.off .bm-medal{background:#eee;border-color:#bbb;filter:grayscale(1);opacity:.7}
+@media (max-width:520px){.bm-toasts{bottom:76px}}
+@media (prefers-reduced-motion:reduce){.bm-toast{transition:opacity .2s;transform:none}}
+@media print{.bm-confetti,.bm-toasts,.bm-shelf{display:none!important}}
+`;
+
+    function init() {
+        const style = document.createElement('style');
+        style.id = 'biostart-milestones-css';
+        style.textContent = CSS;
+        document.head.appendChild(style);
+        renderShelf();
+        evaluate(true);            // first ever run just records what you'd already earned
+        watchTimeline();
+        window.BiostartMilestones = { confetti, evaluate, badges: BADGES };
+    }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 })();
