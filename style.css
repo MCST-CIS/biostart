@@ -2085,7 +2085,7 @@ header { z-index: 20; }
 .plan-callout { border: 2px solid var(--biostart-black); border-radius: 6px; background: #fff8e1; padding: 8px 12px; font-size: 12px; line-height: 1.45; margin: 8px 0; }
 .plan-callout.warn { border-color: var(--biostart-red); background: #fff1ee; }
 
-.plan-guide { max-width: 8.5in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 24px 28px; color: var(--biostart-black); }
+.plan-guide { max-width: 10in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 24px 28px; color: var(--biostart-black); }
 .plan-guide-head { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: flex-start; border-bottom: 3px solid var(--biostart-black); padding-bottom: 14px; margin-bottom: 12px; }
 .plan-guide-title { font-size: 22px; font-weight: 900; text-transform: uppercase; line-height: 1.15; }
 .plan-acc { border: 2px solid var(--biostart-black); border-radius: 6px; margin-top: 8px; background: #fff; }
