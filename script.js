@@ -1430,7 +1430,7 @@ function showSaveToast(msg, withLink) {
 
 function positionSaveTip() {
     const tip = document.getElementById('save-tip');
-    const target = document.querySelector('nav a[href="profile.html"]');
+    const target = document.querySelector('header a.user-pill');
     if (!tip || !target) return;
     const r = target.getBoundingClientRect();
     const visible = r.top >= 0 && r.bottom <= window.innerHeight && r.right > 0 && r.left < window.innerWidth;
@@ -1460,7 +1460,7 @@ function removeSaveTip() {
 function showFirstSaveTip(name) {
     try { localStorage.setItem(FIRST_SAVE_KEY, '1'); } catch (e) { /* ignore */ }
     removeSaveTip();
-    const target = document.querySelector('nav a[href="profile.html"]');
+    const target = document.querySelector('header a.user-pill');
     if (!target) { showSaveToast(`Saved: ${name}`, true); return; }
 
     const tip = document.createElement('div');
@@ -1471,7 +1471,7 @@ function showFirstSaveTip(name) {
         <div class="tip-arrow">▲</div>
         <div class="tip-body">
             <strong>♥ Saved!</strong> <span class="tip-name"></span>
-            <p>Everything you save lives in <b>Account Profile</b>, under <b>My Saved Opportunities</b>. Your saves are also counted on that tab.</p>
+            <p>Everything you save lives in <b>Account Profile</b>, under <b>My Saved Opportunities</b>. Your saves are also counted on your account button.</p>
             <div class="tip-actions">
                 <a class="btn-action" href="profile.html">Take me there</a>
                 <button type="button" class="btn-action tip-show">Show me where ▲</button>
@@ -1481,8 +1481,6 @@ function showFirstSaveTip(name) {
     tip.querySelector('.tip-name').textContent = name;
     document.body.appendChild(tip);
 
-    const navEl = target.parentElement;
-    navEl.scrollLeft = target.offsetLeft - navEl.clientWidth / 2 + target.offsetWidth / 2;
     target.classList.add('nav-spotlight');
 
     tip.querySelector('.tip-close').addEventListener('click', removeSaveTip);
@@ -1495,9 +1493,9 @@ function showFirstSaveTip(name) {
     positionSaveTip();
 }
 
-// Small heart counter on the Account Profile tab
+// Small heart counter on the header account pill
 function updateSaveBadge(bump) {
-    const link = document.querySelector('nav a[href="profile.html"]');
+    const link = document.querySelector('header a.user-pill');
     if (!link) return;
     let badge = link.querySelector('.save-badge');
     const n = userProfile.savedIds.length;
