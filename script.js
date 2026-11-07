@@ -1452,6 +1452,322 @@ function planFacts(kind, i) {
     return bits.filter(Boolean).join(' · ');
 }
 
+
+/* --- PERSONALITY TRAITS + LINKEDIN GUIDE (parts of the My Plan page) --- */
+const PLAN_TRAITS = [
+    { k: 'curiosity',     name: 'Curiosity and good questions', why: 'Research starts with asking why something happens and how you could test it.', build: 'After each lab or biotech news story, write one question you could test.' },
+    { k: 'detail',        name: 'Attention to detail',          why: 'Labs and manufacturers run on exact measurements, labels and records. One small slip can ruin a whole experiment.', build: 'Double-check every measurement and label, and keep a neat lab notebook.' },
+    { k: 'resilience',    name: 'Resilience and patience',      why: 'Experiments fail often. Scientists treat a failed run as information, then try again.', build: 'After a setback, write what went wrong, what you will change, and retry.' },
+    { k: 'integrity',     name: 'Honesty and integrity',        why: 'Data has to be recorded exactly as it happened, even when it is not what you hoped for.', build: 'Record real results, never adjust numbers, and credit your sources.' },
+    { k: 'teamwork',      name: 'Teamwork',                     why: 'Most biotech work is done in groups across research, quality, manufacturing and regulatory teams.', build: 'Take a clear role in a group project and finish your part on time.' },
+    { k: 'communication', name: 'Clear communication',          why: 'You have to explain methods and results to people who did not see the work.', build: 'Explain a lab result in two sentences to a friend, then write it down.' },
+    { k: 'adaptable',     name: 'Adaptability and fast learning', why: 'Tools and techniques change quickly, and people who learn fast stay useful.', build: 'Learn one new tool or technique each semester. Free tutorials count.' },
+    { k: 'organized',     name: 'Organization and time management', why: 'Experiments run on schedules: incubation times, deadlines, ordered supplies.', build: 'Use a planner for homework and lab due dates for one month.' },
+    { k: 'safety',        name: 'Safety mindset',               why: 'Labs involve chemicals, biological materials and equipment. Following procedures protects everyone.', build: 'Follow every safety rule, and ask before you guess.' },
+    { k: 'initiative',    name: 'Initiative',                   why: 'Mentors notice students who ask for the next task, volunteer for a project, or look for answers first.', build: 'Ask a teacher or mentor about one extra project and make a plan.' }
+];
+const PLAN_TRAIT_FOCUS = {
+    'Middle School': ['curiosity', 'resilience', 'organized'],
+    'High School': ['detail', 'teamwork', 'integrity'],
+    'College Undergrad': ['communication', 'adaptable', 'initiative']
+};
+const PLAN_LI_CHECKS = [
+    ['age', 'I am 16 or older (or I am preparing offline until I am)'],
+    ['photo', 'Clear profile photo and a banner'],
+    ['headline', 'Headline that says what I am learning and aiming for'],
+    ['about', 'About section written, with a strong first few lines'],
+    ['edu', 'School, program and graduation year added'],
+    ['exp', 'Experience, volunteering or projects added with result-focused bullets'],
+    ['skills', '10 or more real skills added, top 3 pinned'],
+    ['certs', 'Certifications added (BACE, CITI RCR once earned)'],
+    ['privacy', 'Privacy settings reviewed and two-step verification on'],
+    ['url', 'Custom profile link set'],
+    ['connect', '10 or more connections: teachers, classmates, mentors'],
+    ['follow', 'Following 10 companies, schools or organizations']
+];
+
+function planLoad(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v && typeof v === 'object' ? v : fallback; } catch (e) { return fallback; } }
+function planStore(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* storage unavailable */ } }
+
+function planTraitsHTML(u) {
+    const on = planLoad('biostart_traitsWorking', []);
+    const focus = PLAN_TRAIT_FOCUS[u.level] || PLAN_TRAIT_FOCUS['High School'];
+    const ordered = PLAN_TRAITS.slice().sort((a, b) => (focus.includes(b.k) ? 1 : 0) - (focus.includes(a.k) ? 1 : 0));
+    return `
+        <div class="plan-sec">
+            <div class="plan-h">Traits I am building</div>
+            <p class="plan-small">Technical skills can be taught. These habits are what lab mentors and managers tend to notice. Tick the ones you are working on; “focus now” marks the ones that matter most at your school level.</p>
+            <div class="plan-traits">${ordered.map(t => `
+                <label class="plan-trait${focus.includes(t.k) ? ' is-focus' : ''}">
+                    <input type="checkbox" data-trait="${t.k}" ${Array.isArray(on) && on.includes(t.k) ? 'checked' : ''}>
+                    <span><b>${planEsc(t.name)}</b>${focus.includes(t.k) ? ' <em class="plan-tag">focus now</em>' : ''}<br>
+                    <span class="plan-small">${planEsc(t.why)}</span><br>
+                    <span class="plan-small"><b>Try:</b> ${planEsc(t.build)}</span></span>
+                </label>`).join('')}
+            </div>
+        </div>`;
+}
+
+function planAgeNotice(u) {
+    const age = parseInt(u.age, 10) || 0;
+    if (age && age < 16) return `<div class="plan-callout warn"><b>Wait until 16 to join.</b> LinkedIn’s rules say members must be at least 16, so please do not create an account yet and do not enter a false birthday. Use the time to get ready: build your resume, collect skills and projects, and read this guide so your profile is quick to finish later.</div>`;
+    if (age && age < 18) return `<div class="plan-callout"><b>You can join, with a parent or guardian in the loop.</b> Set up your privacy settings together, and talk to them before you share personal details or meet anyone you connect with.</div>`;
+    return '';
+}
+
+function planLiCount() {
+    const done = planLoad('biostart_linkedinChecks', {});
+    return PLAN_LI_CHECKS.filter(([k]) => done[k]).length;
+}
+
+function planLinkedInMini(u) {
+    const done = planLoad('biostart_linkedinChecks', {});
+    return `
+        <div class="plan-sec">
+            <div class="plan-h">My LinkedIn</div>
+            <p class="plan-small">LinkedIn is the professional networking site where lab managers, recruiters and mentors look people up. Open it at <b>linkedin.com</b> and follow the step-by-step LinkedIn guide on the My Plan page. <b><span class="li-count">${planLiCount()}</span> of ${PLAN_LI_CHECKS.length}</b> checklist items done.</p>
+            ${planAgeNotice(u)}
+            <div class="plan-checks">${PLAN_LI_CHECKS.map(([k, label]) => `<label class="plan-check"><input type="checkbox" data-li="${k}" ${done[k] ? 'checked' : ''}> <span>${planEsc(label)}</span></label>`).join('')}</div>
+            <p class="plan-small plan-urlline">My profile link: linkedin.com/in/ <span class="plan-blank"></span></p>
+        </div>`;
+}
+
+const PLAN_LI_GUIDE = [
+    { t: 'Before you start: age, safety and setup', h: `
+        <ul>
+            <li><b>Age.</b> LinkedIn’s user agreement says members must be at least 16. If you are younger, do not sign up and do not use a false birthday. Use the steps below to prepare, and join when you turn 16.</li>
+            <li><b>Parent or guardian.</b> If you are under 18, tell a parent or guardian before you join and review your settings together.</li>
+            <li><b>Real name, one account.</b> LinkedIn expects your real name and a single account for you.</li>
+            <li><b>Use an email you will keep.</b> A personal email that will still work after graduation is better than a school email that will be shut off. Use a strong password you do not use anywhere else.</li>
+            <li><b>Turn on two-step verification</b> in Settings (look under the sign-in and security options; menu names change from time to time, so use the help search if you cannot find it).</li>
+            <li><b>Keep private things private.</b> Never put your home address, phone number, daily schedule or posts that show where you will be.</li>
+            <li><b>Everything is searchable.</b> Teachers, colleges and employers can look you up. If you would not show it to a lab manager, do not post it.</li>
+        </ul>` },
+    { t: 'Step 1: Create your account (about 10 minutes)', h: `
+        <ol>
+            <li>Go to <b>linkedin.com</b> and choose to join (the sign-up page is <b>linkedin.com/signup</b>).</li>
+            <li>Enter your email and password, then your first and last name.</li>
+            <li>For location, choose your general area (a nearby city or metro area) instead of anything that points to your street.</li>
+            <li>When it asks about your situation, choose student and add your school or program.</li>
+            <li>Confirm your email with the code LinkedIn sends you.</li>
+            <li>If it offers to import your contacts or address book, you can skip it. You will connect with people on purpose instead.</li>
+            <li>Write down your login in a safe place, not in a note on your phone’s lock screen.</li>
+        </ol>` },
+    { t: 'Step 2: Profile photo and banner', h: `
+        <p><b>Photo</b></p>
+        <ul>
+            <li>Use a square photo of at least 400 × 400 pixels (LinkedIn crops it to a circle, so keep your face in the middle).</li>
+            <li>Your face should fill most of the frame, in good light, with a plain background.</li>
+            <li>Smile and dress as you would for a school presentation. A lab coat is fine if the photo was taken in your school lab with permission and you are alone in it.</li>
+            <li>No filters, sunglasses, cropped group photos or school-dance pictures.</li>
+        </ul>
+        <p><b>Banner</b></p>
+        <ul>
+            <li>The banner is 1584 × 396 pixels (a wide 4:1 shape). A free tool like Canva has templates in that size.</li>
+            <li>Good ideas: a clean biotech picture (pipettes, DNA, a microscope) that you took or have the right to use, plus a short line such as “Future biotech lab technician”.</li>
+            <li>Your photo covers the lower-left corner, so keep text away from there.</li>
+            <li>Do not use pictures you copied from other websites. Use your own or ones the site says are free to use.</li>
+        </ul>` },
+    { t: 'Step 3: Headline (220 characters)', h: `
+        <p>Your headline shows next to your name everywhere on LinkedIn, so make it say more than “Student at ___”. Put the most important words first, because some views cut it short.</p>
+        <p><b>Formula:</b> who you are | what you are learning | what you are aiming for</p>
+        <div class="plan-example"><b>Examples (write your own, and only claim what is true):</b><br>
+            “High school biotechnology student | Learning PCR, gel electrophoresis and aseptic technique | Aiming for a career in biomanufacturing”<br>
+            “Biology major | Undergraduate cell culture research | Seeking a summer lab internship”<br>
+            “Biotechnology academy student | BACE credential in progress | Interested in quality control”</div>
+        <p><b>Skip:</b> “Looking for opportunities”, “Student at [school]”, jokes, and emojis in place of words.</p>` },
+    { t: 'Step 4: About section (2,600 characters)', h: `
+        <p>Write in the first person. Only the first few lines show before the “see more” link, so put the best part first.</p>
+        <ol>
+            <li><b>Hook:</b> who you are and what drew you to biotech.</li>
+            <li><b>Proof:</b> techniques you have learned, projects you have done, credentials you are working toward.</li>
+            <li><b>Goal:</b> what you are looking for, such as a summer lab internship, shadowing, or advice.</li>
+            <li><b>Invitation:</b> a friendly line inviting people in biotech to message you.</li>
+        </ol>
+        <div class="plan-example"><b>Sample (replace every detail with your own truth):</b><br>
+            “I am a junior in a biotechnology program, and my favorite moment in lab is when a result makes me rethink my question. This year I learned micropipetting, gel electrophoresis and aseptic technique, and I ran a science fair project on how temperature affects an enzyme. I am working toward my BACE credential and CITI RCR training. I am looking for a summer lab or manufacturing internship where I can keep learning. If you work in biotech, I would love to hear how you got started.”</div>
+        <p><b>Tip:</b> read it out loud. If a sentence sounds like something you would never say, rewrite it. Never exaggerate; mentors check.</p>` },
+    { t: 'Step 5: Education', h: `
+        <ul>
+            <li>Add your school and program (for example, your biotechnology academy or CTE track) and your expected graduation year.</li>
+            <li>Use <b>Activities and societies</b> for science club, HOSA, Science Olympiad, robotics and similar.</li>
+            <li>In the description, list relevant courses such as Biotechnology, Chemistry, Biology and Statistics.</li>
+            <li>Add your GPA only if you are proud of it. It is optional.</li>
+            <li>Match what you typed in the Resume Builder so your resume and profile agree. The timeline on this site also uses your graduation date.</li>
+        </ul>` },
+    { t: 'Step 6: Experience, volunteering and projects', h: `
+        <p>Early in your career, “experience” is broader than paid jobs. All of these count:</p>
+        <ul>
+            <li>Lab classes and school research projects</li>
+            <li>Science fairs and competitions</li>
+            <li>Volunteering, tutoring and community service</li>
+            <li>Club leadership roles</li>
+            <li>Part-time jobs, even outside science (they show reliability and teamwork)</li>
+            <li>Summer programs and internships</li>
+        </ul>
+        <p><b>Bullet formula:</b> action verb + what you did + the result or size.</p>
+        <div class="plan-example"><b>Examples of the style (use your own facts):</b><br>
+            • Prepared and labeled sterile solutions by following written lab procedures.<br>
+            • Ran gel electrophoresis on DNA samples and recorded results in a lab notebook.<br>
+            • Led a team of four on a science fair project and presented findings to judges.<br>
+            • Tutored classmates in biology every week before tests.</div>
+        <ul>
+            <li>Use the Projects section for science fair work, and link your poster if you have one (the Poster Lab on the Create page helps you make it).</li>
+            <li>For the organization name, use your school, club or program.</li>
+            <li>Never post confidential information from a lab, internship or employer.</li>
+        </ul>` },
+    { t: 'Step 7: Skills, certifications and recommendations', h: `
+        <p><b>Skills.</b> LinkedIn allows up to 50, but ten to fifteen honest ones beat fifty padded ones. Good starting points if they are true for you:</p>
+        <p class="plan-chips">Micropipetting · PCR · Gel Electrophoresis · Aseptic Technique · Laboratory Skills · Lab Safety · Data Analysis · Microsoft Excel · Scientific Writing · Teamwork · Communication · Critical Thinking</p>
+        <ul>
+            <li>Move your three strongest skills to the top so they show first.</li>
+            <li>Ask a teacher or classmate who has seen you do a skill to endorse it, and endorse others honestly in return.</li>
+        </ul>
+        <p><b>Licenses and certifications.</b> Add BACE (Biotility) and CITI Responsible Conduct of Research once you have earned them, with the organization name and date. The Opportunities page links to both.</p>
+        <p><b>Recommendations.</b> Ask a teacher or mentor who knows your work for a short written recommendation. Give them two weeks, remind them of a project you did, and say thank you afterward.</p>` },
+    { t: 'Step 8: Featured section, custom link and privacy', h: `
+        <ul>
+            <li><b>Featured:</b> pin your best proof, such as your resume as a PDF (from the Resume Builder), a science fair poster, or a project link.</li>
+            <li><b>Custom link:</b> choose “Edit public profile &amp; URL” and make your address short and name-based, like linkedin.com/in/firstname-lastname. Write it on your plan sheet.</li>
+            <li><b>Contact info:</b> add only a professional email. Leave out your phone number and home address.</li>
+            <li><b>Visibility:</b> in Settings, look at who can see your email, your connections list and your profile activity, and choose the narrowest options you are comfortable with.</li>
+            <li><b>Quiet edits:</b> while you are editing, turn off sharing profile updates with your network so every tweak does not become a notification.</li>
+        </ul>
+        <p class="plan-small">LinkedIn changes its menus now and then. If a name here does not match, search the Settings page or the help center for the topic.</p>` },
+    { t: 'Step 9: Build a smart network', h: `
+        <p><b>Who to connect with first</b></p>
+        <ul>
+            <li>Teachers, lab instructors and program coordinators</li>
+            <li>Classmates and club teammates</li>
+            <li>Mentors, family friends and neighbors who work in science</li>
+            <li>Speakers and staff you met at open houses, fairs or summer programs</li>
+            <li>Graduates of your school or program, once you have a reason to say hello</li>
+        </ul>
+        <p><b>Always add a short note</b> (the limit is about 300 characters). Templates you can adapt:</p>
+        <div class="plan-example"><b>To a teacher:</b> “Hello Ms. Rivera, I am a student in your Biotechnology class. I would like to stay connected as I build my professional profile. Thank you for all I have learned this year.”<br><br>
+            <b>To someone you met:</b> “Hello Dr. Chen, I enjoyed your talk at the career fair about biomanufacturing. I am a high school student interested in the field and would be glad to connect.”<br><br>
+            <b>To a graduate of your school:</b> “Hello Sam, I saw that we both went to [school]. I am interested in [field] and would appreciate connecting.”</div>
+        <p><b>Please avoid:</b> adding hundreds of strangers, asking for a job in your first message, or accepting requests from people you cannot verify. Aim for about five thoughtful requests a week.</p>` },
+    { t: 'Step 10: Follow, learn and stay informed', h: `
+        <ul>
+            <li>Follow the companies on the Internships &amp; Jobs page and the colleges on the Colleges page.</li>
+            <li>Follow New Jersey biotech organizations such as BioNJ, plus the research programs and professional groups that interest you.</li>
+            <li>Read posts and comment when you can add something real, in one or two sentences. A thoughtful comment is more memorable than a “Great post!”.</li>
+            <li>Ask your school or public librarian whether they offer free access to LinkedIn Learning courses.</li>
+        </ul>` },
+    { t: 'Step 11: Find internships and jobs', h: `
+        <ol>
+            <li>Open the Jobs tab and search words like “biotech intern”, “laboratory assistant”, “quality control intern” or “manufacturing technician”.</li>
+            <li>Use the filters for experience level (internship or entry level), date posted and location.</li>
+            <li>Save the search and turn on alerts so new postings come to you.</li>
+            <li>Read the posting for a <b>minimum age</b> or school-year requirement. Many internships are for age 18 and up, and the Internships &amp; Jobs page on this site lists minimum ages too.</li>
+            <li>Copy the keywords the posting uses (only ones that are true for you) into your resume and profile.</li>
+            <li>Apply through the employer’s own website when you can, and avoid mass-applying to everything.</li>
+            <li>Save the position on this site and update its status (Interested, Applying, Applied, Accepted) so your plan stays current.</li>
+        </ol>
+        <p class="plan-small">If you are 18 or older, the “Open to work” setting can be shown to recruiters only.</p>` },
+    { t: 'Step 12: Messaging and informational chats', h: `
+        <p>An informational chat is a short, friendly conversation to learn about someone’s career. It is not a job request.</p>
+        <div class="plan-example"><b>Message template:</b> “Hello Dr. Chen, I am a high school student interested in quality control in biotech. Would you be open to a 15-minute chat, by message or video, about how you got started? I would really appreciate your advice.”</div>
+        <p><b>Questions to ask</b></p>
+        <ul>
+            <li>What does a typical day look like?</li>
+            <li>What did you study, and what helped most?</li>
+            <li>Which skills matter most for someone starting out?</li>
+            <li>What would you do differently?</li>
+            <li>Who else would you suggest I talk to?</li>
+        </ul>
+        <p>Send a thank-you within 24 hours, and let them know later how their advice helped. If you are under 18, keep chats to messages or video and involve a parent or teacher. Do not meet a new contact alone.</p>` },
+    { t: 'Posting and staying active', h: `
+        <ul>
+            <li>One or two posts a month is plenty.</li>
+            <li><b>Good post ideas:</b> a science fair result, a new skill you learned, a thank-you to a teacher or program, what you learned on a lab tour, or a short article with your own takeaway.</li>
+            <li>Write in your own words and credit others.</li>
+            <li>Ask permission before posting photos of classmates, teachers or lab spaces.</li>
+            <li>Never post confidential or unsafe lab content.</li>
+            <li>Keep the tone professional. Skip complaints, arguments and anything you would not want a future boss to read.</li>
+            <li>Every few months, look at your own profile as a stranger would and tidy it up.</li>
+        </ul>` },
+    { t: 'Safety, scams and red flags', h: `
+        <div class="plan-callout warn"><b>Real employers and programs never charge you to get an internship or job.</b></div>
+        <ul>
+            <li>Never pay for a “job”, “training”, “starter kit” or “equipment”.</li>
+            <li>Never send a Social Security number, bank details, card numbers or a copy of an ID in a message or a quick “application”. Real hiring paperwork comes later, through official channels, with a parent’s help if you are under 18.</li>
+            <li><b>Warning signs of a fake recruiter:</b> a brand-new or empty profile, few connections, a free email address for a “company”, pressure to act fast, a request to move to a text or chat app, or an offer with no interview.</li>
+            <li>Check the posting on the company’s own careers page before you reply.</li>
+            <li>Do not click links you do not recognize, and do not install software someone sends you.</li>
+            <li>Use the report option on the profile or message, block the account, and tell a trusted adult.</li>
+            <li>If something feels off, stop. It is always fine to say no.</li>
+        </ul>` },
+    { t: 'Your 30-day plan', h: `
+        <ul>
+            <li><b>Week 1:</b> create the account (if you are 16 or older), add a photo, write your headline, review privacy, turn on two-step verification, and tell a parent or guardian.</li>
+            <li><b>Week 2:</b> write your About section, add education, add experience or projects, add ten skills, and set your custom link.</li>
+            <li><b>Week 3:</b> send ten connection requests with notes (teachers, classmates, mentors), follow ten organizations, and add certifications.</li>
+            <li><b>Week 4:</b> make one post, send one informational-chat message, save three internships or jobs on this site, and update your resume.</li>
+            <li><b>Every month after:</b> spend 15 minutes adding a new skill, project or certificate, make two new connections, and leave one thoughtful comment.</li>
+        </ul>` },
+    { t: 'Checklist', h: () => `
+        <p class="plan-small"><b><span class="li-count">${planLiCount()}</span> of ${PLAN_LI_CHECKS.length}</b> done. These boxes are the same ones on your plan sheet.</p>
+        <div class="plan-checks">${PLAN_LI_CHECKS.map(([k, label]) => `<label class="plan-check"><input type="checkbox" data-li="${k}" ${planLoad('biostart_linkedinChecks', {})[k] ? 'checked' : ''}> <span>${planEsc(label)}</span></label>`).join('')}</div>` }
+];
+
+function planGuideHTML(u) {
+    return `
+        <section class="plan-guide" id="linkedin-guide" aria-labelledby="li-guide-title">
+            <div class="plan-guide-head">
+                <div>
+                    <div class="plan-guide-title" id="li-guide-title">LinkedIn guide for biotech students</div>
+                    <p class="plan-small">A step-by-step walkthrough, from creating your account to finding your first internship. Open each step as you go.</p>
+                </div>
+                <div class="plan-toolbar-actions">
+                    <a class="btn-action" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">Open LinkedIn 🔗</a>
+                    <button type="button" class="btn-action tl-alt" onclick="planToggleAll(true)">Expand all</button>
+                    <button type="button" class="btn-action tl-alt" onclick="planToggleAll(false)">Collapse all</button>
+                    <button type="button" class="btn-action tl-alt" onclick="printLinkedInGuide()">🖨️ Print this guide</button>
+                </div>
+            </div>
+            ${planAgeNotice(u)}
+            ${PLAN_LI_GUIDE.map((sec, i) => `
+            <details class="plan-acc"${i === 0 ? ' open' : ''}>
+                <summary>${planEsc(sec.t)}</summary>
+                <div class="plan-acc-body">${typeof sec.h === 'function' ? sec.h() : sec.h}</div>
+            </details>`).join('')}
+        </section>`;
+}
+
+function planToggleAll(open) { document.querySelectorAll('.plan-acc').forEach(d => { d.open = open; }); }
+
+function printLinkedInGuide() {
+    planToggleAll(true);
+    document.body.dataset.print = 'guide';
+    const done = () => { delete document.body.dataset.print; window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    window.print();
+}
+
+function bindPlanHandlers(root) {
+    if (root.dataset.bound) return;
+    root.dataset.bound = '1';
+    root.addEventListener('change', e => {
+        const t = e.target;
+        if (!t || !t.matches) return;
+        if (t.matches('input[data-trait]')) {
+            const cur = planLoad('biostart_traitsWorking', []);
+            const set = new Set(Array.isArray(cur) ? cur : []);
+            if (t.checked) set.add(t.dataset.trait); else set.delete(t.dataset.trait);
+            planStore('biostart_traitsWorking', Array.from(set));
+        } else if (t.matches('input[data-li]')) {
+            const done = planLoad('biostart_linkedinChecks', {});
+            if (t.checked) done[t.dataset.li] = true; else delete done[t.dataset.li];
+            planStore('biostart_linkedinChecks', done);
+            root.querySelectorAll('input[data-li="' + t.dataset.li + '"]').forEach(b => { b.checked = t.checked; });
+            const n = PLAN_LI_CHECKS.filter(([k]) => done[k]).length;
+            root.querySelectorAll('.li-count').forEach(el => { el.textContent = n; });
+        }
+    });
+}
+
 function renderPlanPage() {
     const root = document.getElementById('plan-root');
     if (!root) return;
@@ -1530,6 +1846,29 @@ function renderPlanPage() {
     const banner = u.surveyCompleted ? '' : `<div class="plan-notice">You haven’t taken the survey yet, so this plan uses default answers. <a href="survey.html">Take the survey</a> to personalize it.</div>`;
 
     root.innerHTML = `
+        <section class="plan-view" id="plan-hub">
+            <p style="color:#444; font-weight:600; max-width:760px;">Two ways to get organized. Follow a step-by-step guide to build a professional LinkedIn profile, or open your one-page plan to print or send to a parent or counselor.</p>
+            <div class="hub-grid">
+                <a class="hub-card" href="#linkedin">
+                    <div class="hub-art"><svg viewBox="0 0 170 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="86" cy="54" r="46" fill="#EEB0A5"/><g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M44 36L86 24M86 24L132 40M44 36L58 80M132 40L120 82M58 80L120 82" fill="none" stroke-width="2.5" stroke-dasharray="1 6"/><rect x="48" y="30" width="76" height="52" rx="5" fill="#fff"/><circle cx="68" cy="52" r="9" fill="#D94F3B"/><path d="M56 76c2-9 8-13 12-13s10 4 12 13" fill="#D94F3B"/><path d="M88 46H116M88 56H112M88 66H106" fill="none" stroke-width="2.5"/><circle cx="44" cy="36" r="7" fill="#0d0d0d"/><circle cx="132" cy="40" r="7" fill="#fff"/><circle cx="120" cy="84" r="7" fill="#D94F3B"/></g></svg></div>
+                    <div class="hub-sub">Professional networking</div>
+                    <div class="hub-title">LinkedIn Guide</div>
+                    <div class="hub-desc">A step-by-step walkthrough for biotech students, from creating your account safely to writing your headline, building connections, and finding your first internship.</div>
+                    <div class="hub-chips"><span class="hub-chip">Step by step</span><span class="hub-chip">30-day plan</span><span class="hub-chip">Checklist</span></div>
+                    <div class="hub-go">Open the guide ►</div>
+                </a>
+                <a class="hub-card" href="#plan">
+                    <div class="hub-art"><svg viewBox="0 0 150 104" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="78" cy="54" r="46" fill="#EEB0A5"/><g stroke="#0d0d0d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="46" y="12" width="64" height="82" rx="5" fill="#fff"/><rect x="66" y="6" width="24" height="12" rx="3" fill="#0d0d0d"/><rect x="54" y="30" width="9" height="9" rx="2" fill="#D94F3B" stroke-width="2.5"/><rect x="54" y="48" width="9" height="9" rx="2" fill="#D94F3B" stroke-width="2.5"/><rect x="54" y="66" width="9" height="9" rx="2" fill="#fff" stroke-width="2.5"/><path d="M70 35H102M70 53H100M70 71H94" fill="none" stroke-width="2.5"/></g></svg></div>
+                    <div class="hub-sub">Parents &amp; counselors</div>
+                    <div class="hub-title">My One-Page Plan</div>
+                    <div class="hub-desc">A printable summary built from your own data: where you are on the timeline, your next steps, everything you’ve saved with its status, and your strengths.</div>
+                    <div class="hub-chips"><span class="hub-chip">Print or PDF</span><span class="hub-chip">Built for you</span><span class="hub-chip">Saved list</span></div>
+                    <div class="hub-go">Open my plan ►</div>
+                </a>
+            </div>
+        </section>
+        <section class="plan-view" id="plan-view-plan" hidden>
+            <a class="back-link" href="#">← Back to My Plan</a>
         <div class="plan-toolbar">
             <div>
                 <b>Your one-page plan</b>
@@ -1538,6 +1877,7 @@ function renderPlanPage() {
             <div class="plan-toolbar-actions">
                 <button type="button" class="btn-action" onclick="window.print()">🖨️ Print or save as PDF</button>
                 <a class="btn-action tl-alt" href="profile.html">Edit profile</a>
+                <a class="btn-action tl-alt" href="#linkedin">LinkedIn guide ►</a>
             </div>
         </div>
         ${banner}
@@ -1553,13 +1893,39 @@ function renderPlanPage() {
             ${where}
             ${next}
             ${saved}
+            ${planTraitsHTML(u)}
+            ${planLinkedInMini(u)}
             <div class="plan-sec plan-notes">
                 <div class="plan-h">Questions and notes for my parent or counselor</div>
                 <div class="plan-line"></div><div class="plan-line"></div><div class="plan-line"></div><div class="plan-line"></div>
             </div>
             <div class="plan-foot">Dates and requirements change, so confirm every deadline with each school or program. Made with BIOSTART: Great Resources, Stat.</div>
-        </article>`;
+        </article>
+        </section>
+        <section class="plan-view" id="plan-view-guide" hidden>
+            <a class="back-link" href="#">← Back to My Plan</a>
+            ${planGuideHTML(u)}
+        </section>`;
+    bindPlanHandlers(root);
+    planRoute(false);
 }
+
+// Hub / plan / LinkedIn guide, chosen by the #hash (same idea as the Create tab)
+function planRoute(scrollTop) {
+    const root = document.getElementById('plan-root');
+    if (!root) return;
+    let h = location.hash.replace('#', '');
+    if (h === 'linkedin-guide') h = 'linkedin';
+    const view = h === 'plan' ? 'plan' : h === 'linkedin' ? 'guide' : 'hub';
+    const ids = { hub: 'plan-hub', plan: 'plan-view-plan', guide: 'plan-view-guide' };
+    Object.keys(ids).forEach(k => { const el = document.getElementById(ids[k]); if (el) el.hidden = k !== view; });
+    const titles = { hub: 'My Plan', plan: 'My One-Page Plan', guide: 'LinkedIn Guide' };
+    const h2 = document.querySelector('.container > h2');
+    if (h2) h2.textContent = titles[view];
+    document.title = titles[view] + ' - BIOSTART';
+    if (scrollTop !== false) window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => planRoute(true));
 
 /* --- MODAL DIALOG --- */
 function openModal(title, text, url) {
@@ -1879,7 +2245,9 @@ const SEARCH_PAGES = [
     { name: 'Create: Resume Builder', href: 'resume.html#resume', text: 'create resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
     { name: 'Create: Poster Lab', href: 'resume.html#poster', text: 'create poster lab project assistance help science fair research poster infographic concept explainer career spotlight lab safety technique guide template graphics presentation display print pdf' },
     { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' },
-    { name: 'My Plan (printable)', href: 'plan.html', text: 'my plan printable one page summary parent counselor timeline saved items next steps print pdf share' }
+    { name: 'My Plan', href: 'plan.html', text: 'my plan hub choose linkedin guide one page plan printable' },
+    { name: 'My Plan: One-Page Plan (printable)', href: 'plan.html#plan', text: 'my plan printable one page summary parent counselor timeline saved items next steps print pdf share personality traits soft skills strengths' },
+    { name: 'My Plan: LinkedIn Guide', href: 'plan.html#linkedin', text: 'linkedin guide profile networking headline about section photo connections privacy safety 30 day plan internships step by step checklist' }
 ];
 
 let searchIndex = null;
@@ -3144,7 +3512,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="tl-meter" role="img" aria-label="${done.length} of ${rows.length} steps done"><i style="width:${pct}%"></i></div>
             <p class="tl-meter-label">${done.length} of ${rows.length} steps done</p>
             <div class="tl-resumebox"><strong>Resume: ${ctx.secDone} of ${ctx.sections.length} sections filled.</strong>${missing.length ? `<br>Still empty: ${esc(missing.slice(0, 4).join(', '))}${missing.length > 4 ? ` and ${missing.length - 4} more` : ''}.` : '<br>Every section has something in it.'}</div>
-            <div class="tl-actions"><a class="btn-action" href="resume.html#resume">Edit resume</a><a class="btn-action tl-alt" href="profile.html">Update profile</a><a class="btn-action tl-alt" href="plan.html">Print my plan</a></div>
+            <div class="tl-actions"><a class="btn-action" href="resume.html#resume">Edit resume</a><a class="btn-action tl-alt" href="profile.html">Update profile</a><a class="btn-action tl-alt" href="plan.html#plan">Print my plan</a></div>
         </div>`;
 
         const banner = isCur ? '' : `<div class="tl-banner"><span>Previewing ${esc(stage.name.toLowerCase())}. Anything your resume already covers still counts.</span><button type="button" class="tl-linkbtn" data-act="back">Back to my stage</button></div>`;
@@ -3377,6 +3745,7 @@ window.addEventListener('DOMContentLoaded', () => {
         tracker: `<div class="bt-vis"><div class="bt-heart">♥</div><div class="bt-steps"><span>Interested</span><span>Applying</span><span class="on">Applied</span><span>Accepted 🎉</span></div><p class="bt-cap">Update the status on your account page</p></div>`,
         badges: `<div class="bt-vis"><div class="bt-medals"><span><i>♥</i>First save</span><span><i>📑</i>Resume 50%</span><span><i>🧪</i>Lab ready</span><span class="off"><i>🔒</i>Accepted!</span></div><p class="bt-cap">Confetti for big moments, badges for steady progress</p></div>`,
         resume: `<div class="bt-vis bt-doc"><div class="bt-docl"><div class="h"></div><div class="l w80"></div><div class="l w60"></div><div class="s"></div><div class="l"></div><div class="l w70"></div><div class="s"></div><div class="l w50"></div></div><div class="bt-tpls"><span class="on">Modern</span><span>Academic</span><span>Corporate</span><span>Compact</span></div></div>`,
+        myplan: `<div class="bt-vis bt-two"><div class="bt-choice">💼<b>LINKEDIN GUIDE</b><span>Step by step</span></div><div class="bt-choice sel">📋<b>MY ONE-PAGE PLAN</b><span>Print or save as PDF</span></div></div>`,
         poster: `<div class="bt-vis"><div class="bt-poster"><div class="ph"><b></b><i></i></div><div class="pc"><div></div><div class="mid"><em></em><em class="r"></em></div><div></div></div></div><div class="bt-tpls"><span class="on">Research</span><span>Explainer</span><span>Career</span><span>Safety</span></div></div>`,
         kit: `<div class="bt-vis bt-four"><span>NSF REU</span><span>Pathways</span><span>BACE</span><span>CITI</span><span>Aresty</span><span>HOSA</span></div>`,
         plan: `<div class="bt-vis bt-plan"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>`,
@@ -3494,6 +3863,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 <li>A word meter warns you when there’s too much text.</li>
                 <li>Enter results as “Label: value” and it draws the bar chart for you.</li></ul>`,
           cta: [{ href: 'resume.html#poster', label: 'Open Poster Lab' }] },
+
+        { id: 'myplan', kicker: 'Plan it out', title: 'My Plan: LinkedIn guide and one-page plan', vis: V.myplan, target: 'nav a.nav-btn[href="plan.html"]',
+          body: () => `<p><b>My Plan</b> in the nav bar gives you two choices:</p>
+                <ul><li><b>LinkedIn Guide:</b> a step-by-step walkthrough for biotech students, from setting up safely (LinkedIn requires members to be 16+) to your headline, About section, connections and a 30-day plan. It has a checklist you can tick off and a print button.</li>
+                <li><b>My One-Page Plan:</b> a printable summary of your timeline stage, next steps, saved list with statuses and strengths. Print it or choose “Save as PDF” to share with a parent or counselor.</li></ul>`,
+          cta: [{ href: 'plan.html', label: 'Open My Plan' }] },
 
         { id: 'kit', kicker: 'Useful materials', title: 'Your starter kit', vis: V.kit,
           body: () => `<p>Free, trusted places to start. Each opens in a new tab:</p>
