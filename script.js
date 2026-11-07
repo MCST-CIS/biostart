@@ -156,6 +156,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadSurveyForm();
     renderAllGrids();
     revealItemFromHash();
+    if (document.getElementById('plan-root')) renderPlanPage();
     if (document.getElementById('printable-resume')) initResumeBuilder();
     if (document.getElementById('prof-fname') || document.getElementById('profile-edit-form')) loadProfileDisplay();
 });
@@ -1413,6 +1414,153 @@ function openCompare() {
 function closeCompare() { const ov = document.getElementById('compare-overlay'); if (ov) ov.style.display = 'none'; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompare(); });
 
+
+/* ==========================================================================
+   PRINTABLE "MY PLAN" PAGE (plan.html)
+   One page for a parent or counselor: who the student is, where they are on
+   the timeline, what to do next, and everything they have saved with its
+   status. Built only from what is already stored in this browser.
+   ========================================================================== */
+const planEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function planShortUrl(u) {
+    const t = String(u || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+    return t.length > 58 ? t.slice(0, 55) + '…' : t;
+}
+
+function planFacts(kind, i) {
+    const bits = [];
+    if (kind === 'hs') {
+        bits.push([i.town, i.county ? i.county + ' County' : ''].filter(Boolean).join(', '));
+        if (i.ageMin) bits.push('Ages ' + i.ageMin + '+');
+    } else if (kind === 'col') {
+        bits.push(i.location);
+        bits.push(i.isNJ ? 'In-state' : 'Out-of-state');
+        if (i.cost) bits.push(i.cost);
+        if (i.acceptance) bits.push('Acceptance: ' + i.acceptance);
+    } else if (kind === 'job') {
+        bits.push(i.cat ? i.cat.charAt(0).toUpperCase() + i.cat.slice(1) : '');
+        bits.push(i.town);
+        if (i.season) bits.push(i.season);
+        if (i.ageMin) bits.push('Ages ' + i.ageMin + '+');
+    } else {
+        bits.push(i.cat ? i.cat.charAt(0).toUpperCase() + i.cat.slice(1) : '');
+        if (i.town && i.town !== 'Statewide') bits.push(i.town);
+        if (i.season) bits.push(i.season);
+        if (i.ageMin) bits.push('Ages ' + i.ageMin + '+');
+    }
+    return bits.filter(Boolean).join(' · ');
+}
+
+function renderPlanPage() {
+    const root = document.getElementById('plan-root');
+    if (!root) return;
+    const u = userProfile;
+    const snap = window.BiostartPlan ? window.BiostartPlan.snapshot() : null;
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const statusOf = id => (u.progress || {})[id] || 'Interested';
+    const ids = Array.isArray(u.savedIds) ? u.savedIds : [];
+
+    const GROUPS = [
+        ['hs', 'Vocational High Schools', HIGH_SCHOOLS],
+        ['col', 'Colleges', COLLEGES],
+        ['job', 'Internships & Jobs', JOBS],
+        ['opp', 'Scholarships, Competitions & Programs', OPPORTUNITIES]
+    ].map(([kind, title, list]) => ({ kind, title, items: ids.map(id => list.find(x => x.id === id)).filter(Boolean) }));
+    const all = GROUPS.reduce((a, g) => a.concat(g.items), []);
+    const count = st => all.filter(i => statusOf(i.id) === st).length;
+
+    const who = u.name ? planEsc(u.name) : 'Student';
+    const place = [u.town, u.county ? u.county + ' County' : ''].filter(Boolean).map(planEsc).join(', ');
+    const facts = [
+        ['Where I live', place || 'Not set'],
+        ['School level', u.level || 'Not set'],
+        ['Age', u.age || 'Not set'],
+        ['Looking for', u.locationPref === 'Out of State' ? 'Out-of-state' : u.locationPref === 'Both' ? 'In-state and out-of-state' : 'In-state (NJ)'],
+        ['Best season', u.season || 'Not set']
+    ].map(([k, v]) => `<div class="plan-fact"><span>${k}</span><b>${planEsc(v)}</b></div>`).join('');
+
+    let where = '';
+    let next = '';
+    if (snap) {
+        const pct = snap.total ? Math.round(snap.done / snap.total * 100) : 0;
+        where = `
+            <div class="plan-sec">
+                <div class="plan-h">Where I am now</div>
+                <div class="plan-stage"><b>${planEsc(snap.label)}</b> <span>· ${planEsc(snap.stageName)} stage (${planEsc(snap.span)})</span></div>
+                <p class="plan-goal">${planEsc(snap.goal)}</p>
+                <div class="plan-meter" role="img" aria-label="${snap.done} of ${snap.total} steps done"><i style="width:${pct}%"></i></div>
+                <p class="plan-small"><b>${snap.done} of ${snap.total}</b> steps in this stage done. Resume: <b>${snap.resumeDone} of ${snap.resumeTotal}</b> sections filled.</p>
+                ${snap.guess ? '<p class="plan-small plan-warn">This stage is a best guess. Taking the survey or adding a graduation date to the resume makes it exact.</p>' : ''}
+            </div>`;
+        const rows = [].concat(snap.doing.map(t => ({ t, doing: true })), snap.todo.map(t => ({ t, doing: false }))).slice(0, 6);
+        const behind = snap.behind.slice(0, 3);
+        next = `
+            <div class="plan-sec">
+                <div class="plan-h">My next steps</div>
+                ${rows.length ? `<ul class="plan-list">${rows.map(r => `<li><span class="plan-box"></span><span><b>${planEsc(r.t.title)}</b>${r.doing ? ' <em class="plan-tag">started</em>' : ''}<br><span class="plan-small">${planEsc(r.t.when)}</span></span></li>`).join('')}</ul>` : '<p class="plan-small">Everything in this stage is done. Nice work.</p>'}
+                ${behind.length ? `<div class="plan-sub">Worth catching up on</div><ul class="plan-list tight">${behind.map(b => `<li><span class="plan-box"></span><span>${planEsc(b.title)} <span class="plan-small">(from ${planEsc(b.from.toLowerCase())})</span></span></li>`).join('')}</ul>` : ''}
+                ${snap.next ? `<div class="plan-sub">Coming up: ${planEsc(snap.next.name.toLowerCase())} (${planEsc(snap.next.span)})</div><p class="plan-small">${snap.next.titles.map(planEsc).join(' · ')}</p>` : ''}
+            </div>`;
+    }
+
+    let saved;
+    if (!all.length) {
+        saved = `<div class="plan-sec"><div class="plan-h">My saved list</div><p class="plan-small">Nothing saved yet. Tap the heart (♥) on a school, job or program and it will show up here with its status.</p></div>`;
+    } else {
+        const blocks = GROUPS.filter(g => g.items.length).map(g => `
+            <div class="plan-sub">${g.title} (${g.items.length})</div>
+            <table class="plan-table">
+                <thead><tr><th>Name</th><th>Details</th><th>Status</th><th>Deadline</th></tr></thead>
+                <tbody>${g.items.map(i => `<tr>
+                    <td><b>${planEsc(i.name)}</b><br><span class="plan-url">${planEsc(planShortUrl(i.url))}</span></td>
+                    <td>${planEsc(planFacts(g.kind, i))}</td>
+                    <td><span class="plan-status s-${statusOf(i.id).toLowerCase()}">${planEsc(statusOf(i.id))}</span></td>
+                    <td class="plan-deadline"></td>
+                </tr>`).join('')}</tbody>
+            </table>`).join('');
+        saved = `
+            <div class="plan-sec">
+                <div class="plan-h">My saved list</div>
+                <p class="plan-small"><b>${all.length}</b> saved · ${count('Interested')} interested · ${count('Applying')} applying · ${count('Applied')} applied · ${count('Accepted')} accepted</p>
+                ${blocks}
+            </div>`;
+    }
+
+    const banner = u.surveyCompleted ? '' : `<div class="plan-notice">You haven’t taken the survey yet, so this plan uses default answers. <a href="survey.html">Take the survey</a> to personalize it.</div>`;
+
+    root.innerHTML = `
+        <div class="plan-toolbar">
+            <div>
+                <b>Your one-page plan</b>
+                <span>Print it, or choose “Save as PDF” in the print window to send it to a parent or counselor.</span>
+            </div>
+            <div class="plan-toolbar-actions">
+                <button type="button" class="btn-action" onclick="window.print()">🖨️ Print or save as PDF</button>
+                <a class="btn-action tl-alt" href="profile.html">Edit profile</a>
+            </div>
+        </div>
+        ${banner}
+        <article class="plan-sheet">
+            <div class="plan-head">
+                <img src="biostart_logo_removed.bg.png" alt="" class="plan-logo" onerror="this.style.display='none'">
+                <div>
+                    <div class="plan-title">My Biotech Plan</div>
+                    <div class="plan-for">Prepared for <b>${who}</b> · ${today}</div>
+                </div>
+            </div>
+            <div class="plan-facts">${facts}</div>
+            ${where}
+            ${next}
+            ${saved}
+            <div class="plan-sec plan-notes">
+                <div class="plan-h">Questions and notes for my parent or counselor</div>
+                <div class="plan-line"></div><div class="plan-line"></div><div class="plan-line"></div><div class="plan-line"></div>
+            </div>
+            <div class="plan-foot">Dates and requirements change, so confirm every deadline with each school or program. Made with BIOSTART: Great Resources, Stat.</div>
+        </article>`;
+}
+
 /* --- MODAL DIALOG --- */
 function openModal(title, text, url) {
     const content = document.getElementById('modal-content');
@@ -1730,7 +1878,8 @@ const SEARCH_PAGES = [
     { name: 'Scholarships, Competitions & Summer Programs', href: 'opportunities.html', text: 'scholarships competitions summer programs STEM opportunities research databases certifications' },
     { name: 'Create: Resume Builder', href: 'resume.html#resume', text: 'create resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
     { name: 'Create: Poster Lab', href: 'resume.html#poster', text: 'create poster lab project assistance help science fair research poster infographic concept explainer career spotlight lab safety technique guide template graphics presentation display print pdf' },
-    { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' }
+    { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' },
+    { name: 'My Plan (printable)', href: 'plan.html', text: 'my plan printable one page summary parent counselor timeline saved items next steps print pdf share' }
 ];
 
 let searchIndex = null;
@@ -2995,7 +3144,7 @@ window.addEventListener('DOMContentLoaded', () => {
             <div class="tl-meter" role="img" aria-label="${done.length} of ${rows.length} steps done"><i style="width:${pct}%"></i></div>
             <p class="tl-meter-label">${done.length} of ${rows.length} steps done</p>
             <div class="tl-resumebox"><strong>Resume: ${ctx.secDone} of ${ctx.sections.length} sections filled.</strong>${missing.length ? `<br>Still empty: ${esc(missing.slice(0, 4).join(', '))}${missing.length > 4 ? ` and ${missing.length - 4} more` : ''}.` : '<br>Every section has something in it.'}</div>
-            <div class="tl-actions"><a class="btn-action" href="resume.html#resume">Edit resume</a><a class="btn-action tl-alt" href="profile.html">Update profile</a></div>
+            <div class="tl-actions"><a class="btn-action" href="resume.html#resume">Edit resume</a><a class="btn-action tl-alt" href="profile.html">Update profile</a><a class="btn-action tl-alt" href="plan.html">Print my plan</a></div>
         </div>`;
 
         const banner = isCur ? '' : `<div class="tl-banner"><span>Previewing ${esc(stage.name.toLowerCase())}. Anything your resume already covers still counts.</span><button type="button" class="tl-linkbtn" data-act="back">Back to my stage</button></div>`;
@@ -3069,6 +3218,30 @@ window.addEventListener('DOMContentLoaded', () => {
         dirty = true;
         if (isOpen) renderPanel();
     }
+
+    /* ---------- read-only snapshot, used by the printable My Plan page ---------- */
+    window.BiostartPlan = {
+        snapshot() {
+            ctx = buildCtx();
+            checks = loadChecks();
+            cur = detect(ctx);
+            const stage = STAGES[cur.idx];
+            const rows = stage.tasks.map(t => ({ t, s: statusOf(t) }));
+            const pick = st => rows.filter(r => r.s === st).map(r => ({ title: r.t.title, when: r.t.when }));
+            const behind = [];
+            for (let i = 0; i < cur.idx; i++) STAGES[i].tasks.forEach(t => { if (t.core && statusOf(t) !== 'done') behind.push({ title: t.title, from: STAGES[i].name }); });
+            const next = STAGES[cur.idx + 1] || null;
+            return {
+                label: cur.label, stageName: stage.name, span: stage.span, goal: stage.goal,
+                basis: cur.basis, guess: cur.guess,
+                total: rows.length, done: rows.filter(r => r.s === 'done').length,
+                doing: pick('doing'), todo: pick('todo'), behind,
+                next: next ? { name: next.name, span: next.span, titles: next.tasks.slice(0, 3).map(t => t.title) } : null,
+                resumeDone: ctx.secDone, resumeTotal: ctx.sections.length,
+                resumeMissing: ctx.sections.filter(x => !x[1]).map(x => x[0])
+            };
+        }
+    };
 
     function build() {
         const header = document.querySelector('header');
