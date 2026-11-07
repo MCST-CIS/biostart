@@ -1327,6 +1327,9 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
     box-shadow: 0 5px 0 var(--biostart-black);
 }
 .page-banner::before {
+    background-image: url('images/banner-opportunities.jpg');
+    background-size: cover;
+    background-position: center;
     content: '';
     position: absolute;
     inset: 0;
