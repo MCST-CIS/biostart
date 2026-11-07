@@ -58,7 +58,25 @@ const OPPORTUNITIES = [
     { id: 'opp3', name: 'Davidson Fellows Scholarship', cat: 'scholarship', town: 'Statewide', ageMin: 13, season: 'Summer', url: 'https://www.davidsongifted.org/gifted-programs/fellows-scholarship/', notes: 'Scholarship awards up to $50,000 for extraordinary scientific achievements.' },
     { id: 'opp4', name: 'Rutgers Aresty High School Research Program', cat: 'program', town: 'New Brunswick', ageMin: 15, season: 'Summer', url: 'https://aresty.rutgers.edu/resources/research-opportunities-high-school-students', notes: 'Summer laboratory research opportunities at Rutgers New Brunswick.' },
     { id: 'opp5', name: 'HOSA Future Health Professionals', cat: 'competition', town: 'Statewide', ageMin: 14, season: 'Spring', url: 'https://hosa.org/competition/', notes: 'State and national healthcare & biotech competitive events.' },
-    { id: 'opp6', name: 'TSA Biotechnology Design Competition', cat: 'competition', town: 'Statewide', ageMin: 13, season: 'Spring', url: 'https://tsaweb.org/students#competitions', notes: 'Technology Student Association national biotechnology challenges.' }
+    { id: 'opp6', name: 'TSA Biotechnology Design Competition', cat: 'competition', town: 'Statewide', ageMin: 13, season: 'Spring', url: 'https://tsaweb.org/students#competitions', notes: 'Technology Student Association national biotechnology challenges.' },
+
+    /* ---- Courses and learning resources (links verified; fees and audit options can change, so check each page) ---- */
+    { id: 'opp_khan_bio', name: 'Khan Academy: Biology', cat: 'course', town: 'Online', ageMin: 10, season: 'All Seasons', cost: 'Free', format: 'Videos + practice', url: 'https://www.khanacademy.org/science/biology', notes: 'Free video lessons and practice exercises that build from cells and DNA up to genetics. A good first stop for middle schoolers and a quick refresher for older students.' },
+    { id: 'opp_khan_stats', name: 'Khan Academy: Statistics & Probability', cat: 'course', town: 'Online', ageMin: 12, season: 'All Seasons', cost: 'Free', format: 'Videos + practice', url: 'https://www.khanacademy.org/math/statistics-probability', notes: 'Lab results mean little without statistics. This free course covers averages, graphs, probability and significance tests, the math behind reading data and designing fair experiments.' },
+    { id: 'opp_hhmi', name: 'HHMI BioInteractive', cat: 'course', town: 'Online', ageMin: 13, season: 'All Seasons', cost: 'Free', format: 'Virtual labs + videos', url: 'https://www.biointeractive.org/', notes: 'Free videos, data activities and virtual labs from the Howard Hughes Medical Institute, made for high school and college biology. Topics include genetics, microbiology, DNA sequencing and immunology.' },
+    { id: 'opp_labx', name: 'LabXchange (Harvard & Amgen Foundation)', cat: 'course', town: 'Online', ageMin: 14, season: 'All Seasons', cost: 'Free', format: 'Virtual labs', url: 'https://www.labxchange.org/', notes: 'Free virtual lab simulations where you can practice techniques such as bacterial culture and gel electrophoresis, plus videos and learning pathways. Great prep if your school has limited lab time.' },
+    { id: 'opp_ocw_bio', name: 'MIT OpenCourseWare: Fundamentals of Biology (7.01SC)', cat: 'course', town: 'Online', ageMin: 15, season: 'All Seasons', cost: 'Free, no sign-up', format: 'Self-paced', url: 'https://ocw.mit.edu/courses/7-01sc-fundamentals-of-biology-fall-2011/', notes: 'A full college intro biology course built for independent study, with lecture videos from MIT faculty, problem sets and exams with solutions on biochemistry, genetics, molecular biology and recombinant DNA. New to biology? MIT also offers a free prep course, “Getting Up to Speed in Biology.”' },
+    { id: 'opp_duke_genetics', name: 'Introduction to Genetics and Evolution (Duke, on Coursera)', cat: 'course', town: 'Online', ageMin: 15, season: 'All Seasons', cost: 'Free to audit; certificate costs extra', format: 'Self-paced, 11 modules', url: 'https://www.coursera.org/learn/genetics-evolution', notes: 'A college-level course that assumes no prior biology, moving from basic inheritance to population genetics and molecular evolution. If you do not see the audit option, look for the free trial or apply for financial aid. Coursera requires learners to be 13+, and under 18 a parent or guardian must be involved.' },
+    { id: 'opp_ucsd_drug', name: 'Drug Discovery (UC San Diego, on Coursera)', cat: 'course', town: 'Online', ageMin: 16, season: 'All Seasons', cost: 'Free to audit; certificate costs extra', format: 'Self-paced, about 9 hours', url: 'https://www.coursera.org/learn/drug-discovery', notes: 'A short beginner course on how new medicines are found, from choosing a target to testing candidates. UC San Diego’s follow-on courses on Drug Development and Drug Commercialization cover the rest of the path to market. Coursera requires learners under 18 to have a parent or guardian involved.' },
+    { id: 'opp_py4e', name: 'Python for Everybody (University of Michigan)', cat: 'course', town: 'Online', ageMin: 13, season: 'All Seasons', cost: 'Free', format: 'Self-paced', url: 'https://www.py4e.com/', notes: 'A beginner-friendly Python course with free lectures, a textbook and assignments from Dr. Charles Severance. Python is widely used to analyze biological data, so this is a strong first step toward bioinformatics.' },
+    { id: 'opp_rosalind', name: 'Rosalind: Learn Bioinformatics by Solving Problems', cat: 'course', town: 'Online', ageMin: 14, season: 'All Seasons', cost: 'Free', format: 'Coding practice', url: 'https://rosalind.info/', notes: 'Puzzle-style problems that teach bioinformatics and programming together. You can use any programming language, and answers are checked automatically. Try it after a Python basics course.' },
+
+    /* ---- Credential, career information and a New Jersey program ---- */
+    { id: 'opp_osha10', name: 'OSHA 10-Hour Safety Training (General Industry)', cat: 'certification', town: 'Online', ageMin: 14, season: 'All Seasons', cost: 'Fee varies by provider', format: 'Online or in person', url: 'https://www.osha.gov/training/outreach', notes: 'Entry-level workplace safety training that earns an official U.S. Department of Labor card. It is voluntary under federal rules, but some employers require it. OSHA sets no minimum age, and only OSHA-authorized trainers and online providers can issue the real card, so check authorization before you pay.' },
+    { id: 'opp_ibiology', name: 'iBiology: Free Talks from Leading Scientists', cat: 'resource', town: 'Online', ageMin: 10, season: 'All Seasons', cost: 'Free', format: 'Video library', url: 'https://www.ibiology.org/', notes: 'Free videos where top scientists explain their discoveries, how lab techniques like microscopy work, and how they built their careers, including the series “How I Became a Scientist.”' },
+    { id: 'opp_bls', name: 'BLS Career Guide: Biological Technicians', cat: 'resource', town: 'Nationwide', ageMin: 12, season: 'All Seasons', cost: 'Free', format: 'Career guide', url: 'https://www.bls.gov/ooh/life-physical-and-social-science/biological-technicians.htm', notes: 'The U.S. Bureau of Labor Statistics page on what lab technicians do, where they work, current pay and job outlook. It notes that most need a bachelor’s degree in biology or a related field and that students should gain lab experience while still in school.' },
+    { id: 'opp_bionj', name: 'BioNJ: New Jersey’s Life Sciences Network', cat: 'resource', town: 'Statewide', ageMin: 14, season: 'All Seasons', cost: 'Free', format: 'Industry association', url: 'https://www.bionj.org/', notes: 'The trade association for New Jersey’s life sciences industry. Its career portal lists NJ biotech and pharma jobs, and its member companies are good ones to research and follow.' },
+    { id: 'opp_njas_brfp', name: 'NJAS Biotechnology Research Fellowship (Caldwell University)', cat: 'program', town: 'Caldwell', county: 'Essex', ageMin: 14, season: 'Summer', format: 'Two weeks, on campus', url: 'https://njas.org/Biotechnology-Research-Fellowship-Program', notes: 'A two-week hands-on summer research program at Caldwell University for New Jersey high school students, with tracks in cancer biology and in neuroscience and developmental biology, an industry site visit and a poster showcase. NJAS lists cohorts for summer 2025 and summer 2026, so check the page for the next dates and how to apply.' }
 ];
 
 const AVATARS = ['🔬', '🧬', '🧪', '🧫', '💻', '🎓', '💼'];
@@ -212,7 +230,7 @@ const PAGE_BANNERS = {
     'grid-col':  { cls: 'colleges',      sub: 'Biotech degree tracks, research-ready campuses, and where to look beyond New Jersey.' },
     'grid-hs':   { cls: 'highschools',   sub: 'Hands-on biotech lab training, years before college.' },
     'grid-jobs': { cls: 'jobs',          sub: 'Internships and paid lab roles matched to your age and season.' },
-    'grid-opp':  { cls: 'opportunities', sub: 'Scholarships, competitions, and summer research programs worth applying to.' }
+    'grid-opp':  { cls: 'opportunities', sub: 'Scholarships, competitions, summer programs, and free biotech courses worth your time.' }
 };
 
 // Flat illustration in the same palette as the logo: salmon blob, red, black
@@ -524,30 +542,65 @@ function renderJobs() {
 }
 
 /* --- OPPORTUNITIES RENDER --- */
+let oppFilter = 'all';
+const OPP_FILTERS = [
+    ['all', 'All'], ['course', 'Courses'], ['competition', 'Competitions'], ['scholarship', 'Scholarships'],
+    ['program', 'Programs'], ['certification', 'Certifications'], ['resource', 'Databases & Resources']
+];
+
+function oppInFilter(o, f) {
+    if (f === 'all') return true;
+    if (f === 'resource') return o.cat === 'database' || o.cat === 'resource';
+    return o.cat === f;
+}
+
+function setOppFilter(f) {
+    oppFilter = OPP_FILTERS.some(x => x[0] === f) ? f : 'all';
+    renderOpportunities();
+}
+
 function renderOpportunities() {
     const container = document.getElementById('grid-opp');
     if (!container) return;
-    container.innerHTML = '';
 
     let list = OPPORTUNITIES;
     if (userProfile.surveyCompleted) {
         list = OPPORTUNITIES.filter(o => userProfile.age >= o.ageMin);
         sortByTownAndCounty(list);
     }
+    const shown = list.filter(o => oppInFilter(o, oppFilter));
 
-    list.forEach(o => {
+    const bar = document.getElementById('opp-filters');
+    if (bar) {
+        bar.innerHTML = OPP_FILTERS.map(([key, label]) => {
+            const n = list.filter(o => oppInFilter(o, key)).length;
+            const on = key === oppFilter;
+            return `<button type="button" class="opp-filter${on ? ' active' : ''}" aria-pressed="${on}" onclick="setOppFilter('${key}')">${label} <span>${n}</span></button>`;
+        }).join('');
+    }
+
+    if (!shown.length) {
+        container.innerHTML = `<div class="opp-empty">Nothing in this category matches your age yet. <a href="#" onclick="setOppFilter('all'); return false;">Show everything</a>.</div>`;
+        return;
+    }
+
+    container.innerHTML = shown.map(o => {
         const isLiked = userProfile.savedIds.includes(o.id);
-        container.innerHTML += `
+        const chips = [o.cost, o.format, o.ageMin ? 'Ages ' + o.ageMin + '+' : ''].filter(Boolean)
+            .map((c, i) => `<span class="opp-chip${c === o.cost ? ' cost' : ''}">${c}</span>`).join('');
+        const cta = o.cat === 'course' ? 'Open Course' : o.cat === 'resource' ? 'Open Resource' : 'View Details';
+        return `
             <div class="card" id="item-${o.id}">
                 <div class="card-head">${logoHTML(o)}<span class="card-tag">${o.cat.toUpperCase()}</span></div>
                 <div class="card-title">${o.name}</div>
                 <div class="card-body">${o.notes}</div>
+                <div class="opp-chips">${chips}</div>
                 <div class="card-actions">
-                    <a href="${o.url}" target="_blank" class="btn-action">View Details</a>
+                    <a href="${o.url}" target="_blank" rel="noopener" class="btn-action">${cta}</a>
                     <span class="like-heart ${isLiked ? 'liked' : ''}" onclick="toggleLike('${o.id}', event)">♥</span>
                 </div>
             </div>`;
-    });
+    }).join('');
 }
 
 /* --- SURVEY HANDLER & DYNAMIC ROUTING FIX --- */
@@ -1299,6 +1352,7 @@ function revealItemFromHash() {
         if (document.getElementById('grid-col')) selectCollegeTab('all');
         else if (document.getElementById('grid-jobs')) selectJobTab('all');
         else if (document.getElementById('grid-hs')) filterCounty('ALL', document.querySelector('.county-list li'));
+        else if (document.getElementById('grid-opp')) setOppFilter('all');
         el = find();
     }
     if (!el) return;
@@ -1781,7 +1835,7 @@ function renderPlanPage() {
         ['hs', 'Vocational High Schools', HIGH_SCHOOLS],
         ['col', 'Colleges', COLLEGES],
         ['job', 'Internships & Jobs', JOBS],
-        ['opp', 'Scholarships, Competitions & Programs', OPPORTUNITIES]
+        ['opp', 'Opportunities, Courses & Programs', OPPORTUNITIES]
     ].map(([kind, title, list]) => ({ kind, title, items: ids.map(id => list.find(x => x.id === id)).filter(Boolean) }));
     const all = GROUPS.reduce((a, g) => a.concat(g.items), []);
     const count = st => all.filter(i => statusOf(i.id) === st).length;
@@ -2241,7 +2295,7 @@ const SEARCH_PAGES = [
     { name: 'Vocational High Schools', href: 'highschools.html', text: 'public CTE high schools academies county middle school biotechnology filter by county' },
     { name: 'Colleges & Universities', href: 'colleges.html', text: 'colleges universities degrees B.S. A.S. research labs undergraduate in-state out-of-state' },
     { name: 'Internships & Jobs', href: 'jobs.html', text: 'internships paid jobs workplace positions apply student' },
-    { name: 'Scholarships, Competitions & Summer Programs', href: 'opportunities.html', text: 'scholarships competitions summer programs STEM opportunities research databases certifications' },
+    { name: 'Scholarships, Competitions & Summer Programs', href: 'opportunities.html', text: 'scholarships competitions summer programs STEM opportunities research databases certifications courses online learning free biotech virtual labs python bioinformatics statistics osha' },
     { name: 'Create: Resume Builder', href: 'resume.html#resume', text: 'create resume builder templates modern corporate academic compact print pdf copy plain text sample skills education' },
     { name: 'Create: Poster Lab', href: 'resume.html#poster', text: 'create poster lab project assistance help science fair research poster infographic concept explainer career spotlight lab safety technique guide template graphics presentation display print pdf' },
     { name: 'Account Profile', href: 'profile.html', text: 'account profile avatar saved opportunities application tracker preferences interested applying applied accepted' },
