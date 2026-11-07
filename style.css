@@ -1966,3 +1966,20 @@ header { z-index: 20; }
 @media (max-width: 520px) { .acct-place { display: none; } .acct-me { grid-template-columns: 48px minmax(0, 1fr); } .acct-avatar { width: 48px; height: 48px; font-size: 24px; } }
 @media (prefers-reduced-motion: reduce) { .acct-menu, .acct-menu.open, .user-pill .acct-chev, .acct-row { transition: none !important; } .user-pill.nav-spotlight { animation: none !important; } }
 @media print { .acct-menu { display: none !important; } }
+
+/* ==========================================================================
+   SAVED OPPORTUNITIES: click a saved card to open it on its page
+   ========================================================================== */
+.saved-card[data-href] { cursor: pointer; }
+.saved-card[data-href]:focus-visible { outline: 3px solid var(--biostart-red); outline-offset: 2px; }
+.saved-card select, .saved-card label { cursor: auto; }
+.saved-open { margin-top: 8px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: var(--biostart-red); }
+.saved-card:hover .saved-open { text-decoration: underline; }
+
+/* The card you arrived at from My Saved Opportunities */
+.card-spotlight { animation: cardSpotlight 2.8s ease-out; position: relative; z-index: 1; }
+@keyframes cardSpotlight {
+    0%, 55% { box-shadow: 0 0 0 5px var(--biostart-red), 0 4px 0 var(--biostart-black); transform: scale(1.02); }
+    100%    { box-shadow: 0 0 0 0 rgba(217, 56, 41, 0); transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .card-spotlight { animation: none !important; outline: 4px solid var(--biostart-red); } }
