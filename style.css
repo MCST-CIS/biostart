@@ -2006,3 +2006,67 @@ header { z-index: 20; }
 .compare-na { color: #888; font-style: italic; }
 .compare-link { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--biostart-red); }
 .compare-note { margin-top: 12px; font-size: 12px; color: #555; font-weight: 700; }
+
+/* ==========================================================================
+   PRINTABLE "MY PLAN" PAGE
+   ========================================================================== */
+.plan-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; max-width: 8.5in; margin: 0 auto 16px;
+    background: #fff8e1; border: 2px solid var(--biostart-black); border-radius: 8px; padding: 12px 16px; box-shadow: 0 3px 0 var(--biostart-black); }
+.plan-toolbar b { display: block; font-size: 14px; text-transform: uppercase; font-weight: 900; }
+.plan-toolbar span { display: block; font-size: 12px; font-weight: 700; color: #444; margin-top: 2px; }
+.plan-toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.plan-notice { max-width: 8.5in; margin: 0 auto 16px; background: #fff; border: 2px solid var(--biostart-red); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 700; }
+.plan-notice a { color: var(--biostart-red); }
+
+.plan-sheet { max-width: 8.5in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 28px 32px; color: var(--biostart-black); page: plan; }
+.plan-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid var(--biostart-black); padding-bottom: 14px; margin-bottom: 14px; }
+.plan-logo { width: 64px; height: 64px; object-fit: contain; }
+.plan-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; }
+.plan-for { font-size: 13px; color: #444; margin-top: 4px; }
+.plan-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 6px; }
+.plan-fact { border: 2px solid var(--biostart-black); border-radius: 6px; padding: 6px 9px; background: #fafafa; }
+.plan-fact span { display: block; font-size: 9px; font-weight: 900; text-transform: uppercase; color: #666; letter-spacing: 0.05em; }
+.plan-fact b { font-size: 13px; }
+.plan-sec { margin-top: 18px; }
+.plan-h { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; background: var(--biostart-black); display: inline-block; padding: 3px 10px; border-radius: 3px; margin-bottom: 8px; }
+.plan-sub { font-size: 12px; font-weight: 900; text-transform: uppercase; margin: 12px 0 5px; border-bottom: 2px solid var(--biostart-red); padding-bottom: 2px; }
+.plan-stage { font-size: 16px; }
+.plan-stage span { color: #555; font-size: 13px; }
+.plan-goal { font-size: 13px; line-height: 1.45; margin: 4px 0 8px; }
+.plan-meter { height: 10px; border: 2px solid var(--biostart-black); border-radius: 6px; background: #eee; overflow: hidden; }
+.plan-meter i { display: block; height: 100%; background: var(--biostart-red); }
+.plan-small { font-size: 12px; color: #444; margin: 5px 0 0; line-height: 1.4; }
+.plan-warn { color: #8a1c10; font-weight: 700; }
+.plan-list { list-style: none; margin: 0; padding: 0; }
+.plan-list li { display: flex; gap: 9px; align-items: flex-start; font-size: 13px; padding: 5px 0; border-bottom: 1px dotted #bbb; line-height: 1.35; }
+.plan-list.tight li { padding: 3px 0; }
+.plan-box { flex: 0 0 14px; height: 14px; border: 2px solid var(--biostart-black); border-radius: 3px; margin-top: 2px; }
+.plan-tag { font-style: normal; font-size: 10px; font-weight: 900; text-transform: uppercase; background: #fff8e1; border: 1px solid var(--biostart-black); border-radius: 3px; padding: 0 5px; margin-left: 4px; }
+.plan-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 4px; }
+.plan-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; background: #f0f0f0; border: 1.5px solid var(--biostart-black); padding: 4px 7px; }
+.plan-table td { border: 1.5px solid var(--biostart-black); padding: 5px 7px; vertical-align: top; line-height: 1.35; }
+.plan-table tr { break-inside: avoid; page-break-inside: avoid; }
+.plan-table th:nth-child(1) { width: 34%; } .plan-table th:nth-child(3) { width: 84px; } .plan-table th:nth-child(4) { width: 96px; }
+.plan-url { font-size: 10px; color: #666; word-break: break-all; }
+.plan-deadline { min-width: 90px; }
+.plan-status { display: inline-block; font-size: 10px; font-weight: 900; text-transform: uppercase; border: 1.5px solid var(--biostart-black); border-radius: 10px; padding: 1px 8px; background: #fff; }
+.plan-status.s-applying { background: #fff8e1; }
+.plan-status.s-applied { background: #e3f2fd; }
+.plan-status.s-accepted { background: #e6f6e6; }
+.plan-line { border-bottom: 1.5px solid #888; height: 26px; }
+.plan-notes { break-inside: avoid; page-break-inside: avoid; }
+.plan-foot { margin-top: 16px; padding-top: 8px; border-top: 2px solid var(--biostart-black); font-size: 10px; color: #555; }
+
+@page plan { size: letter; margin: 0.5in; }
+@media print {
+    body.plan-page, body.plan-page .container { background: #fff !important; }
+    body.plan-page .container { margin: 0 !important; padding: 0 !important; max-width: none !important; min-height: 0 !important; }
+    body.plan-page .plan-toolbar, body.plan-page .plan-notice, body.plan-page .page-banner, body.plan-page .tl-tab, body.plan-page #tl-panel,
+    body.plan-page .bt-launch, body.plan-page .bt-root, body.plan-page .bm-toasts, body.plan-page .bm-confetti { display: none !important; }
+    body.plan-page .plan-sheet { border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; max-width: none !important; margin: 0 !important; }
+    body.plan-page .plan-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body.plan-page .plan-sheet a { color: inherit; text-decoration: none; }
+    body.plan-page .plan-title { font-size: 22px; }
+    body.plan-page .plan-sec { margin-top: 12px; }
+    body.plan-page .plan-line { height: 22px; }
+}
