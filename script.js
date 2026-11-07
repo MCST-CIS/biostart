@@ -3779,7 +3779,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     /* ---------- small illustrations (built from HTML so they match the site) ---------- */
     const V = {
-        welcome: `<div class="bt-vis bt-vis-welcome"><div class="bt-big">🔬</div><div class="bt-wl"><b>BIOSTART</b><span>Explore · Apply · Succeed</span></div></div>`,
+        welcome: `<div class="bt-vis bt-vis-welcome"><img class="bt-logo" src="biostart_logo_removed.bg.png" alt="BIOSTART logo" onerror="this.outerHTML='<div class=&quot;bt-big&quot;>🔬</div>'"><div class="bt-wl"><b>BIOSTART</b><span>Explore · Apply · Succeed</span></div></div>`,
         survey: `<div class="bt-vis"><div class="bt-form">
             <div><i>County</i><b>Morris</b></div><div><i>Town</i><b>Denville</b></div><div><i>Age</i><b>16</b></div>
             <div><i>Location</i><b>In-state</b></div><div><i>Season</i><b>Summer</b></div><div><i>Level</i><b>High school</b></div>
@@ -4002,6 +4002,7 @@ window.addEventListener('DOMContentLoaded', () => {
 .bt-card.spot .bt-vis{padding:12px 16px}
 .bt-vis-welcome{flex-direction:row;justify-content:center;gap:18px}
 .bt-big{font-size:54px;line-height:1;width:92px;height:92px;display:grid;place-items:center;background:#EEB0A5;border:3px solid var(--biostart-black,#0d0d0d);border-radius:50%;box-shadow:0 4px 0 var(--biostart-black,#0d0d0d)}
+.bt-logo{display:block;width:112px;height:auto;max-height:100px;object-fit:contain;flex:none}
 .bt-wl b{display:block;font:900 30px/1 var(--font-display,inherit);letter-spacing:.1em;text-transform:uppercase}
 .bt-wl span{font:700 12px/1.4 var(--font-display,inherit);letter-spacing:.1em;text-transform:uppercase;color:var(--biostart-red,#D93829)}
 .bt-form{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:420px}
