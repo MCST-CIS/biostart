@@ -1983,3 +1983,26 @@ header { z-index: 20; }
     100%    { box-shadow: 0 0 0 0 rgba(217, 56, 41, 0); transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) { .card-spotlight { animation: none !important; outline: 4px solid var(--biostart-red); } }
+
+/* ==========================================================================
+   COMPARE SAVED SCHOOLS
+   ========================================================================== */
+.compare-bar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    background: #fff8e1; border: 2px solid var(--biostart-black); border-radius: 8px; padding: 12px 14px; box-shadow: 0 3px 0 var(--biostart-black); font-size: 12px; }
+.compare-bar strong { display: block; font-size: 13px; text-transform: uppercase; font-weight: 900; }
+.compare-bar span { display: block; font-weight: 700; color: #444; margin-top: 2px; }
+.compare-bar .btn-action[disabled] { opacity: 0.45; cursor: not-allowed; }
+.compare-pick { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 2px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.compare-pick input { width: 16px; height: 16px; accent-color: var(--biostart-red); cursor: pointer; }
+.compare-pick input:disabled { cursor: not-allowed; }
+.compare-card { max-width: 960px; }
+.compare-title { font-size: 20px; text-transform: uppercase; font-weight: 900; margin: 0 28px 14px 0; }
+.compare-scroll { overflow-x: auto; }
+.compare-table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13px; }
+.compare-table th, .compare-table td { border: 2px solid var(--biostart-black); padding: 10px 12px; text-align: left; vertical-align: top; line-height: 1.45; }
+.compare-table thead th { background: var(--biostart-black); color: #fff; }
+.compare-table tbody th { background: #f4f4f4; text-transform: uppercase; font-size: 11px; font-weight: 900; width: 130px; position: sticky; left: 0; }
+.compare-school { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.compare-na { color: #888; font-style: italic; }
+.compare-link { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 800; color: var(--biostart-red); }
+.compare-note { margin-top: 12px; font-size: 12px; color: #555; font-weight: 700; }
