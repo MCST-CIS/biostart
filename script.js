@@ -155,6 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateUserHeaderDisplay();
     loadSurveyForm();
     renderAllGrids();
+    revealItemFromHash();
     if (document.getElementById('printable-resume')) initResumeBuilder();
     if (document.getElementById('prof-fname') || document.getElementById('profile-edit-form')) loadProfileDisplay();
 });
@@ -376,7 +377,7 @@ function renderHighSchools() {
         const isLiked = userProfile.savedIds.includes(hs.id);
         const isCountyMatch = userProfile.surveyCompleted && userProfile.county && hs.county.toLowerCase() === userProfile.county.toLowerCase();
         container.innerHTML += `
-            <div class="card">
+            <div class="card" id="item-${hs.id}">
                 <div class="card-head">${logoHTML(hs)}<span class="card-tag">${hs.county} County${isCountyMatch ? ' ★ YOUR COUNTY' : ''}</span></div>
                 <div class="card-title">${hs.name}</div>
                 <div class="card-body">${hs.notes}</div>
@@ -455,7 +456,7 @@ function renderColleges() {
         const isLiked = userProfile.savedIds.includes(col.id);
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(col, userProfile.town);
         html += `
-            <div class="card">
+            <div class="card" id="item-${col.id}">
                 <div class="card-head">${logoHTML(col)}<span class="card-tag">${col.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(col)} | ${col.location}</span></div>
                 <div class="card-title">${col.name}</div>
                 <div class="card-body"><strong>Cost:</strong> ${col.cost}<br><strong>Acceptance:</strong> ${col.acceptance}<br><strong>Typical applicant age:</strong> ${col.ageMin}+<br>${col.notes}</div>
@@ -508,7 +509,7 @@ function renderJobs() {
         const isLiked = userProfile.savedIds.includes(j.id);
         const isTownMatch = userProfile.surveyCompleted && jMatchTown(j, userProfile.town);
         html += `
-            <div class="card">
+            <div class="card" id="item-${j.id}">
                 <div class="card-head">${logoHTML(j)}<span class="card-tag">${j.isNJ ? 'IN-STATE (NJ)' : 'OUT-OF-STATE'}${isTownMatch ? ' ★ NEAR YOU' : ''}${ageTag(j)} | ${j.cat.toUpperCase()}</span></div>
                 <div class="card-title">${j.name}</div>
                 <div class="card-body"><strong>Minimum age:</strong> ${j.ageMin}+<br><strong>Contact Email:</strong> ${j.email}<br>${j.notes}</div>
@@ -536,7 +537,7 @@ function renderOpportunities() {
     list.forEach(o => {
         const isLiked = userProfile.savedIds.includes(o.id);
         container.innerHTML += `
-            <div class="card">
+            <div class="card" id="item-${o.id}">
                 <div class="card-head">${logoHTML(o)}<span class="card-tag">${o.cat.toUpperCase()}</span></div>
                 <div class="card-title">${o.name}</div>
                 <div class="card-body">${o.notes}</div>
@@ -1240,7 +1241,7 @@ function renderSaved() {
         const delay = firstPaint ? `animation-delay:${i * 80}ms;` : '';
         const currentStatus = userProfile.progress[item.id] || "Interested";
         html += `
-            <div class="card saved-card ${cls}" style="margin-bottom:12px; ${delay}">
+            <div class="card saved-card ${cls}" style="margin-bottom:12px; ${delay}" data-href="${savedItemHref(item.id)}" role="link" tabindex="0" title="Open details on the ${savedItemPageName(item.id)} page">
                 <div style="display:flex; justify-content:space-between; align-items:start;">
                     <div style="display:flex; gap:12px; align-items:flex-start;">
                         ${logoHTML(item, true)}
@@ -1252,6 +1253,7 @@ function renderSaved() {
                     <span class="like-heart liked" onclick="toggleLike('${item.id}', event)">♥</span>
                 </div>
                 <div style="margin-top:10px;">
+                    <div class="saved-open">View full details &rarr;</div>
                     <label style="font-size:10px; font-weight:800; text-transform:uppercase;">Application Tracker Status:</label><br>
                     <select class="resume-field" style="padding:6px; font-weight:bold; border:2px solid #000; width:100%; margin-top:4px;" onchange="updateSavedStatus('${item.id}', this.value)">
                         <option value="Interested" ${currentStatus === 'Interested' ? 'selected' : ''}>Interested</option>
@@ -1264,6 +1266,47 @@ function renderSaved() {
     });
     grid.innerHTML = html;
 }
+
+
+/* --- SAVED ITEM -> DETAILS ON ITS OWN PAGE --- */
+const SAVED_PAGES = { hs: ['highschools.html', 'Vocational High Schools'], col: ['colleges.html', 'Colleges'], job: ['jobs.html', 'Internships & Jobs'], opp: ['opportunities.html', 'Opportunities'] };
+function savedPageFor(id) { return SAVED_PAGES[(String(id).match(/^[a-z]+/) || [''])[0]] || SAVED_PAGES.opp; }
+function savedItemHref(id) { return `${savedPageFor(id)[0]}#item-${id}`; }
+function savedItemPageName(id) { return savedPageFor(id)[1]; }
+
+// Clicking anywhere on a saved card (except its heart, status dropdown or links) opens that item on its page
+document.addEventListener('click', e => {
+    const card = e.target.closest && e.target.closest('.saved-card[data-href]');
+    if (!card || e.target.closest('.like-heart, select, label, a, button')) return;
+    window.location.href = card.dataset.href;
+});
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.closest('select, a, button')) return;
+    const card = e.target.closest && e.target.closest('.saved-card[data-href]');
+    if (card) window.location.href = card.dataset.href;
+});
+
+// On arrival with #item-<id>: make sure the card is visible, scroll to it and highlight it
+function revealItemFromHash() {
+    const m = (location.hash || '').match(/^#item-([A-Za-z0-9_-]+)$/);
+    if (!m) return;
+    const find = () => document.getElementById('item-' + m[1]);
+    let el = find();
+    if (!el) {   // hidden by a tab or county filter: widen to everything and try again
+        if (document.getElementById('grid-col')) selectCollegeTab('all');
+        else if (document.getElementById('grid-jobs')) selectJobTab('all');
+        else if (document.getElementById('grid-hs')) filterCounty('ALL', document.querySelector('.county-list li'));
+        el = find();
+    }
+    if (!el) return;
+    setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.remove('card-spotlight'); void el.offsetWidth;
+        el.classList.add('card-spotlight');
+        setTimeout(() => el.classList.remove('card-spotlight'), 2800);
+    }, 250);
+}
+window.addEventListener('hashchange', revealItemFromHash);
 
 /* --- MODAL DIALOG --- */
 function openModal(title, text, url) {
