@@ -148,7 +148,7 @@ function jMatchTown(item, townStr) {
 function sortByTownAndCounty(list) {
     const userTown = (userProfile.town || '').toLowerCase();
     const userCounty = (userProfile.county || '').toLowerCase();
-    
+   
     list.sort((a, b) => {
         const aTownMatch = jMatchTown(a, userTown) ? 2 : 0;
         const bTownMatch = jMatchTown(b, userTown) ? 2 : 0;
@@ -351,7 +351,7 @@ function renderHighSchools() {
         list = list.filter(hs => (userProfile.age >= hs.ageMin));
         sortByTownAndCounty(list);
     }
-    
+   
     if (list.length === 0) {
         const emptyMsg = selectedCountyFilter !== 'ALL'
             ? `No biotechnology CTE programs are listed for ${selectedCountyFilter} County yet. Try a neighboring county or choose [ALL COUNTIES].`
@@ -598,7 +598,7 @@ function townErrorMessage(townInput) {
 
 function handleSurveySubmit(e) {
     e.preventDefault();
-    
+   
     const countyVal = document.getElementById('survey-county').value;
     const townVal = document.getElementById('survey-town').value.trim();
     const ageVal = parseInt(document.getElementById('survey-age').value);
@@ -628,22 +628,64 @@ function handleSurveySubmit(e) {
     userProfile.season = seasonVal;
     userProfile.level = levelVal;
     userProfile.surveyCompleted = true;
-    
+   
     saveState();
     updateUserHeaderDisplay();
     renderAllGrids();
 
     // DYNAMIC BACK-END ROUTING FIX BASED ON STUDENT LEVEL & AGE
+    let dest;
     if (levelVal !== 'Middle School' && (levelVal === 'College Undergrad' || ageVal >= 18)) {
-        alert(`🎉 Survey Updated! Directed to personalized Internships & Paid Jobs based on your profile.`);
-        window.location.href = 'jobs.html';
+        dest = { url: 'jobs.html', icon: '💼', label: 'Internships & Paid Jobs', text: 'We matched internships and paid jobs to your profile.' };
     } else if (levelVal === 'High School') {
-        alert(`🎉 Survey Updated! Directed to personalized College & Degree tracks matching your profile.`);
-        window.location.href = 'colleges.html';
+        dest = { url: 'colleges.html', icon: '🎓', label: 'Colleges & Degree Tracks', text: 'We matched college and degree tracks to your profile.' };
     } else {
-        alert(`🎉 Survey Updated! Directed to Public CTE Vocational High Schools for middle school students.`);
-        window.location.href = 'highschools.html';
+        dest = { url: 'highschools.html', icon: '🏫', label: 'Public CTE High Schools', text: 'We found vocational high schools for middle school students.' };
     }
+    showSurveyComplete(dest, { county: countyVal, town: formatTown(townVal), level: levelVal, season: seasonVal });
+}
+
+/* --- SURVEY COMPLETE NOTIFICATION (replaces the browser alert; validation errors still use alert) --- */
+function showSurveyComplete(dest, answers) {
+    const old = document.getElementById('survey-complete-overlay');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'survey-complete-overlay';
+    overlay.className = 'sc-overlay';
+    overlay.innerHTML = `
+        <div class="sc-card" role="dialog" aria-modal="true" aria-labelledby="sc-title" aria-describedby="sc-text">
+            <div class="sc-banner"><span class="sc-check" aria-hidden="true">✓</span><span class="sc-banner-text">Survey complete</span></div>
+            <div class="sc-body">
+                <div class="sc-icon" aria-hidden="true"></div>
+                <h3 class="sc-title" id="sc-title">You're all set!</h3>
+                <p class="sc-text" id="sc-text"></p>
+                <div class="sc-chips"></div>
+                <div class="sc-dest"><span class="sc-dest-label">Next stop</span><span class="sc-dest-name"></span></div>
+                <button type="button" class="arrow-btn sc-go">Take me there ►</button>
+                <div class="sc-timer" aria-hidden="true"><div class="sc-timer-fill"></div></div>
+                <p class="sc-sub">Taking you there automatically in a moment</p>
+            </div>
+        </div>`;
+
+    const name = (userProfile && userProfile.name) ? userProfile.name : '';
+    overlay.querySelector('.sc-title').textContent = name ? `Nice work, ${name}!` : "You're all set!";
+    overlay.querySelector('.sc-text').textContent = dest.text;
+    overlay.querySelector('.sc-icon').textContent = dest.icon;
+    overlay.querySelector('.sc-dest-name').textContent = dest.label;
+    const chips = [answers.town + ', ' + answers.county + ' County', answers.level, answers.season === 'All Seasons' ? 'All Seasons' : answers.season];
+    overlay.querySelector('.sc-chips').innerHTML = chips.map(() => '<span class="sc-chip"></span>').join('');
+    overlay.querySelectorAll('.sc-chip').forEach((el, i) => { el.textContent = chips[i]; });
+
+    let done = false;
+    const go = () => { if (done) return; done = true; clearTimeout(timer); window.location.href = dest.url; };
+    const timer = setTimeout(go, 4500);
+
+    overlay.querySelector('.sc-go').addEventListener('click', go);
+    overlay.addEventListener('keydown', ev => { if (ev.key === 'Escape') go(); });
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('show'));
+    overlay.querySelector('.sc-go').focus();
 }
 
 /* ==========================================================================
@@ -694,7 +736,7 @@ function selectTemplate(templateKey) {
     document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
     const selectedCard = document.getElementById(`tpl-card-${templateKey}`);
     if (selectedCard) selectedCard.classList.add('selected');
-    
+   
     const labelMap = {
         'modern': 'Modern Biotech',
         'academic': 'Academic & Research',
