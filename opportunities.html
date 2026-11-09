@@ -30,7 +30,74 @@
         <a href="colleges.html" class="nav-btn">Colleges</a>
         <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
         <a href="opportunities.html" class="nav-btn active">Opportunities</a>
-        <a href="create.html" class="nav-btn">Create</a>
+        <a href="<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internships & Jobs - BIOSTART</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="favicon-192.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+    <header>
+        <a class="brand-box" href="index.html">
+            <img src="biostart_logo_removed.bg.png" alt="BIOSTART logo" class="brand-logo-img">
+            <div class="brand-title">
+                <h1>BIOSTA<span style="color: #D93829;">R</span>T</h1>
+                <p>Great Resources, Stat</p>
+            </div>
+        </a>
+        <a class="user-pill" href="profile.html">
+            👤 <span id="user-greeting">Guest Account</span>
+        </a>
+    </header>
+
+    <nav>
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="survey.html" class="nav-btn">Take Survey</a>
+        <a href="jobs.html" class="nav-btn active">Internships & Jobs</a>
+        <a href="colleges.html" class="nav-btn">Colleges</a>
+        <a href="highschools.html" class="nav-btn">Vocational High Schools</a>
+        <a href="opportunities.html" class="nav-btn">Opportunities</a>
+        <a href="resume.html" class="nav-btn">Create</a>
+        <a href="plan.html" class="nav-btn">My Plan</a>
+    </nav>
+
+    <div class="container">
+        <h2>Internships & Paid Jobs</h2>
+        <div class="canva-choice-grid">
+            <div class="choice-card selected" id="job-card-foryou" onclick="selectJobTab('foryou')">
+                <div class="choice-card-icon">🔍</div>
+                <div class="choice-card-title">FOR YOU: OPPORTUNITIES</div>
+                <div class="choice-card-desc">Personalized internship & job recommendations based on skills, location, and availability.</div>
+            </div>
+            <div class="choice-card" id="job-card-all" onclick="selectJobTab('all')">
+                <div class="choice-card-icon">💼</div>
+                <div class="choice-card-title">ALL JOBS & INTERNSHIPS</div>
+                <div class="choice-card-desc">Search and browse for additional available internship and paid job opportunities.</div>
+            </div>
+        </div>
+        <div class="filter-header-bar">
+            <span>FILTER BY AGE, SEASON</span>
+            <span>WORKPLACE POSITIONS</span>
+        </div>
+        <div id="grid-jobs" class="grid"></div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-card">
+            <span class="modal-close" onclick="closeModalDirect()">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+" class="nav-btn">Create</a>
         <a href="plan.html" class="nav-btn">My Plan</a>
     </nav>
 
