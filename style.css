@@ -1344,10 +1344,10 @@ nav a.nav-btn.nav-spotlight { position: relative; z-index: 20; animation: navSpo
     z-index: -1;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.94) 30%, rgba(255, 255, 255, 0) 80%);
 }
-.banner-colleges      { --banner-photo: url('images/banner-colleges.jpg'); }
+.banner-colleges      { --banner-photo: url('images/banner-colleges.jpg'); --banner-pos: 75% 45%; }
+.banner-opportunities { --banner-photo: url('images/banner-opportunities.jpg'); --banner-pos: 50% 50%; }
 .banner-highschools   { --banner-photo: url('images/banner-highschools.jpg'); --banner-pos: 14%; }
 .banner-jobs          { --banner-photo: url('images/banner-jobs.jpg'); --banner-pos: 20%; }
-.banner-opportunities { --banner-photo: url('images/banner-opportunities.jpg'); }
 
 .pb-scene { position: absolute; top: 0; right: 10px; bottom: 0; width: 58%; z-index: -1; display: flex; align-items: flex-end; justify-content: flex-end; }
 .pb-scene svg { width: 100%; height: 100%; padding: 12px 0 0; box-sizing: border-box; }
@@ -2010,7 +2010,7 @@ header { z-index: 20; }
 /* ==========================================================================
    PRINTABLE "MY PLAN" PAGE
    ========================================================================== */
-.plan-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; max-width: 8.5in; margin: 0 auto 16px;
+.plan-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; max-width: 13in; margin: 0 auto 16px;
     background: #fff8e1; border: 2px solid var(--biostart-black); border-radius: 8px; padding: 12px 16px; box-shadow: 0 3px 0 var(--biostart-black); }
 .plan-toolbar b { display: block; font-size: 14px; text-transform: uppercase; font-weight: 900; }
 .plan-toolbar span { display: block; font-size: 12px; font-weight: 700; color: #444; margin-top: 2px; }
@@ -2018,7 +2018,7 @@ header { z-index: 20; }
 .plan-notice { max-width: 8.5in; margin: 0 auto 16px; background: #fff; border: 2px solid var(--biostart-red); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 700; }
 .plan-notice a { color: var(--biostart-red); }
 
-.plan-sheet { max-width: 8.5in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 28px 32px; color: var(--biostart-black); page: plan; }
+.plan-sheet { max-width: 13in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 28px 32px; color: var(--biostart-black); page: plan; }
 .plan-head { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid var(--biostart-black); padding-bottom: 14px; margin-bottom: 14px; }
 .plan-logo { width: 64px; height: 64px; object-fit: contain; }
 .plan-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; }
@@ -2085,7 +2085,7 @@ header { z-index: 20; }
 .plan-callout { border: 2px solid var(--biostart-black); border-radius: 6px; background: #fff8e1; padding: 8px 12px; font-size: 12px; line-height: 1.45; margin: 8px 0; }
 .plan-callout.warn { border-color: var(--biostart-red); background: #fff1ee; }
 
-.plan-guide { max-width: 10in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 24px 28px; color: var(--biostart-black); }
+.plan-guide { max-width: 13in; margin: 0 auto 40px; background: #fff; border: 3px solid var(--biostart-black); border-radius: 8px; box-shadow: 0 4px 0 var(--biostart-black); padding: 24px 28px; color: var(--biostart-black); }
 .plan-guide-head { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: flex-start; border-bottom: 3px solid var(--biostart-black); padding-bottom: 14px; margin-bottom: 12px; }
 .plan-guide-title { font-size: 22px; font-weight: 900; text-transform: uppercase; line-height: 1.15; }
 .plan-acc { border: 2px solid var(--biostart-black); border-radius: 6px; margin-top: 8px; background: #fff; }
