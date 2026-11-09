@@ -2145,3 +2145,72 @@ header { z-index: 20; }
 .opp-acc-body a { color: var(--biostart-red); font-weight: 800; }
 .opp-path { background: #f4f4f4; border-left: 5px solid var(--biostart-red); border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
 .opp-path b { display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 2px; }
+
+/* ==========================================================================
+   SURVEY COMPLETE NOTIFICATION  (themed replacement for the browser alert)
+   ========================================================================== */
+.sc-overlay {
+    position: fixed; inset: 0; z-index: 10020;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 20px 150px; background: rgba(13, 13, 13, 0.72); overflow-y: auto;
+    opacity: 0; transition: opacity 0.25s;
+}
+.sc-overlay.show { opacity: 1; }
+.sc-card {
+    width: 100%; max-width: 460px; overflow: hidden;
+    background: var(--biostart-bg); color: var(--biostart-black);
+    border: 3px solid var(--biostart-black); border-radius: 12px;
+    box-shadow: 0 8px 0 var(--biostart-red);
+    transform: translateY(18px) scale(0.96);
+    transition: transform 0.4s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.sc-overlay.show .sc-card { transform: none; }
+.sc-banner {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--biostart-black); color: #fff;
+    border-bottom: 5px solid var(--biostart-red);
+    padding: 12px 18px;
+    font-family: var(--font-display); font-weight: 800; font-size: 13px;
+    letter-spacing: 2px; text-transform: uppercase;
+}
+.sc-check {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--biostart-red); color: #fff; font-size: 14px; font-weight: 900;
+}
+.sc-body { padding: 24px 24px 20px; text-align: center; }
+.sc-icon {
+    width: 76px; height: 76px; margin: 0 auto 12px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 36px;
+    background: #EEB0A5; border: 3px solid var(--biostart-black);
+    box-shadow: 0 3px 0 var(--biostart-black);
+    animation: scPop 0.55s 0.15s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.sc-title {
+    margin: 0 0 6px; font-family: var(--font-display);
+    font-size: 26px; font-weight: 800; line-height: 1.1; text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+.sc-text { margin: 0 0 14px; font-size: 15px; font-weight: 600; color: #444; }
+.sc-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 16px; }
+.sc-chip {
+    background: #fff; border: 2px solid var(--biostart-black); border-radius: 999px;
+    padding: 3px 11px; font-family: var(--font-mono); font-size: 11px; font-weight: 800; text-transform: uppercase;
+}
+.sc-dest {
+    display: flex; flex-direction: column; gap: 2px; margin-bottom: 18px;
+    background: #fff; border: 2px dashed var(--biostart-red); border-radius: 8px; padding: 10px 12px;
+}
+.sc-dest-label { font-family: var(--font-mono); font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--biostart-red); }
+.sc-dest-name { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+.sc-go { width: 100%; justify-content: center; padding: 14px 20px; font-size: 16px; }
+.sc-timer { height: 6px; margin-top: 18px; background: #fff; border: 2px solid var(--biostart-black); border-radius: 999px; overflow: hidden; }
+.sc-timer-fill { height: 100%; background: var(--biostart-red); transform-origin: left; animation: scCountdown 4.5s linear forwards; }
+.sc-sub { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: #666; }
+@keyframes scCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes scPop { from { transform: scale(0.3); opacity: 0; } }
+@media (max-width: 480px) { .sc-body { padding: 20px 16px 16px; } .sc-title { font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) {
+    .sc-overlay, .sc-card { transition: none; transform: none; }
+    .sc-icon { animation: none; }
+}
